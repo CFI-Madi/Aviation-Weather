@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Aviation Weather Academy</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<!-- Plausible Analytics — disabled until a real domain is configured.
+     To enable: replace YOUR_DOMAIN_HERE with your domain (e.g. wxacademy.app) and uncomment.
+     No cookies, GDPR-compliant, privacy-first. Sign up at https://plausible.io -->
+<!-- <script defer data-domain="YOUR_DOMAIN_HERE" src="https://plausible.io/js/script.js"></script> -->
+</head>
+<body>
+<div id="app" class="max-app">
+  <div id="screen-dashboard" class="screen active px-4 pt-6"><div id="dashboard-content"></div></div>
+  <div id="screen-modules" class="screen px-4 pt-6"><div id="modules-content"></div></div>
+  <div id="screen-lesson" class="screen px-4 pt-4"><div id="lesson-content"></div></div>
+  <div id="screen-quiz" class="screen px-4 pt-4"><div id="quiz-content"></div></div>
+  <div id="screen-logbook" class="screen px-4 pt-6"><div id="logbook-content"></div></div>
+  <div id="screen-achievements" class="screen px-4 pt-6"><div id="achievements-content"></div></div>
+  <div id="screen-checkride" class="screen px-4 pt-4"><div id="checkride-content"></div></div>
+  <div id="screen-checkride_results" class="screen px-4 pt-4"><div id="checkride_results-content"></div></div>
+  <div id="screen-case_studies" class="screen px-4 pt-4"><div id="case_studies-content"></div></div>
+  <div id="screen-case_detail" class="screen px-4 pt-4"><div id="case_detail-content"></div></div>
+  <div id="screen-more" class="screen px-4 pt-6"><div id="more-content"></div></div>
+  <div id="screen-metar_live" class="screen px-4 pt-4"><div id="metar_live-content"></div></div>
+</div>
+<nav id="bottom-nav" aria-label="Main navigation">
+  <button class="nav-btn active" onclick="window.Router&&Router.navigate('dashboard')" id="nav-dashboard" aria-label="Home" aria-current="page">
+    <span class="nav-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11L11 4l8 7"/><path d="M5 9.5V18h4.5v-4h3v4H17V9.5"/></svg></span>
+    <span>Home</span><div class="nav-dot" aria-hidden="true"></div>
+  </button>
+  <button class="nav-btn" onclick="window.Router&&Router.navigate('modules')" id="nav-modules" aria-label="Study modules">
+    <span class="nav-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 6C9 4.5 6 4.5 4 5v11c2-.5 5-.5 7 1 2-1.5 5-1.5 7-1V5c-2-.5-5-.5-7 1z"/><line x1="11" y1="6" x2="11" y2="17"/></svg></span>
+    <span>Study</span><div class="nav-dot" aria-hidden="true"></div>
+  </button>
+  <button class="nav-btn" onclick="window.Router&&Router.navigate('checkride')" id="nav-checkride" aria-label="Checkride exam">
+    <span class="nav-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="12" height="15" rx="2"/><path d="M8 4.5V3.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/><path d="M8.5 13l2 2 3.5-4"/></svg></span>
+    <span>Checkride</span><div class="nav-dot" aria-hidden="true"></div>
+  </button>
+  <button class="nav-btn" onclick="window.Router&&Router.navigate('logbook')" id="nav-logbook" aria-label="Knowledge logbook">
+    <span class="nav-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16.5l8 2.5 8-2.5"/><path d="M3 12l8 2.5 8-2.5"/><path d="M11 3L3 6.5l8 2.5 8-2.5L11 3z"/></svg></span>
+    <span>Logbook</span><div class="nav-dot" aria-hidden="true"></div>
+  </button>
+  <button class="nav-btn" onclick="window.Router&&Router.navigate('more')" id="nav-more" aria-label="More features">
+    <span class="nav-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="currentColor"><circle cx="8" cy="8" r="2.2"/><circle cx="14" cy="8" r="2.2"/><circle cx="8" cy="14" r="2.2"/><circle cx="14" cy="14" r="2.2"/></svg></span>
+    <span>More</span><div class="nav-dot" aria-hidden="true"></div>
+  </button>
+</nav>
+
+<div id="onboarding-overlay" style="display:none;position:fixed;inset:0;z-index:500;background:#0C1B33;overflow-y:auto"></div>
+
+<!-- Data -->
+<script src="js/data/config.js"></script>
+<script src="js/data/case_studies.js"></script>
+<script src="js/data/modules.js"></script>
+<script src="js/data/achievements.js"></script>
+<script src="js/data/faa_validation.js"></script>
+
+<!-- Logic -->
+<script src="js/storage.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/diagrams.js"></script>
+<script src="js/router.js"></script>
+<script src="js/screens.js"></script>
+
+<!-- Bootstrap -->
+<script src="js/app.js"></script>
+
+<!-- Service Worker Registration -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js')
+    .then(reg => console.log('[SW] Registered, scope:', reg.scope))
+    .catch(err => console.warn('[SW] Registration failed:', err));
+}
+</script>
+
+<script>
+// Thin analytics wrapper — forwards events to Plausible when available, falls back to console.
+// Replace YOUR_DOMAIN_HERE in the Plausible script tag above before deploying.
+const Analytics = {
+  track(eventName, props) {
+    try {
+      if (window.plausible) window.plausible(eventName, { props: props || {} });
+      else console.log('[Analytics]', eventName, props || {});
+    } catch(e) {}
+  }
+};
+window.Analytics = Analytics;
+</script>
+</body>
+</html>

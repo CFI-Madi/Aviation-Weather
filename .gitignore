@@ -1,0 +1,28 @@
+# Dependencies — restored locally with `npm install`
+node_modules/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.vscode/
+.idea/
+
+# Logs
+npm-debug.log*
+*.log
+
+# Local Claude Code state
+.claude/settings.local.json
+
+# Local scratch / build (none currently, reserved)
+dist/
+build/
+.tmp/
+.tmp-*
+
+# Workflow / prompt files specific to this development session
+claude-code-briefing.md
+claude-code-push-prompt.md
+claude-code-phase-prompts.md

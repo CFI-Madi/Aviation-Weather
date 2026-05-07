@@ -1,0 +1,26 @@
+{
+  "name": "aviation-weather-academy",
+  "version": "1.0.0",
+  "description": "Aviation Weather Academy — FAA-H-8083-28A pilot weather training app",
+  "main": "index.html",
+  "scripts": {
+    "format": "prettier --write \"**/*.{js,css,html,json}\"",
+    "format:check": "prettier --check \"**/*.{js,css,html,json}\"",
+    "lint": "eslint js/**/*.js",
+    "lint:fix": "eslint js/**/*.js --fix",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "aviation",
+    "weather",
+    "FAA",
+    "pilot-training"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "eslint": "^10.2.0",
+    "prettier": "^3.8.1"
+  }
+}
