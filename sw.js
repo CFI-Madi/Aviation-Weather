@@ -3,7 +3,7 @@
 // Cache name: bump version string to force cache refresh on deploy
 // ============================================================
 
-const CACHE_NAME = 'wx-academy-v3';
+const CACHE_NAME = 'wx-academy-v4';
 
 const APP_SHELL = [
   './',
@@ -64,6 +64,12 @@ const APP_SHELL = [
   './img/awh/awh_p0240_img_001.png',  // Fig 19-5 Wind Shear Turbulence
   './img/awh/awh_p0241_img_001.png',  // Fig 19-6 Wind Shear with Inversion
   './img/awh/awh_p0354_img_001.png',  // Fig 25-5 Surface Chart Pressure Patterns
+  // Pass 2c FAA-handbook figure swap — fog formation grid
+  './img/awh/awh_p0225_img_001.png',  // Fig 18-1 Radiation Fog Formation
+  './img/awh/awh_p0228_img_001.png',  // Fig 18-5 Advection Fog Formation
+  './img/awh/awh_p0229_img_001.png',  // Fig 18-7 Upslope Fog Formation
+  './img/awh/awh_p0230_img_001.png',  // Fig 18-8 Frontal Fog Formation
+  './img/awh/awh_p0231_img_001.png',  // Fig 18-9 Steam Fog Formation
 ];
 
 // ── Install: pre-cache all app shell assets ───────────────────
