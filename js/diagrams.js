@@ -97,6 +97,10 @@ const Diagrams = {
       pressure_systems: {
         title: '🗺️ Surface Chart Pressure Patterns',
         svgContent: this.pressureSystemsSVG(),
+      },
+      surface_wind_forces: {
+        title: '🌬️ Surface Wind Forces — Friction at Work',
+        svgContent: this.surfaceWindForcesSVG(),
       }
     };
     const cfg = configs[key];
@@ -669,9 +673,10 @@ const Diagrams = {
 
   // FAA-H-8083-28A Fig 25-5 — synoptic surface chart showing H/L pressure
   // systems, isobars at 4-mb intervals, troughs (dashed blue lines), and
-  // drainage axes (dashed brown lines). The richer story (PGF/Coriolis,
-  // Buys-Ballot, ridge-vs-trough nuance, weather implications) lives in the
-  // surrounding lesson body and in m25 (surface analysis charts).
+  // drainage axes (dashed brown lines). Pass 2c relocated this from m3/s3_2
+  // (where the call site predated the FAA swap and was conceptually
+  // mismatched) to m19/s19_2 — 'Surface Analysis Charts — Reading the Map'
+  // — the natural home for the figure.
   pressureSystemsSVG() {
     return this.renderFaaFigure({
       src: 'img/awh/awh_p0354_img_001.png',
@@ -679,6 +684,21 @@ const Diagrams = {
       title: 'Surface Chart Pressure Patterns',
       caption: 'Synoptic surface chart over the United States: H and L mark pressure-system centers, solid black lines are isobars (4-mb intervals labeled in millibars), dashed blue lines are troughs, and dashed brown lines are drainage axes.',
       alt: 'FAA-H-8083-28A Figure 25-5: schematic of surface chart pressure patterns showing high and low centers, isobars, troughs, and drainage axes over the continental United States.',
+    });
+  },
+
+  // FAA-H-8083-28A Fig 10-10 — three forces acting on a surface air parcel:
+  // PGF (toward lower pressure), Coriolis (perpendicular to motion), and
+  // friction (opposite the wind). Below the friction layer the three
+  // forces no longer balance cleanly, so the resultant wind crosses isobars
+  // at an angle toward lower pressure rather than flowing parallel to them.
+  surfaceWindForcesSVG() {
+    return this.renderFaaFigure({
+      src: 'img/awh/awh_p0127_img_002.png',
+      figureNumber: '10-10',
+      title: 'Surface Wind Forces',
+      caption: 'Below the friction layer (roughly the lowest 2,000 ft AGL over flat terrain), friction adds a third force opposite the wind direction. PGF and Coriolis no longer balance cleanly, so the resultant wind crosses isobars at an angle toward lower pressure rather than flowing parallel to them.',
+      alt: 'FAA-H-8083-28A Figure 10-10: surface wind forces showing PGF, Coriolis, and friction acting on an air parcel below the boundary layer.',
     });
   },
 

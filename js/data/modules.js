@@ -429,14 +429,9 @@ const MODULES = [
             <li><strong>Over water/smooth terrain:</strong> ~10° cross-isobar angle</li>
             <li><strong>Over rough terrain/mountains:</strong> up to 45° cross-isobar angle</li>
           </ul>
-          <figure class="faa-figure">
-            <div class="faa-fig-tag">FAA-H-8083-28A · Fig 10-10 <span class="faa-fig-title">— Surface Wind Forces</span></div>
-            <img src="img/awh/awh_p0127_img_002.png" alt="FAA-H-8083-28A Figure 10-10: surface wind forces showing PGF, Coriolis, and friction acting on an air parcel below the boundary layer.">
-            <div class="faa-fig-caption">Below the friction layer, friction adds a third force opposite the wind direction. PGF and Coriolis no longer balance cleanly, so the resultant wind crosses isobars at an angle toward lower pressure rather than flowing parallel to them.</div>
-          </figure>
           <div class="callout">🧭 <strong>In the Northern Hemisphere:</strong> Surface wind flows <em>counterclockwise and inward</em> into Low pressure systems; <em>clockwise and outward</em> from High pressure systems. (Reversed in Southern Hemisphere.)</div>
         `,
-        diagram: { type: 'hotspot', svgKey: 'pressure_systems' }
+        diagram: { type: 'hotspot', svgKey: 'surface_wind_forces' }
       },
       {
         id: 's3_3', title: 'Jet Streams',
@@ -3501,7 +3496,8 @@ const MODULES = [
           </div>
           <p>The WPC issues surface analysis charts 8 times daily (every 3 hours). Station models on the chart show sky cover, temperature, dewpoint, wind direction/speed, and sea-level pressure for individual observation stations. The chart is the best single product for understanding the large-scale weather pattern driving your flight.</p>
           <div class="callout">📊 <strong>Isopleths Quick Reference:</strong> Isobar (pressure) · Isotherm (temperature) · Isotach (wind speed) · Isohume (humidity) · Contour/Isoheight (height above MSL on constant-pressure charts). All share the same rule: value is constant along the line, and lines never cross.</div>
-        `
+        `,
+        diagram: { type: 'hotspot', svgKey: 'pressure_systems' }
       },
       {
         id:'s19_3',title:'Upper Air Analysis & Analysis Products',
