@@ -91,7 +91,7 @@ const Diagrams = {
         svgContent: this.cloudGallerySVG(),
       },
       jet_stream: {
-        title: '✈️ Jet Stream Interactive — Tap Elements',
+        title: '✈️ Polar and Subtropical Jet Streams',
         svgContent: this.jetStreamSVG(),
       },
       pressure_systems: {
@@ -711,69 +711,17 @@ const Diagrams = {
     statusEl.textContent = status; statusEl.style.background = bg; statusEl.style.color = color;
   },
 
-  // ── NEW: JET STREAM INTERACTIVE ──────────────────────────
+  // FAA-H-8083-28A Fig 9-5 — global view of polar and subtropical jet streams.
+  // The lesson body in m3/s3_3 covers altitudes, wind speeds, CAT placement,
+  // and jet-streak entrance/exit quadrants in text — not overlaid here.
   jetStreamSVG() {
-    return `<div style="padding:16px;background:#0C1B33">
-      <svg viewBox="0 0 380 220" style="width:100%;display:block">
-        <defs>
-          <linearGradient id="earthGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#1E3A8A"/>
-            <stop offset="60%" stop-color="#0369A1"/>
-            <stop offset="100%" stop-color="#38BDF8"/>
-          </linearGradient>
-        </defs>
-        <rect width="380" height="220" fill="#0C1B33"/>
-        <!-- Latitude bands -->
-        <text x="10" y="30" font-family="Nunito" font-size="9" fill="#94A3B8">90°N (Pole)</text>
-        <text x="10" y="80" font-family="Nunito" font-size="9" fill="#94A3B8">60°N</text>
-        <text x="10" y="130" font-family="Nunito" font-size="9" fill="#94A3B8">30°N</text>
-        <text x="10" y="180" font-family="Nunito" font-size="9" fill="#94A3B8">Equator</text>
-        <!-- Polar jet stream -->
-        <path d="M60,75 Q140,60 220,80 Q280,95 340,70" stroke="#38BDF8" stroke-width="6" fill="none" stroke-linecap="round" opacity=".9" onclick="Diagrams.showJetInfo('polar')" style="cursor:pointer"/>
-        <text x="180" y="58" text-anchor="middle" font-family="Nunito" font-size="11" fill="#38BDF8" font-weight="800">POLAR JET — 30,000-40,000 ft</text>
-        <!-- Subtropical jet stream -->
-        <path d="M60,125 Q140,110 220,128 Q280,140 340,118" stroke="#F59E0B" stroke-width="5" fill="none" stroke-linecap="round" opacity=".9" onclick="Diagrams.showJetInfo('subtropical')" style="cursor:pointer"/>
-        <text x="190" y="108" text-anchor="middle" font-family="Nunito" font-size="11" fill="#F59E0B" font-weight="800">SUBTROPICAL JET — ~30°N</text>
-        <!-- CAT hotspot zones -->
-        <ellipse cx="140" cy="75" rx="22" ry="12" fill="rgba(239,68,68,.25)" stroke="#EF4444" stroke-width="1.5" onclick="Diagrams.showJetInfo('cat')" style="cursor:pointer"/>
-        <text x="140" y="79" text-anchor="middle" font-family="Nunito" font-size="9" fill="#EF4444" font-weight="800">CAT</text>
-        <ellipse cx="280" cy="75" rx="22" ry="12" fill="rgba(239,68,68,.25)" stroke="#EF4444" stroke-width="1.5" onclick="Diagrams.showJetInfo('cat')" style="cursor:pointer"/>
-        <text x="280" y="79" text-anchor="middle" font-family="Nunito" font-size="9" fill="#EF4444" font-weight="800">CAT</text>
-        <!-- Jet streak -->
-        <ellipse cx="220" cy="78" rx="35" ry="14" fill="rgba(255,255,255,.08)" stroke="white" stroke-width="1" stroke-dasharray="4,3" onclick="Diagrams.showJetInfo('streak')" style="cursor:pointer"/>
-        <text x="220" y="82" text-anchor="middle" font-family="Nunito" font-size="9" fill="white" font-weight="800">STREAK</text>
-        <!-- Favorable altitude band -->
-        <rect x="55" y="62" width="290" height="26" fill="rgba(99,102,241,.12)" stroke="rgba(99,102,241,.4)" stroke-width="1" rx="4" onclick="Diagrams.showJetInfo('altitude')" style="cursor:pointer"/>
-        <!-- Entrance / Exit Regions -->
-        <rect x="57" y="53" width="90" height="90" fill="rgba(16,185,129,.10)" stroke="#10B981" stroke-width="1.5" stroke-dasharray="4,3" rx="5" onclick="Diagrams.showJetInfo('entrance')" style="cursor:pointer"/>
-        <text x="102" y="153" text-anchor="middle" font-family="Nunito" font-size="8" fill="#10B981" font-weight="800">ENTRANCE</text>
-        <rect x="248" y="53" width="90" height="90" fill="rgba(245,158,11,.10)" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="4,3" rx="5" onclick="Diagrams.showJetInfo('exit')" style="cursor:pointer"/>
-        <text x="293" y="153" text-anchor="middle" font-family="Nunito" font-size="8" fill="#F59E0B" font-weight="800">EXIT</text>
-        <!-- Ground / tropopause labels -->
-        <line x1="55" y1="210" x2="345" y2="210" stroke="#475569" stroke-width="1"/>
-        <text x="190" y="220" text-anchor="middle" font-family="Nunito" font-size="9" fill="#475569">Surface</text>
-        <line x1="55" y1="50" x2="345" y2="50" stroke="#6366F1" stroke-width="1" stroke-dasharray="5,3"/>
-        <text x="190" y="46" text-anchor="middle" font-family="Nunito" font-size="9" fill="#6366F1">Tropopause</text>
-        <text x="190" y="200" text-anchor="middle" font-family="Nunito" font-size="10" fill="#94A3B8">Tap jets, entrance/exit regions, CAT zones, and jet streak for info</text>
-      </svg>
-      <div id="jet-info" style="padding:14px;background:rgba(255,255,255,.06);color:white;font-family:var(--font-display);font-size:13px;line-height:1.6;min-height:60px;border-top:1px solid rgba(255,255,255,.08)">
-        <div style="color:#94A3B8;text-align:center;padding:8px">↑ Tap elements on the diagram</div>
-      </div>
-    </div>`;
-  },
-
-  showJetInfo(id) {
-    const info = {
-      cat: { color:'#EF4444', title:'🌀 Clear Air Turbulence (CAT) Zones', text:'The most severe CAT forms on the NORTH (cyclonic shear) side of the polar jet core, where wind speed drops off sharply. Also strong near jet streaks and sharply curved flow. CAT gives zero visual warning — no clouds, no ride. Can be severe to extreme. Check turbulence SIGMETs and winds-aloft forecast before every high-altitude IFR flight.' },
-      streak: { color:'#FFFFFF', title:'⚡ Jet Streak', text:'A jet streak is a localized region of maximum wind speed (core) within the jet stream — speeds often 150-200+ kt. The entrance and exit regions of jet streaks produce strong divergence/convergence patterns that trigger significant weather. The right exit and left entrance quadrants of a jet streak are associated with strong rising motion and convective development.' },
-      altitude: { color:'#6366F1', title:'✈️ Favorable Flight Altitude Band', text:'Pilots flying east (with the jet) use it for fuel savings — 100-200 kt tailwind is common. Flying west: route AROUND the jet or find a lower altitude below it. Jets are typically at FL300-FL390. The zone of maximum wind speed is a narrow core — departing north or south a few hundred miles can reduce headwinds significantly.' },
-      polar: { color:'#38BDF8', title:'🌊 Polar Front Jet Stream', text:'Altitude: 30,000–45,000 ft. Speed: 50–150 kt (up to 200+ kt in winter). Position: highly variable — migrates equatorward in winter, poleward in summer. The primary driver of frontal systems and cyclogenesis in the mid-latitudes. Most jet-related CAT in North American operations is associated with this jet. Check polar jet position on every high-altitude IFR flight above FL280.' },
-      subtropical: { color:'#F59E0B', title:'🌴 Subtropical Jet Stream', text:'Altitude: ~35,000–40,000 ft. Position: more consistent than the polar front jet, approximately 25–30°N latitude. Less associated with frontal CAT but important for high-altitude transcontinental and transoceanic route planning at FL350–FL410. Less meandering than the polar jet but can still produce significant turbulence in its core and near jet streaks.' },
-      entrance: { color:'#10B981', title:'⬅️ Jet Stream Entrance Region', text:'RIGHT ENTRANCE REGION: Air accelerating into the jet diverges aloft — rising motion below, potential CAT. LEFT EXIT REGION: Air decelerating out of the jet also produces divergence and upward motion. These two quadrants are where you are most likely to encounter jet stream turbulence even in clear air.' },
-      exit: { color:'#F59E0B', title:'➡️ Jet Stream Exit Region', text:'LEFT EXIT REGION: Air decelerating as it exits the jet causes divergence aloft and rising motion below — a prime zone for CAT and convective development. Together with the right entrance region, the left exit marks the highest turbulence risk quadrants of the jet stream. When a turbulence SIGMET is active along the jet, these exit quadrants are the first areas to avoid.' },
-    };
-    const d = info[id];
-    document.getElementById('jet-info').innerHTML = `<strong style="color:${d.color};display:block;margin-bottom:6px">${d.title}</strong>${d.text}`;
+    return this.renderFaaFigure({
+      src: 'img/awh/awh_p0119_img_002.png',
+      figureNumber: '9-5',
+      title: 'Polar and Subtropical Jet Streams',
+      caption: 'The polar jet (blue, ~30,000–40,000 ft) and subtropical jet (red, ~35,000–40,000 ft) wind around the globe at temperate and subtropical latitudes. CAT zones, jet-streak entrance/exit quadrants, and seasonal migration are covered in the lesson body above.',
+      alt: 'FAA-H-8083-28A Figure 9-5: Illustration of polar and subtropical jet streams and their relative locations around the globe.',
+    });
   },
 
   // ── NEW: PRESSURE SYSTEMS INTERACTIVE ─────────────────────
