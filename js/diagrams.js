@@ -83,7 +83,7 @@ const Diagrams = {
         svgContent: this.windForcesSVG(),
       },
       fronts_diagram: {
-        title: '🔍 Front Types — Tap Each Symbol',
+        title: '🌀 Front Symbols — Tap Each Row',
         svgContent: this.frontsSVG(),
       },
       cloud_gallery: {
@@ -161,69 +161,43 @@ const Diagrams = {
     });
   },
 
+  // FAA-H-8083-28A Fig 11-4 — the four-row table of frontal chart symbols and
+  // their definitions. Bespoke markup (not via renderFaaFigure) because this
+  // swap preserves the original tap-to-expand popup behavior: each table row
+  // has a transparent overlay button that triggers Diagrams.showPopup with
+  // the slope/speed/cloud-sequence/mechanics content the symbology figure
+  // alone doesn't carry.
+  //
+  // Row vertical bands (percent of figure height) are calibrated against
+  // Fig 11-4's table layout (header band ~14%, four equal data rows ~19%
+  // each, footer note ~10%). Click targets fan out to the whole figure
+  // width; image is rendered at width:100%/max-height:320px with
+  // object-fit:contain so the percent positions stay aligned with the
+  // visible image at every viewport width.
   frontsSVG() {
-    return `<div style="position:relative">
-      <svg viewBox="0 0 400 310" style="width:100%;display:block;background:#F0F9FF">
-        <text x="200" y="22" font-family="Nunito" font-size="13" fill="#0C1B33" text-anchor="middle" font-weight="800">Tap each front symbol to learn its characteristics</text>
-
-        <!-- ── ROW 1 ── -->
-
-        <!-- Cold Front (top-left) -->
-        <g onclick="Diagrams.showPopup('fr-cold','❄️ Cold Front','COLD air advancing and replacing warm air. Steep frontal slope (~1:50–1:100). Fast-moving (25–30 mph, up to 60 mph). Narrow intense weather band — often a squall line. Rapid clearing after passage: cold, clear, gusty NW wind, pressure rises. Symbol: BLUE line with triangles pointing direction of movement.')" style="cursor:pointer" tabindex="0" role="button" aria-label="Cold Front" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.dispatchEvent(new MouseEvent('click'))}">
-          <rect x="10" y="35" width="185" height="95" fill="rgba(37,99,235,0.06)" rx="12"/>
-          <line x1="25" y1="82" x2="185" y2="82" stroke="#2563EB" stroke-width="4"/>
-          ${[40,65,90,115,140,165].map(x=>`<polygon points="${x},82 ${x-7},68 ${x+7},68" fill="#2563EB"/>`).join('')}
-          <text x="105" y="108" font-family="Nunito" font-size="12" fill="#2563EB" text-anchor="middle" font-weight="800">❄️ COLD FRONT</text>
-          <text x="105" y="122" font-family="Nunito" font-size="9" fill="#64748B" text-anchor="middle">Steep slope · Fast · Intense</text>
-        </g>
-
-        <!-- Warm Front (top-right) -->
-        <g onclick="Diagrams.showPopup('fr-warm','🔥 Warm Front','WARM air advancing over retreating cold air. Very gentle slope (~1:100–1:200). Slow-moving (10–25 mph). Widespread stratiform weather 500–1,000+ miles ahead. Prolonged IFR: low ceilings, fog, continuous rain or drizzle. Cloud sequence ahead: Ci → Cs → As → Ns. Symbol: RED line with semicircles pointing direction of movement.')" style="cursor:pointer" tabindex="0" role="button" aria-label="Warm Front" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.dispatchEvent(new MouseEvent('click'))}">
-          <rect x="205" y="35" width="185" height="95" fill="rgba(220,38,38,0.06)" rx="12"/>
-          <line x1="220" y1="82" x2="380" y2="82" stroke="#DC2626" stroke-width="4"/>
-          ${[230,255,280,305,330,355].map(x=>`<circle cx="${x}" cy="82" r="9" fill="#DC2626"/>`).join('')}
-          <text x="300" y="108" font-family="Nunito" font-size="12" fill="#DC2626" text-anchor="middle" font-weight="800">🌧️ WARM FRONT</text>
-          <text x="300" y="122" font-family="Nunito" font-size="9" fill="#64748B" text-anchor="middle">Gentle slope · Slow · Widespread IFR</text>
-        </g>
-
-        <!-- ── ROW 2 ── -->
-
-        <!-- Stationary Front (bottom-left) — MISSING from original, now added -->
-        <g onclick="Diagrams.showPopup('fr-stat','⏸️ Stationary Front','Two air masses in equilibrium — NEITHER advances. Frontal slope varies. Weather: a mix of both warm and cold front characteristics. Can persist for DAYS producing prolonged IFR conditions. Pilots planning cross-country flights must account for stationary fronts lingering on the route. Symbol: ALTERNATING blue triangles (pointing toward cold air) above the line and red semicircles (pointing toward warm air) below the line — opposite directions indicate no movement.')" style="cursor:pointer" tabindex="0" role="button" aria-label="Stationary Front" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.dispatchEvent(new MouseEvent('click'))}">
-          <rect x="10" y="155" width="185" height="110" fill="rgba(99,102,241,0.06)" rx="12"/>
-          <line x1="25" y1="205" x2="185" y2="205" stroke="#4F46E5" stroke-width="3.5"/>
-          <!-- Blue triangles ABOVE line (toward cold air — north side) -->
-          ${[38,78,118,158].map(x=>`<polygon points="${x},205 ${x-7},191 ${x+7},191" fill="#2563EB"/>`).join('')}
-          <!-- Red semicircles BELOW line (toward warm air — south side) -->
-          ${[58,98,138,178].map(x=>`<path d="M ${x-8},205 A 8,8 0 0,1 ${x+8},205" fill="#DC2626"/>`).join('')}
-          <text x="105" y="232" font-family="Nunito" font-size="11" fill="#4F46E5" text-anchor="middle" font-weight="800">⏸️ STATIONARY FRONT</text>
-          <text x="105" y="246" font-family="Nunito" font-size="9" fill="#64748B" text-anchor="middle">Neither advances · Days of IFR</text>
-          <text x="50" y="192" font-family="Space Mono" font-size="8" fill="#2563EB" font-weight="700">COLD AIR ↑</text>
-          <text x="50" y="222" font-family="Space Mono" font-size="8" fill="#DC2626" font-weight="700">WARM AIR ↓</text>
-        </g>
-
-        <!-- Occluded Front (bottom-right) -->
-        <g onclick="Diagrams.showPopup('fr-occ','🔄 Occluded Front','Cold front OVERTAKES warm front. Cold air undercuts BOTH fronts, lifting warm air completely off the surface. Result: elements of BOTH front types simultaneously — warm-front widespread IFR AND cold-front convection/icing. Most complex aviation weather. Cold occlusion (more common): new cold air colder than old cold air. Warm occlusion: new cold air warmer than old cold air — freezing rain trap. Symbol: PURPLE line with alternating triangles AND semicircles on the SAME side.')" style="cursor:pointer" tabindex="0" role="button" aria-label="Occluded Front" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.dispatchEvent(new MouseEvent('click'))}">
-          <rect x="205" y="155" width="185" height="110" fill="rgba(124,58,237,0.06)" rx="12"/>
-          <line x1="220" y1="205" x2="380" y2="205" stroke="#7C3AED" stroke-width="4"/>
-          <!-- Alternating triangle+semicircle on top (same side = purple = both types merged) -->
-          <polygon points="238,205 231,191 245,191" fill="#7C3AED"/>
-          <circle cx="263" cy="205" r="8" fill="#7C3AED"/>
-          <polygon points="288,205 281,191 295,191" fill="#7C3AED"/>
-          <circle cx="313" cy="205" r="8" fill="#7C3AED"/>
-          <polygon points="338,205 331,191 345,191" fill="#7C3AED"/>
-          <circle cx="363" cy="205" r="8" fill="#7C3AED"/>
-          <text x="300" y="232" font-family="Nunito" font-size="11" fill="#7C3AED" text-anchor="middle" font-weight="800">🔄 OCCLUDED FRONT</text>
-          <text x="300" y="246" font-family="Nunito" font-size="9" fill="#64748B" text-anchor="middle">Both front types · Most complex Wx</text>
-        </g>
-
-        <text x="200" y="295" font-family="Space Mono" font-size="9" fill="#94A3B8" text-anchor="middle">FAA-H-8083-28A Chapter 11 — Tap any front for full description</text>
-      </svg>
-      <div id="fr-popup" style="display:none;background:var(--navy);color:white;padding:14px 16px;font-family:var(--font-display);font-size:13px;line-height:1.5;border-radius:0 0 16px 16px">
+    const rows = [
+      { key:'fr-cold', top:14, label:'Cold Front',       title:'❄️ Cold Front',
+        text:'COLD air advancing and replacing warm air. Steep frontal slope (~1:50 to 1:100). Fast-moving (25 to 30 mph, up to 60 mph). Narrow intense weather band — often a squall line. Rapid clearing after passage: cold, clear, gusty NW wind, pressure rises. Symbol: BLUE line with triangles pointing the direction of movement.' },
+      { key:'fr-warm', top:33, label:'Warm Front',       title:'🔥 Warm Front',
+        text:'WARM air advancing over retreating cold air. Very gentle slope (~1:100 to 1:200). Slow-moving (10 to 25 mph). Widespread stratiform weather 500 to 1,000+ miles ahead. Prolonged IFR: low ceilings, fog, continuous rain or drizzle. Cloud sequence ahead: Ci → Cs → As → Ns. Symbol: RED line with semicircles pointing the direction of movement.' },
+      { key:'fr-stat', top:52, label:'Stationary Front', title:'⏸️ Stationary Front',
+        text:'Two air masses in equilibrium — NEITHER advances. Frontal slope varies. Weather: a mix of warm and cold front characteristics. Can persist for DAYS producing prolonged IFR. Symbol: alternating blue triangles toward cold air and red semicircles toward warm air on opposite sides of the line — opposite directions indicate no movement.' },
+      { key:'fr-occ',  top:71, label:'Occluded Front',   title:'🔄 Occluded Front',
+        text:'Cold front OVERTAKES warm front. Cold air undercuts BOTH fronts, lifting warm air completely off the surface. Result: elements of BOTH front types simultaneously — warm-front widespread IFR AND cold-front convection/icing. Cold occlusion (more common): new cold air colder than old. Warm occlusion: new cold air warmer than old — freezing rain trap. Symbol: PURPLE line with alternating triangles AND semicircles on the SAME side.' },
+    ];
+    const escAttr = s => String(s).replace(/'/g, '&apos;').replace(/"/g, '&quot;');
+    const overlays = rows.map(r => `<button type="button" class="fronts-row-tap" aria-label="${escAttr(r.label)} — tap for description" onclick="Diagrams.showPopup('${r.key}','${escAttr(r.title)}','${escAttr(r.text)}')" style="position:absolute;left:0;width:100%;top:${r.top}%;height:19%;background:transparent;border:0;cursor:pointer;padding:0"></button>`).join('');
+    return `<figure class="faa-figure" style="position:relative">
+      <div class="faa-fig-tag">FAA-H-8083-28A · Fig 11-4 <span class="faa-fig-title">— Front Symbols</span></div>
+      <div style="position:relative">
+        <img src="img/awh/awh_p0142_img_002.png" alt="FAA-H-8083-28A Figure 11-4: table of frontal chart symbols and definitions for cold, warm, stationary, and occluded fronts." style="width:100%;display:block;max-height:320px;object-fit:contain;background:white">
+        ${overlays}
+      </div>
+      <div id="fr-popup" style="display:none;background:var(--navy);color:white;padding:14px 16px;font-family:var(--font-display);font-size:13px;line-height:1.5;border-top:1px solid rgba(56,189,248,.15)">
         <strong id="fr-popup-title" style="color:#38BDF8;display:block;margin-bottom:6px"></strong>
         <span id="fr-popup-text"></span>
       </div>
-    </div>`;
+    </figure>`;
   },
 
   showPopup(id, title, text) {
