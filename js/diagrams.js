@@ -95,7 +95,7 @@ const Diagrams = {
         svgContent: this.jetStreamSVG(),
       },
       pressure_systems: {
-        title: '🗺️ Pressure Systems — Tap Each Type',
+        title: '🗺️ Surface Chart Pressure Patterns',
         svgContent: this.pressureSystemsSVG(),
       }
     };
@@ -724,41 +724,19 @@ const Diagrams = {
     });
   },
 
-  // ── NEW: PRESSURE SYSTEMS INTERACTIVE ─────────────────────
+  // FAA-H-8083-28A Fig 25-5 — synoptic surface chart showing H/L pressure
+  // systems, isobars at 4-mb intervals, troughs (dashed blue lines), and
+  // drainage axes (dashed brown lines). The richer story (PGF/Coriolis,
+  // Buys-Ballot, ridge-vs-trough nuance, weather implications) lives in the
+  // surrounding lesson body and in m25 (surface analysis charts).
   pressureSystemsSVG() {
-    return `<div style="padding:16px;background:#F8FAFC">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-        ${[
-          ['HIGH Pressure','Anticyclone','#D1FAE5','#059669','Clockwise (NH) outflow. Sinking air — suppresses clouds. Clear skies, stable conditions. BUT: can trap surface pollutants and fog in valleys. Isobars widely spaced = light winds.','high'],
-          ['LOW Pressure','Cyclone','#FFE4E6','#EF4444','Counter-clockwise (NH) inflow. Rising air — clouds and precipitation. Associated with fronts and most significant weather. Tightly spaced isobars = strong winds.','low'],
-          ['Ridge','Elongated High','#D1FAE5','#059669','Extended area of high pressure between two lows. Axis of ridges points toward poles. Generally fair weather. Downstream trough often indicates deteriorating conditions ahead.','ridge'],
-          ['Trough','Elongated Low','#FFE4E6','#EF4444','Extended area of low pressure between two highs. Associated with clouds, precip, and convergence. Troughs aloft trigger surface weather development.','trough'],
-        ].map(([name,type,bg,col,desc,id])=>`
-        <div onclick="Diagrams.showPressureInfo('${id}')" style="background:${bg};border-radius:14px;padding:12px;cursor:pointer;border:2px solid ${col}30;transition:all .15s">
-          <div style="font-family:var(--font-display);font-weight:900;font-size:14px;color:${col}">${name}</div>
-          <div style="font-size:11px;color:#64748B;font-weight:600;margin-bottom:6px">${type}</div>
-          <div style="font-size:12px;color:#475569;line-height:1.4">${desc}</div>
-        </div>`).join('')}
-      </div>
-      <div id="ps-info" style="background:var(--navy);border-radius:14px;padding:14px;color:white;font-family:var(--font-display);font-size:13px;line-height:1.6;display:none">
-        <strong id="ps-title" style="color:#38BDF8;display:block;margin-bottom:6px"></strong>
-        <span id="ps-text"></span>
-      </div>
-    </div>`;
-  },
-
-  showPressureInfo(id) {
-    const info = {
-      high: { title:'⬆️ High Pressure (Anticyclone) — Aviation Implications', text:'High pressure = sinking, diverging air. In the Northern Hemisphere, surface winds rotate clockwise around a high. Sinking air suppresses convection — generally clear skies and VFR conditions. The "H" on a surface analysis chart is your friend most of the time. Exception: strong highs in winter can build ridges that trap cold air and fog in valleys, creating persistent IFR. High-pressure systems move more slowly than lows.' },
-      low: { title:'⬇️ Low Pressure (Cyclone) — Aviation Implications', text:'Low pressure = rising, converging air. Counter-clockwise (CCW) flow in the Northern Hemisphere. Rising air produces clouds, precipitation, and fronts. Most significant aviation weather occurs in association with lows. The closer and tighter the isobars (more closely spaced), the stronger the pressure gradient and winds. Rapidly deepening lows (bombs) can produce explosive weather development overnight.' },
-      ridge: { title:'🌤️ Ridge of High Pressure', text:'An elongated axis of high pressure. Weather generally fair along the ridge. However — a ridge today often means a trough tomorrow as the pattern progresses. Flying "behind the ridge" (east of it in the westerlies) often means deteriorating conditions ahead. Always look at the full upstream pattern, not just the current position of the ridge.' },
-      trough: { title:'🌧️ Trough of Low Pressure', text:'An elongated axis of low pressure. Troughs produce convergence — air piles in and is forced upward, creating clouds and precipitation. Upper-level troughs (visible on 500 mb charts) are especially important — they trigger surface cyclogenesis and severe weather outbreaks. A sharp trough in the jet stream pattern often means very active weather below.' },
-    };
-    const d = info[id];
-    const el = document.getElementById('ps-info');
-    el.style.display = 'block';
-    document.getElementById('ps-title').textContent = d.title;
-    document.getElementById('ps-text').textContent = d.text;
+    return this.renderFaaFigure({
+      src: 'img/awh/awh_p0354_img_001.png',
+      figureNumber: '25-5',
+      title: 'Surface Chart Pressure Patterns',
+      caption: 'Synoptic surface chart over the United States: H and L mark pressure-system centers, solid black lines are isobars (4-mb intervals labeled in millibars), dashed blue lines are troughs, and dashed brown lines are drainage axes.',
+      alt: 'FAA-H-8083-28A Figure 25-5: schematic of surface chart pressure patterns showing high and low centers, isobars, troughs, and drainage axes over the continental United States.',
+    });
   },
 
   // ── NEW: INVERSION TYPES DIAGRAM ─────────────────────────
