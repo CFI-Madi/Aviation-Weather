@@ -91,28 +91,46 @@ const MODULES = [
     ],
     quiz: [
       {
-        id: 'q_m1_1', type: 'mc',
-        question: 'The troposphere extends from the surface to approximately:',
-        options: ['7 miles (36,000 ft) — varies by latitude','50 miles above sea level','3.5 miles — fixed worldwide','100 kilometers (60 miles)'],
-        correct: 0, xp: 10,
-        explanation: 'The troposphere averages about 7 miles (36,000 ft) at mid-latitudes, but ranges from ~5 miles at the poles to ~10 miles at the equator. It contains ~75% of atmospheric mass and ALL significant weather.',
-        faaRef: 'Ch. 4'
+        id: 'q_m1_1', type: 'scenario',
+        scenario: 'Planning a VFR cross-country, the latest convective outlook shows isolated thunderstorm tops to FL280 along your route.',
+        question: 'What does that tops altitude tell you about the layer the cell is operating in, and the implication for VFR continuation?',
+        options: [
+          'FL280 is in the mesosphere — above commercial cruise and irrelevant to a VFR planner at 8,500 ft',
+          'FL280 is well within the troposphere (which extends to ~36,000 ft at mid-latitudes); the cell still has vertical headroom and weather avoidance is required',
+          'Tops at FL280 mean the cell has broken into the stratosphere — convection has stopped and the storm is dissipating',
+          'FL280 is the tropopause boundary — once a cell reaches there, jet stream winds tear it apart'
+        ],
+        correct: 1, xp: 15,
+        explanation: 'Mid-latitude troposphere extends from the surface to ~36,000 ft (7 mi) and contains ~75% of atmospheric mass and virtually all weather. Tops at FL280 are still inside the troposphere with vertical headroom, so the cell can continue to intensify. Avoidance is required regardless of cruise altitude — VFR practice is wide horizontal clearance from any moderate-or-stronger return, with a far wider buffer for severe cells.',
+        faaRef: 'Ch. 4', concept: 'standard_atmosphere'
       },
       {
-        id: 'q_m1_2', type: 'mc',
-        question: 'What is the Standard (ICAO) Lapse Rate in the troposphere?',
-        options: ['1°C per 1,000 ft','2°C or 3.5°F per 1,000 ft','3°C per 1,000 ft (DALR)','5°C per 1,000 ft'],
-        correct: 1, xp: 10,
-        explanation: 'The Standard Lapse Rate is 2°C (3.5°F) per 1,000 ft. This is different from the Dry Adiabatic Lapse Rate (DALR) of 3°C/1,000 ft — a common source of confusion on checkrides!',
-        faaRef: 'Ch. 4, 5'
+        id: 'q_m1_2', type: 'scenario',
+        scenario: 'Departing KCLT (field elevation ~700 ft MSL) on a summer afternoon, surface OAT 24°C. PIREPs along route report scattered cumulus with tops to ~9,000 ft. You are choosing between 8,500 ft and 10,500 ft for VFR cruise (both eastbound-legal) and want both VMC clearance over the cumulus and a margin above the freezing level.',
+        question: 'Using the standard lapse rate, what is the predicted OAT at each candidate altitude, and which choice meets both goals?',
+        options: [
+          'Both altitudes show OAT below freezing using the standard lapse rate; turn back',
+          '8,500 ft cruise OAT ≈ 8°C — but you would be inside the 9,000 ft cumulus tops; climb to 10,500 ft (≈ 4°C OAT) for VMC over the tops, with the freezing level still ~2,200 ft above',
+          '10,500 ft cruise OAT ≈ −5°C, putting you at the freezing level and into icing risk; stay at 8,500 ft and accept being in the cumulus bases',
+          'Both altitudes put you in IMC; only IFR cruise above 12,000 ft is viable'
+        ],
+        correct: 1, xp: 20,
+        explanation: 'Standard lapse rate is 2°C per 1,000 ft. From KCLT 700 ft surface at 24°C: at 8,500 ft (7,800 ft above field) drop ~16°C → OAT ≈ 8°C; at 10,500 ft (9,800 ft above field) drop ~20°C → OAT ≈ 4°C. The freezing level sits at 24°C ÷ 2 = 12,000 ft above field, ~12,700 ft MSL. 8,500 ft puts you 500 ft below cumulus tops (not VMC); 10,500 ft clears the tops with the freezing level ~2,200 ft higher — VMC and icing margin both preserved. Lapse-rate prediction is the quickest cockpit check that a chosen altitude actually achieves both visual separation from cumulus AND an icing buffer.',
+        faaRef: 'Ch. 4, 5', concept: 'standard_atmosphere'
       },
       {
-        id: 'q_m1_3', type: 'mc',
-        question: 'What percentage of the atmosphere by volume is oxygen (O₂)?',
-        options: ['78%','21%','1%','0.93%'],
-        correct: 1, xp: 10,
-        explanation: 'Nitrogen makes up ~78%, Oxygen ~21%, and Argon ~1%. These proportions remain remarkably consistent from the surface through the stratosphere.',
-        faaRef: 'Ch. 4'
+        id: 'q_m1_3', type: 'scenario',
+        scenario: 'Two-leg VFR day. Morning leg coastal: KILM surface 28°C / dewpoint 24°C (high humidity). Afternoon leg inland: KCLT surface 30°C / dewpoint 8°C (much drier). Surface temperatures are similar; dewpoints differ sharply.',
+        question: 'Which leg carries higher convective instability risk, and why is water vapor the deciding factor when N₂, O₂, and Ar percentages are essentially constant in the lower atmosphere?',
+        options: [
+          'The inland leg — drier air heats faster and produces stronger thermals',
+          'The coastal leg — high water-vapor content is the latent-heat reservoir that drives convection: once parcels lift high enough to condense, the released heat keeps them accelerating upward',
+          'Neither — N₂/O₂/Ar percentages are constant from surface to stratosphere, so weather depends only on temperature',
+          'The coastal leg — but only because saltwater spray adds nucleation surfaces, not because of water vapor'
+        ],
+        correct: 1, xp: 15,
+        explanation: 'The fixed components — N₂ (~78%), O₂ (~21%), Ar (~0.93%) — are essentially constant from the surface through the stratosphere and contribute nothing to weather variability. Water vapor (0–4% by volume) is the variable component, and it carries the latent heat that makes convection self-sustaining: lifted parcels reach saturation, condense, release latent heat, and accelerate further upward. A high-dewpoint day carries far more convective fuel than a dry day at the same temperature. Dewpoint depression on a TAF or METAR is a faster instability check than chasing the temperature alone.',
+        faaRef: 'Ch. 4', concept: 'standard_atmosphere'
       },
       {
         id: 'q_m1_4', type: 'scenario',
@@ -138,55 +156,103 @@ const MODULES = [
         faaRef: 'Ch. 4', concept: 'standard_atmosphere'
       },
       {
-        id: 'q_m1_6', type: 'mc',
-        question: 'Where are jet streams predominantly located?',
-        options: ['Mid-troposphere at ~18,000 ft MSL','Near the tropopause, at the boundary of troposphere and stratosphere','In the stratosphere, above the tropopause','At the surface near the poles'],
-        correct: 1, xp: 10,
-        explanation: 'Jet streams form near the tropopause where large temperature gradients between air masses generate high-speed wind rivers of 60–200+ kt. They are a critical consideration for IFR flight planning and are a source of Clear Air Turbulence (CAT).',
-        faaRef: 'Ch. 4, 9'
-      },
-      {
-        id: 'q_m1_7', type: 'mc',
-        question: 'A temperature inversion occurs when:',
-        options: ['Temperature decreases at exactly the standard lapse rate','Temperature increases with altitude instead of decreasing','Humidity reaches 100% at the dewpoint','Temperature remains constant with altitude (isothermal layer)'],
-        correct: 1, xp: 10,
-        explanation: 'A temperature inversion is a layer where temperature INCREASES with altitude — the inverse of the normal lapse rate. Inversions are absolutely stable, trap moisture and pollutants below, and create major IFR hazards. They are most common near the surface at night (radiation inversions) and in high-pressure subsidence.',
-        faaRef: 'Ch. 5, 13'
-      },
-      {
-        id: 'q_m1_8', type: 'timed',
-        timeLimit: 12,
-        question: 'Which atmospheric layer contains approximately 75% of the atmosphere\'s mass and virtually all weather?',
-        options: ['Stratosphere','Mesosphere','Troposphere','Thermosphere'],
-        correct: 2, xp: 15,
-        explanation: 'The TROPOSPHERE contains ~75% of all atmospheric mass and is where virtually all weather occurs. It extends from the surface to about 36,000 ft (7 miles) at mid-latitudes. Its name comes from the Greek "tropos" meaning turning — constant convective overturning drives all weather.',
-        faaRef: 'Ch. 4'
-      },
-      {
-        id: 'q_m1_9', type: 'mc',
-        question: 'The tropopause acts as a "lid" on convective weather because:',
+        id: 'q_m1_6', type: 'scenario',
+        scenario: 'Eastbound IFR brief at FL340. Winds aloft show a 130 kt headwind core at 32,000–35,000 ft, lined up over a strong frontal boundary at the surface.',
+        question: 'Where in the atmosphere is that jet core physically located, and what is the headline hazard band beyond the headwind itself?',
         options: [
-          'Wind speeds reach zero at the tropopause, stopping updrafts',
-          'Temperature stops decreasing at the tropopause — rising air meets air as warm as itself and stops rising',
-          'Jet streams physically block upward movement of clouds',
-          'Pressure drops too low above the tropopause for liquid water to exist'
+          'Mid-troposphere — turbulence is moderate but predictable; the only real cost is fuel',
+          'Near the tropopause (the boundary between troposphere and stratosphere), where strong vertical wind shear produces Clear Air Turbulence (CAT) — most pronounced on the cold/poleward side of the core and in the ±5,000 ft shear bands',
+          'In the stratosphere — jet streams sit above the tropopause where temperature begins rising',
+          'At ~18,000 ft MSL — coincident with the FL180 transition altitude'
         ],
-        correct: 1, xp: 10,
-        explanation: 'The tropopause is where temperature stops decreasing with altitude. A rising convective parcel, cooling at the moist adiabatic lapse rate, eventually reaches the tropopause temperature — at that point it is no longer warmer than its surroundings and can rise no further. Only the most powerful supercell thunderstorms can "bust" through the tropopause as "overshooting tops."',
-        faaRef: 'Ch. 4'
+        correct: 1, xp: 15,
+        explanation: 'Jet streams form near the tropopause (~30,000–40,000 ft mid-latitudes) where the horizontal temperature gradient between tropical and polar air masses generates extreme wind shear. The hazard signature is CAT — sharp turbulence in clear, blue air. The shear is concentrated on the cold/poleward side of the core and in the ±5,000 ft band around the maximum. A 130 kt headwind on the winds-aloft chart is not just a fuel problem; it flags an altitude band where turbulence reports are likely.',
+        faaRef: 'Ch. 4, 9', concept: 'standard_atmosphere'
       },
       {
-        id: 'q_m1_10', type: 'timed',
-        timeLimit: 10,
-        question: 'The standard temperature at sea level in the International Standard Atmosphere (ISA) is:',
-        options: ['0°C (32°F)', '15°C (59°F)', '20°C (68°F)', '25°C (77°F)'],
+        id: 'q_m1_7', type: 'scenario',
+        scenario: 'Pre-dawn pattern work. AWOS reports surface 4°C / dewpoint 4°C / vis 1/2 SM mist. Climbing to pattern altitude ~1,500 AGL, the OAT rises to 9°C and visibility opens dramatically.',
+        question: 'What atmospheric structure are you flying through, and what should you brief about its operational implications?',
+        options: [
+          'A normal lapse-rate environment — visibility improvement is just because you climbed above a dust layer',
+          'A surface-based temperature inversion: temperature INCREASING with altitude, with fog/mist trapped below; smooth flying above the inversion top; possible wind shear at the boundary; landing visibility may not improve until solar heating breaks the inversion',
+          'An isothermal layer — temperature is constant, so no vertical motion and no concern',
+          'The tropopause — the temperature rebound at the troposphere/stratosphere boundary'
+        ],
         correct: 1, xp: 15,
-        explanation: 'The ISA defines standard sea-level conditions as: Temperature = 15°C (59°F), Pressure = 29.92 inHg (1013.25 mb), Density = 0.002377 slug/ft³. The standard temperature lapse rate is 2°C per 1,000 ft to the tropopause at ~36,000 ft. Deviations from ISA affect density altitude and aircraft performance.',
-        faaRef: 'Ch. 4'
+        explanation: 'A temperature inversion is a layer where temperature INCREASES with altitude — the inverse of the standard 2°C-per-1,000-ft decrease. The classic surface-based version forms overnight via radiational cooling: the ground radiates infrared heat to space, chilling the air immediately above it, while air a few hundred to a few thousand feet up stays near its evening temperature. (Of the three heat-transfer modes — radiation, conduction, convection — radiation is the dominant overnight loss mechanism on clear, calm nights, which is exactly when surface inversions form.) Warm air over cold makes the layer absolutely stable: moisture, smoke, and particulates are trapped below; visibility and ceilings collapse; turbulence and wind shear concentrate at the inversion top. The fog/mist often does not lift until solar heating warms the surface enough to mix the layer. Pattern work in this regime demands close attention to landing visibility and a clear go-around plan if conditions tighten on descent.',
+        faaRef: 'Ch. 5, 13', concept: 'standard_atmosphere'
+      },
+      {
+        id: 'q_m1_8', type: 'scenario',
+        scenario: 'Repositioning a turbine VFR at FL410. Air is dead smooth, sky is dark blue, and there is no visible weather in any direction — even though a frontal system is active in the troposphere below.',
+        question: 'Why does weather essentially stop above the troposphere, regardless of what is happening below?',
+        options: [
+          'Pressure becomes too low for liquid water above FL410, so clouds physically cannot exist',
+          'The troposphere holds ~75% of atmospheric mass and essentially all the water vapor; above the tropopause, temperature stops decreasing — capping convective overturning — and combined with the absent moisture, very little is left to drive weather',
+          'Ozone heating in the stratosphere makes it warm enough that water vapor evaporates instantly, dissipating any clouds',
+          'Solar UV directly destroys cloud particles above the tropopause, leaving clear skies'
+        ],
+        correct: 1, xp: 15,
+        explanation: 'The troposphere ("turning sphere") gets its name from the convective overturning that drives all weather. It contains ~75% of atmospheric mass and essentially all water vapor, and its temperature decreases with altitude — exactly the setup convection requires. At the tropopause, temperature stops decreasing; rising parcels are no longer warmer than their surroundings and cannot keep climbing. With most of the mass and moisture below you and no vertical motion above, the stratosphere is dry, smooth, and effectively weather-free. Pilots rarely see this in piston aircraft, but it explains why high-altitude turbine cruise is so much smoother — and why thunderstorm tops flatten into anvils rather than continuing to climb.',
+        faaRef: 'Ch. 4', concept: 'standard_atmosphere'
+      },
+      {
+        id: 'q_m1_9', type: 'scenario',
+        scenario: 'A Convective SIGMET shows thunderstorm tops at FL380 with anvils flattening and spreading downwind from the cell cores.',
+        question: 'What physical mechanism at the tropopause flattens the storm top into an anvil, and what does an "overshooting top" indicate when you see one above the anvil layer?',
+        options: [
+          'Wind shear at the tropopause physically tears the cloud top off; an overshooting top means the shear has weakened',
+          'At the tropopause, temperature stops decreasing — a rising parcel (cooling at the moist adiabatic rate) reaches the same temperature as its surroundings and stops accelerating; remaining momentum spreads horizontally with the high-altitude winds, forming the anvil. An overshooting top is a momentum-driven brief penetration into the lower stratosphere by an exceptionally intense updraft core, and is a severe-storm indicator',
+          'Air pressure becomes too low above FL380 for water vapor to remain liquid; the anvil is a sublimation product',
+          'The jet stream physically blocks vertical development of any cell crossing under it'
+        ],
+        correct: 1, xp: 20,
+        explanation: 'The tropopause is where the lapse rate transitions from decreasing-with-altitude (troposphere) to roughly isothermal/increasing (stratosphere). A convective updraft cooling at the moist adiabatic rate eventually loses its temperature advantage over the surrounding air and stops accelerating upward. Its remaining momentum spreads horizontally with the prevailing high-altitude winds, producing the classic anvil. An overshooting top — a dome punching above the anvil — is the visual signature of an updraft so vigorous that it briefly retains enough vertical momentum to penetrate the stable stratospheric air. The NWS uses overshooting tops as one of the standard visual indicators of severe-thunderstorm potential.',
+        faaRef: 'Ch. 4', concept: 'standard_atmosphere'
+      },
+      {
+        id: 'q_m1_10', type: 'scenario',
+        scenario: 'Prepping for a hot-day departure, your right-seat passenger asks: "If the day is never standard — surface 36°C, way off ISA — why does ISA even matter?"',
+        question: 'Why does the ISA reference matter operationally even though actual conditions almost never match it?',
+        options: [
+          'ISA is a legal threshold — you cannot depart on days that deviate from it by more than a set amount',
+          'ISA (15°C / 29.92 inHg / 2°C per 1,000 ft) is the calibration baseline for the altimeter, the POH performance charts, and density-altitude calculations. Every chart you use was built assuming ISA; the deviation between actual and ISA is what density altitude IS. Without that reference, "performance correction" has nothing to correct against',
+          'ISA is only a meteorological convention; it does not affect aircraft systems or planning',
+          'ISA is a planning-only number used by ATC for separation; pilots can ignore it once airborne'
+        ],
+        correct: 1, xp: 15,
+        explanation: 'ISA defines sea-level standard temperature 15°C, pressure 29.92 inHg, and a 2°C per 1,000 ft lapse rate to the tropopause at ~36,089 ft. The altimeter is mechanically calibrated to ISA pressure-altitude; POH takeoff/climb/cruise charts assume ISA temperatures unless they list explicit corrections; density altitude is defined as pressure altitude adjusted for the actual deviation from ISA temperature. Knowing the ISA temp at your altitude (15 − 2 × alt_ft/1,000) lets you predict the performance penalty by inspection — the larger the deviation, the larger the DA gap and the worse the actual performance versus book numbers.',
+        faaRef: 'Ch. 4', concept: 'standard_atmosphere'
+      },
+      {
+        id: 'q_m1_11', type: 'scenario',
+        scenario: 'IFR pilot eastbound briefing for a winter flight along the East Coast. The forecast tropopause is unusually low along the route — ~28,000 ft, versus a more typical ~36,000 ft.',
+        question: 'Beyond the convective-cap mechanism (covered separately), what does an unusually low tropopause forecast change about the operational picture?',
+        options: [
+          'Nothing — the tropopause is irrelevant once the pilot knows convection is capped',
+          'The jet stream and its CAT band drop into altitudes that turbine traffic actually flies; any storm tops plateau lower, shifting en route radar separation tactics; and the troposphere/stratosphere boundary concentrates the strongest temperature gradients into a narrower vertical layer — typically with stronger shear. Plan for turbulence reports at lower flight levels and consider whether a different cruise altitude avoids the worst of it',
+          'A low tropopause means the entire troposphere has compressed, so weather will be intensified everywhere — a no-go indicator on its own',
+          'Tropopause height only matters to military aircraft operating above FL400'
+        ],
+        correct: 1, xp: 20,
+        explanation: 'Tropopause height varies seasonally and latitudinally — higher over the equator (~55,000 ft) and lower over the poles (~25,000 ft). When it is anomalously low along your route, the jet stream and its CAT band sit at altitudes turbine pilots actually fly; the stratification gradient between troposphere and stratosphere compresses into a narrower layer (often with stronger shear); and storm tops, where present, plateau lower. The convective-cap physics is unchanged, but the operational takeaway here is that a low-tropopause forecast is a turbulence-planning input, not an academic data point. PIREPs and the SIGWX prog chart will usually show CAT bands consistent with the forecast tropopause height.',
+        faaRef: 'Ch. 4', concept: 'standard_atmosphere'
+      },
+      {
+        id: 'q_m1_12', type: 'scenario',
+        scenario: 'Flying at 9,500 ft over the Piedmont in summer. OAT reads -1°C. Standard temperature at 9,500 ft should be about +10°C.',
+        question: 'What does a temperature 11°C colder than ISA indicate about current atmospheric conditions?',
+        options: [
+          'ISA deviation doesn’t affect anything at this altitude',
+          'Temperature is colder than standard — density altitude is lower than pressure altitude, giving better-than-book performance',
+          'Temperature is colder than standard — this indicates an approaching cold front and likely IFR conditions',
+          'Non-standard temperatures only matter for aircraft certification tests, not actual flight'
+        ],
+        correct: 1, xp: 15,
+        explanation: 'When OAT is colder than ISA (negative ISA deviation), air is denser than standard. Denser air means: better engine performance, shorter takeoff roll, higher true altitude than pressure altitude for altimetry. However, colder-than-standard temperatures also compress your freezing level downward. At 9,500 ft with OAT -1°C, visible moisture (clouds) means icing is possible even though the METAR might show above-freezing temps at the surface.',
+        faaRef: 'Ch. 4', concept: 'standard_atmosphere'
       }
-    ,
-      {id:'q_m1_11',type:'mc',question:'The tropopause is important to aviation primarily because:',options:['It marks the boundary where aircraft must switch to 100LL fuel','Temperature stops decreasing with altitude at the tropopause, making it the effective ceiling for most convective weather — thunderstorm tops flatten into anvils here','Oxygen becomes insufficient for combustion above the tropopause','Radio communication is impossible above the tropopause'],correct:1,xp:10,explanation:'The tropopause is the boundary between the troposphere and stratosphere. In the troposphere, temperature decreases with altitude (enabling convection). At the tropopause, temperature stabilizes — stopping upward convective development. Thunderstorm tops flatten into classic anvil shapes when they hit the tropopause. The average tropopause height is ~36,000 ft at mid-latitudes, higher in the tropics (~55,000 ft) and lower over the poles (~25,000 ft).',faaRef:'Ch. 4',concept:'standard_atmosphere'},
-      {id:'q_m1_12',type:'scenario',scenario:'Flying at 9,500 ft over the Piedmont in summer. OAT reads -1°C. Standard temperature at 9,500 ft should be about +10°C.',question:'What does a temperature 11°C colder than ISA indicate about current atmospheric conditions?',options:['ISA deviation doesn’t affect anything at this altitude','Temperature is colder than standard — density altitude is lower than pressure altitude, giving better-than-book performance','Temperature is colder than standard — this indicates an approaching cold front and likely IFR conditions','Non-standard temperatures only matter for aircraft certification tests, not actual flight'],correct:1,xp:15,explanation:'When OAT is colder than ISA (negative ISA deviation), air is denser than standard. Denser air means: better engine performance, shorter takeoff roll, higher true altitude than pressure altitude for altimetry. However, colder-than-standard temperatures also compress your freezing level downward. At 9,500 ft with OAT -1°C, visible moisture (clouds) means icing is possible even though the METAR might show above-freezing temps at the surface.',faaRef:'Ch. 4',concept:'standard_atmosphere'}
     ]
   },
 
