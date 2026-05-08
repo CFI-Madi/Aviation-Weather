@@ -429,6 +429,11 @@ const MODULES = [
             <li><strong>Over water/smooth terrain:</strong> ~10° cross-isobar angle</li>
             <li><strong>Over rough terrain/mountains:</strong> up to 45° cross-isobar angle</li>
           </ul>
+          <figure class="faa-figure">
+            <div class="faa-fig-tag">FAA-H-8083-28A · Fig 10-10 <span class="faa-fig-title">— Surface Wind Forces</span></div>
+            <img src="img/awh/awh_p0127_img_002.png" alt="FAA-H-8083-28A Figure 10-10: surface wind forces showing PGF, Coriolis, and friction acting on an air parcel below the boundary layer.">
+            <div class="faa-fig-caption">Below the friction layer, friction adds a third force opposite the wind direction. PGF and Coriolis no longer balance cleanly, so the resultant wind crosses isobars at an angle toward lower pressure rather than flowing parallel to them.</div>
+          </figure>
           <div class="callout">🧭 <strong>In the Northern Hemisphere:</strong> Surface wind flows <em>counterclockwise and inward</em> into Low pressure systems; <em>clockwise and outward</em> from High pressure systems. (Reversed in Southern Hemisphere.)</div>
         `,
         diagram: { type: 'hotspot', svgKey: 'pressure_systems' }

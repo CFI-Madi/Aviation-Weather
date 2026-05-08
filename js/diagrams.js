@@ -79,7 +79,7 @@ const Diagrams = {
         svgContent: this.atmosphereSVG(),
       },
       wind_forces: {
-        title: '🔍 Wind Forces — Tap to Explore',
+        title: '🌬️ Geostrophic Wind — PGF + Coriolis Balance',
         svgContent: this.windForcesSVG(),
       },
       fronts_diagram: {
@@ -147,49 +147,18 @@ const Diagrams = {
     </div>`;
   },
 
+  // FAA-H-8083-28A Fig 10-8 — geostrophic-wind balance diagram. Two panels:
+  // an air parcel accelerating down the pressure gradient (NET FORCE) on the
+  // left, and the steady-state where Coriolis balances PGF (NO NET FORCE)
+  // and the wind flows parallel to height contours on the right.
   windForcesSVG() {
-    return `<div style="position:relative">
-      <svg viewBox="0 0 400 280" style="width:100%;display:block;background:#EFF6FF">
-        <!-- Isobars -->
-        <text x="10" y="50" font-family="Space Mono" font-size="10" fill="#3B82F6" font-weight="700">1020 mb</text>
-        <line x1="0" y1="55" x2="400" y2="55" stroke="#93C5FD" stroke-width="1.5" stroke-dasharray="4,3"/>
-        <text x="10" y="110" font-family="Space Mono" font-size="10" fill="#3B82F6" font-weight="700">1016 mb</text>
-        <line x1="0" y1="115" x2="400" y2="115" stroke="#93C5FD" stroke-width="1.5" stroke-dasharray="4,3"/>
-        <text x="10" y="170" font-family="Space Mono" font-size="10" fill="#3B82F6" font-weight="700">1012 mb (Low)</text>
-        <line x1="0" y1="175" x2="400" y2="175" stroke="#3B82F6" stroke-width="2"/>
-        <!-- PGF Arrow -->
-        <defs>
-          <marker id="arr-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-            <polygon points="0 0, 8 3, 0 6" fill="#EF4444"/>
-          </marker>
-          <marker id="arr-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-            <polygon points="0 0, 8 3, 0 6" fill="#6366F1"/>
-          </marker>
-          <marker id="arr-green" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-            <polygon points="0 0, 8 3, 0 6" fill="#10B981"/>
-          </marker>
-        </defs>
-        <line x1="200" y1="55" x2="200" y2="165" stroke="#EF4444" stroke-width="3" marker-end="url(#arr-red)"/>
-        <rect x="210" y="95" width="80" height="24" rx="8" fill="#FEE2E2"/>
-        <text x="250" y="111" font-family="Nunito" font-size="11" fill="#EF4444" text-anchor="middle" font-weight="800">PGF ↓</text>
-        <!-- Coriolis -->
-        <path d="M200 115 Q280 95 320 130" stroke="#6366F1" stroke-width="3" fill="none" marker-end="url(#arr-blue)"/>
-        <text x="295" y="108" font-family="Nunito" font-size="11" fill="#6366F1" font-weight="800">Coriolis →</text>
-        <!-- Result wind -->
-        <line x1="95" y1="115" x2="165" y2="115" stroke="#10B981" stroke-width="3" marker-end="url(#arr-green)"/>
-        <text x="65" y="111" font-family="Nunito" font-size="11" fill="#10B981" font-weight="800">Wind</text>
-        <!-- Labels -->
-        <text x="200" y="220" font-family="Nunito" font-size="11" fill="#64748B" text-anchor="middle">Tap forces to learn more</text>
-        <!-- Clickable areas -->
-        <rect x="170" y="50" width="60" height="120" fill="transparent" onclick="Diagrams.showPopup('wf-pgf','Pressure Gradient Force','➡️ Pushes air from HIGH pressure toward LOW pressure. Acts perpendicular to isobars. Closer isobars = stronger PGF = faster wind. The PRIMARY driver of all wind.')"/>
-        <rect x="260" y="85" width="130" height="60" fill="transparent" onclick="Diagrams.showPopup('wf-cor','Coriolis Force','🌀 Deflects wind to the RIGHT in the Northern Hemisphere (left in SH). Caused by Earth rotation. Zero at equator, max at poles. Balances PGF at upper levels → geostrophic wind parallel to isobars.')"/>
-        <rect x="40" y="95" width="120" height="40" fill="transparent" onclick="Diagrams.showPopup('wf-res','Resulting Wind','💨 Upper-level geostrophic wind flows parallel to isobars (PGF + Coriolis balanced). Surface wind crosses isobars at 10–45° angle toward low pressure (friction force deflects it further).')"/>
-      </svg>
-      <div id="wf-popup" style="display:none;background:var(--navy);color:white;padding:14px 16px;font-family:var(--font-display);font-size:13px;line-height:1.5">
-        <strong id="wf-popup-title" style="color:#38BDF8;display:block;margin-bottom:6px"></strong>
-        <span id="wf-popup-text"></span>
-      </div>
-    </div>`;
+    return this.renderFaaFigure({
+      src: 'img/awh/awh_p0126_img_001.png',
+      figureNumber: '10-8',
+      title: 'Geostrophic Wind',
+      caption: 'Left panel: an air parcel accelerated by the pressure-gradient force (PGF). Right panel: at steady state above the friction layer, Coriolis force balances PGF and the resultant wind flows parallel to the height contours — geostrophic wind.',
+      alt: 'FAA-H-8083-28A Figure 10-8: geostrophic wind balance — PGF accelerating an air parcel until Coriolis balances it and produces wind parallel to height contours.',
+    });
   },
 
   frontsSVG() {
