@@ -87,7 +87,7 @@ const Diagrams = {
         svgContent: this.frontsSVG(),
       },
       cloud_gallery: {
-        title: '☁️ Cloud ID Gallery — Tap Each Cloud',
+        title: '☁️ Cloud Identification — FAA Handbook Appendix A',
         svgContent: this.cloudGallerySVG(),
       },
       jet_stream: {
@@ -382,61 +382,32 @@ const Diagrams = {
 
   // ===== NEW: CLOUD GALLERY =====
   cloudGallerySVG() {
-    return `<div style="position:relative;background:#F0F9FF">
-      <div style="padding:14px 16px 8px;font-family:var(--font-display);font-size:13px;color:#64748B;font-weight:700">TAP A CLOUD TO IDENTIFY IT — Can you name them all?</div>
-      <div id="cg-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:0 2px 2px">
-        ${[
-          {id:'ci', name:'Cirrus', level:'HIGH  >20,000 ft', color:'#BAE6FD', text:'#0284C7', hazard:'⚠️ First sign of warm front 500+ mi ahead. No icing hazard alone.', shape:'wispy', bg:'linear-gradient(180deg,#0C1B33 0%,#1E3A8A 40%,#3B82F6 100%)'},
-          {id:'cs', name:'Cirrostratus', level:'HIGH  >20,000 ft', color:'#DBEAFE', text:'#1D4ED8', hazard:'☀️ Produces 22° halo around sun/moon. Warm front approaching.', shape:'veil', bg:'linear-gradient(180deg,#1E3A8A 0%,#3B82F6 60%,#93C5FD 100%)'},
-          {id:'ac', name:'Altocumulus', level:'MIDDLE  6,500–20,000 ft', color:'#E0E7FF', text:'#4338CA', hazard:'⚡ Castellanus type = instability + afternoon storm potential.', shape:'rolls', bg:'linear-gradient(180deg,#3B82F6 0%,#6366F1 40%,#A5B4FC 100%)'},
-          {id:'as', name:'Altostratus', level:'MIDDLE  6,500–20,000 ft', color:'#EEF2FF', text:'#6366F1', hazard:'🌧️ "Ground glass" sun appearance. Continuous rain ahead. IFR threat.', shape:'sheet', bg:'linear-gradient(180deg,#475569 0%,#64748B 50%,#94A3B8 100%)'},
-          {id:'sc', name:'Stratocumulus', level:'LOW  <6,500 ft', color:'#D1FAE5', text:'#065F46', hazard:'✈️ Most common cloud type globally. Usually no icing. Ceiling issue.', shape:'lumpy', bg:'linear-gradient(180deg,#64748B 0%,#94A3B8 40%,#CBD5E1 100%)'},
-          {id:'ns', name:'Nimbostratus', level:'LOW  <6,500 ft', color:'#FEE2E2', text:'#9F1239', hazard:'🚨 Continuous moderate-heavy rain/snow. Low ceilings. Severe IFR.', shape:'dark', bg:'linear-gradient(180deg,#1E293B 0%,#334155 50%,#475569 100%)'},
-          {id:'cu', name:'Cumulus', level:'VERTICAL', color:'#FEF3C7', text:'#92400E', hazard:'🌤️ Fair weather = small & flat. Towering = instability growing. Watch tops!', shape:'puffy', bg:'linear-gradient(180deg,#38BDF8 0%,#7DD3FC 40%,#BAE6FD 100%)'},
-          {id:'cb', name:'Cumulonimbus', level:'VERTICAL  to Tropopause', color:'#FFE4E6', text:'#9F1239', hazard:'⛔ AVOID by 20 NM in IMC. Extreme turbulence, icing, hail, lightning, tornadoes, waterspouts.', shape:'anvil', bg:'linear-gradient(180deg,#1E293B 0%,#334155 30%,#475569 60%,#F59E0B 100%)'},
-        ].map(c => `
-        <div onclick="Diagrams.showCloudInfo('${c.id}')" style="cursor:pointer;position:relative;height:110px;background:${c.bg};overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end">
-          ${c.shape==='wispy'?`<svg viewBox="0 0 150 60" style="position:absolute;top:10px;left:0;width:100%;opacity:0.9"><path d="M10,40 Q40,20 80,30 Q100,25 130,35" stroke="white" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.6"/><path d="M20,50 Q60,35 100,45" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.5"/></svg>`:
-          c.shape==='veil'?`<div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.08) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.08) 75%,transparent 75%);background-size:12px 12px;opacity:0.6"></div>`:
-          c.shape==='rolls'?`<svg viewBox="0 0 150 60" style="position:absolute;top:5px;left:0;width:100%;opacity:0.8">${[15,45,75,105,135].map(x=>`<ellipse cx="${x}" cy="30" rx="18" ry="14" fill="rgba(255,255,255,0.5)"/>`).join('')}</svg>`:
-          c.shape==='sheet'?`<div style="position:absolute;inset:0;background:rgba(255,255,255,0.12)"></div>`:
-          c.shape==='lumpy'?`<svg viewBox="0 0 150 60" style="position:absolute;top:8px;left:0;width:100%;opacity:0.75">${[10,35,60,85,110,135].map(x=>`<ellipse cx="${x}" cy="35" rx="20" ry="16" fill="rgba(255,255,255,0.4)"/>`).join('')}</svg>`:
-          c.shape==='dark'?`<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.3) 0%,transparent 100%)"></div>`:
-          c.shape==='puffy'?`<svg viewBox="0 0 150 80" style="position:absolute;top:0;left:0;width:100%;opacity:0.85"><ellipse cx="75" cy="55" rx="40" ry="22" fill="rgba(255,255,255,0.7)"/><ellipse cx="60" cy="42" rx="28" ry="20" fill="rgba(255,255,255,0.7)"/><ellipse cx="90" cy="40" rx="24" ry="18" fill="rgba(255,255,255,0.7)"/><ellipse cx="75" cy="35" rx="20" ry="16" fill="rgba(255,255,255,0.8)"/></svg>`:
-          `<svg viewBox="0 0 150 100" style="position:absolute;top:0;left:0;width:100%;opacity:0.85"><polygon points="75,5 110,5 130,15 75,15" fill="rgba(255,255,255,0.5)"/><ellipse cx="75" cy="40" rx="38" ry="28" fill="rgba(255,255,255,0.6)"/><ellipse cx="60" cy="55" rx="28" ry="20" fill="rgba(255,255,255,0.65)"/><ellipse cx="90" cy="53" rx="24" ry="18" fill="rgba(255,255,255,0.65)"/><rect x="45" y="60" width="60" height="35" fill="rgba(255,255,255,0.55)" rx="4"/></svg>`}
-          <div style="position:relative;z-index:2;padding:8px 10px;background:linear-gradient(0deg,rgba(0,0,0,0.7) 0%,transparent 100%)">
-            <div style="font-family:var(--font-display);font-weight:900;font-size:13px;color:white">${c.name}</div>
-            <div style="font-family:var(--font-mono);font-size:9px;color:rgba(255,255,255,0.7)">${c.level}</div>
-          </div>
-        </div>`).join('')}
-      </div>
-      <div id="cg-info" style="display:none;background:var(--navy);padding:16px;margin:0">
-        <div id="cg-info-name" style="font-family:var(--font-display);font-weight:900;font-size:16px;color:#38BDF8;margin-bottom:4px"></div>
-        <div id="cg-info-level" style="font-family:var(--font-mono);font-size:10px;color:#94A3B8;margin-bottom:8px"></div>
-        <div id="cg-info-hazard" style="font-size:13px;color:white;line-height:1.6"></div>
-        <div style="margin-top:10px;font-size:11px;color:#64748B">Tap another cloud to compare</div>
-      </div>
-    </div>`;
-  },
-
-  showCloudInfo(id) {
-    const clouds = {
-      ci:{name:'Cirrus (Ci)',level:'HIGH — above 20,000 ft | Ice crystal clouds',hazard:'⚠️ Pilot alert: Cirrus is the FIRST SIGN of an approaching warm front, sometimes 500–1,000 miles ahead. Alone, it poses no icing or turbulence hazard, but its appearance should prompt you to obtain an updated weather briefing. Cirrus forming rapidly in organized bands indicates increasing moisture aloft — frontal passage in 12–24 hours.'},
-      cs:{name:'Cirrostratus (Cs)',level:'HIGH — above 20,000 ft | Ice crystal veil',hazard:'☀️ Produces characteristic 22° halo rings around the sun or moon — a reliable indicator of cirrostratus. The sun/moon appears as though seen through frosted glass. Almost always associated with an approaching warm front. Can produce light icing in aircraft. Transition: Ci → Cs → As is the classic warm front sequence.'},
-      ac:{name:'Altocumulus (Ac)',level:'MIDDLE — 6,500–20,000 ft | Mixed water & ice',hazard:'⚡ Altocumulus appears as gray/white patches, often in waves or rolls. KEY HAZARD: Altocumulus castellanus (Ac cas) — these turreted, castle-like tops signal significant instability in the middle troposphere. Ac cas in the morning strongly predicts severe afternoon thunderstorms. Moderate icing possible. Do not confuse with cirrocumulus (higher, no shading).'},
-      as:{name:'Altostratus (As)',level:'MIDDLE — 6,500–20,000 ft | Gray sheet',hazard:'🌧️ Thick gray/blue sheet covering the sky. The sun appears as if seen through "ground glass" — diffuse, no distinct edges, no halo (that would be Cs). Altostratus produces continuous light-to-moderate rain or snow. Creates widespread IFR conditions. Moderate icing likely. Typically associated with approaching warm fronts. Can lower ceiling below approach minimums.'},
-      sc:{name:'Stratocumulus (Sc)',level:'LOW — below 6,500 ft | Water droplets',hazard:'✈️ The most common cloud type on Earth. Low, lumpy rolls or patches of gray/white. Usually associated with stable air and high pressure. Often breaks up during the day with heating. Ceiling/visibility impact: can create persistent overcast and IFR conditions, especially in winter. Light turbulence within cloud. Icing possible but usually light. VFR pilots: check ceiling carefully before departure.'},
-      ns:{name:'Nimbostratus (Ns)',level:'LOW — below 6,500 ft | Dark rain cloud',hazard:'🚨 PILOT ALERT: The continuous-precipitation cloud. Dark, featureless, blanketing gray layer producing steady moderate-to-heavy rain or snow. Ceilings often below 1,000 ft, visibility less than 3 SM. Can extend vertically from low levels to 20,000+ ft. Moderate-to-heavy icing throughout. No distinct "base" — just wall-to-wall IFR. Primary IFR challenge with warm fronts. Plan alternates carefully.'},
-      cu:{name:'Cumulus (Cu)',level:'VERTICAL DEVELOPMENT | Convective',hazard:'🌤️ Fair weather cumulus: flat bases, limited vertical extent (tops below 8,000 ft) — indicates surface heating and light instability. Safe for VFR. WATCH: Towering Cumulus (TCu) — rapid vertical growth, cauliflower-like tops. This is the pre-storm stage. If you see TCu building, convective activity is likely within 1–2 hours. Time your flight to avoid the building stage.'},
-      cb:{name:'Cumulonimbus (Cb)',level:'VERTICAL — Surface to Tropopause | THE hazard cloud',hazard:'⛔ AVOID. ALWAYS. The most dangerous cloud in aviation. Contains: extreme turbulence (structural damage possible), wind shear and microbursts, severe icing at all levels, large hail (up to baseball-sized), lightning (direct strike + corona discharge), reduced visibility to zero, possible embedded tornadoes or waterspouts. CLEARANCE: 20 NM in IMC; 5 NM minimum in VMC; avoid flying beneath the anvil. No route is worth penetrating a Cb.'},
-    };
-    const c = clouds[id];
-    if (!c) return;
-    const info = document.getElementById('cg-info');
-    document.getElementById('cg-info-name').textContent = c.name;
-    document.getElementById('cg-info-level').textContent = c.level;
-    document.getElementById('cg-info-hazard').textContent = c.hazard;
-    info.style.display = 'block';
+    // FAA-H-8083-28A Appendix A — twelve canonical cloud-genera photo plates.
+    // Each entry: figure number, official caption from the handbook, file path, and
+    // a one-line operational hint surfaced as the FAA caption strip.
+    const plates = [
+      { fig:'A-1',  title:'Cirrus (Ci)',                                src:'awh_p0492_img_001.png', tip:'High ice-crystal wisps. First sign of an approaching warm front (500+ mi ahead) — no icing alone.' },
+      { fig:'A-2',  title:'Cirrocumulus (Cc)',                          src:'awh_p0493_img_001.png', tip:'High rippled patches. No shading; distinct from altocumulus by altitude.' },
+      { fig:'A-3',  title:'Cirrostratus (Cs)',                          src:'awh_p0494_img_001.png', tip:'Thin high veil producing 22° halos around sun or moon — warm front approaching.' },
+      { fig:'A-4',  title:'Altocumulus (Ac)',                           src:'awh_p0495_img_001.png', tip:'Mid-level rolls. Castellanus (turreted) form predicts afternoon thunderstorms.' },
+      { fig:'A-5',  title:'Altocumulus Standing Lenticular (ACSL)',     src:'awh_p0496_img_001.png', tip:'Stationary lens shape over mountains — strong winds aloft, mountain-wave hazard.' },
+      { fig:'A-6',  title:'Thin Altostratus (As)',                      src:'awh_p0497_img_001.png', tip:'Translucent gray sheet. Sun visible as through ground glass; no halo.' },
+      { fig:'A-7',  title:'Thick Altostratus (As) or Nimbostratus (Ns)', src:'awh_p0498_img_001.png', tip:'Dark continuous-precipitation layer — moderate-heavy rain or snow, low ceilings, steady icing.' },
+      { fig:'A-8',  title:'Cumulus (Cu) with Little Vertical Development', src:'awh_p0499_img_001.png', tip:'Fair-weather puffs with flat bases. Light surface heating; VFR-friendly.' },
+      { fig:'A-9',  title:'Towering Cumulus (TCu)',                     src:'awh_p0499_img_002.png', tip:'Pre-storm stage. Rapid vertical growth signals convective activity within 1–2 hours.' },
+      { fig:'A-10', title:'Stratocumulus (Sc)',                         src:'awh_p0500_img_001.png', tip:'Lumpy low overcast. Common globally; ceilings can persist; light icing possible.' },
+      { fig:'A-11', title:'Stratus (St)',                               src:'awh_p0501_img_001.png', tip:'Smooth low gray sheet. Fog-like ceiling; little or no precipitation.' },
+      { fig:'A-12', title:'Stratus Fractus / Cumulus Fractus',          src:'awh_p0501_img_002.png', tip:'Ragged "scud" beneath a bad-weather system — turbulence and reduced ceilings.' },
+    ];
+    const cells = plates.map(p => this.renderFaaFigure({
+      src: `img/awh/${p.src}`,
+      figureNumber: p.fig,
+      title: p.title,
+      caption: p.tip,
+      alt: `FAA-H-8083-28A Figure ${p.fig}: ${p.title}`,
+    })).join('');
+    return `<div style="padding:14px 14px 8px;font-family:var(--font-display);font-size:13px;color:#64748B;font-weight:700">FAA-H-8083-28A Appendix A — Cloud Identification Plates</div>
+      <div class="faa-fig-grid cols-2-3" style="padding:0 12px 12px">${cells}</div>`;
   },
 
   // ===== NEW: WAVE CYCLONE ANIMATED =====
