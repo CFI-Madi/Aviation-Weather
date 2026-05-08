@@ -888,41 +888,30 @@ const Diagrams = {
     document.getElementById('ice-detail-text').textContent=d[id].text;
   },
 
+  // FAA-H-8083-28A Ch 19 — turbulence types by mechanism. The four figures
+  // below cover the four mechanisms the FAA splits into separate diagrams.
+  // Clear Air Turbulence is handled in m8/s8_3 (text + jet-stream context),
+  // not represented here — the FAA itself doesn't combine CAT with the
+  // mechanism-type figures.
   turbulenceSources(){
-    return `<div class="diagram-container"><div class="diagram-header"><span style="font-size:14px;color:white;font-family:var(--font-display);font-weight:700">💥 Turbulence Sources — Tap to Explore</span></div>
-    <div style="background:#F8FAFC">
-      <svg viewBox="0 0 360 200" style="width:100%;display:block;background:linear-gradient(180deg,#1E1B4B 0%,#312E81 30%,#38BDF8 70%,#BAE6FD 100%)">
-        <!-- CAT zone at top -->
-        <rect x="0" y="0" width="360" height="60" fill="rgba(99,102,241,.3)" onclick="Diagrams.showTurbInfo('cat')" style="cursor:pointer"/>
-        <text x="180" y="25" text-anchor="middle" font-family="Nunito" font-size="11" fill="white" font-weight="800">JET STREAM — CAT ZONE</text>
-        <text x="180" y="42" text-anchor="middle" font-family="Nunito" font-size="9" fill="rgba(255,255,255,.7)">FL240-400 | No visual warning</text>
-        <!-- Cloud layer middle -->
-        <ellipse cx="180" cy="110" rx="70" ry="25" fill="rgba(255,255,255,.4)" onclick="Diagrams.showTurbInfo('conv')" style="cursor:pointer"/>
-        <text x="180" y="115" text-anchor="middle" font-family="Nunito" font-size="10" fill="#1E3A8A" font-weight="800">CONVECTIVE TURBULENCE ↑</text>
-        <!-- Mountain bottom right -->
-        <polygon points="240,200 310,110 380,200" fill="rgba(5,150,105,.5)" onclick="Diagrams.showTurbInfo('mech')" style="cursor:pointer"/>
-        <text x="310" y="165" text-anchor="middle" font-family="Nunito" font-size="9" fill="white" font-weight="800">MECHANICAL</text>
-        <!-- Inversion line -->
-        <line x1="0" y1="155" x2="180" y2="155" stroke="#F59E0B" stroke-width="2" stroke-dasharray="5,3"/>
-        <text x="90" y="148" text-anchor="middle" font-family="Nunito" font-size="9" fill="#F59E0B" font-weight="700">INVERSION / SHEAR</text>
-        <text x="180" y="185" text-anchor="middle" font-family="Nunito" font-size="10" fill="white" font-weight="700">Tap each zone ↑</text>
-      </svg>
-      <div id="turb-info" style="display:none;padding:14px 16px;background:var(--navy);color:white;font-family:var(--font-display);font-size:13px;line-height:1.6">
-        <strong id="turb-info-title" style="color:#F59E0B;display:block;margin-bottom:4px"></strong>
-        <span id="turb-info-text"></span>
-      </div>
+    const figs = [
+      { fig:'19-1', src:'awh_p0237_img_001.png', title:'Convective',                  caption:'Thermals from solar heating of the surface. Most active on warm summer afternoons. Cumuliform clouds mark the top; air above is generally smooth.' },
+      { fig:'19-4', src:'awh_p0239_img_002.png', title:'Mechanical',                  caption:'Eddies from buildings, trees, and terrain disrupting smooth flow. Intensity scales with wind speed × surface roughness.' },
+      { fig:'19-5', src:'awh_p0240_img_001.png', title:'Wind Shear',                  caption:'Sudden change of wind speed or direction across a short distance. Common at frontal boundaries, jet edges, and outflow boundaries.' },
+      { fig:'19-6', src:'awh_p0241_img_001.png', title:'Wind Shear with Inversion',   caption:'A temperature inversion can trap a shear layer between calm cold air below and stronger flow above — common at the top of nocturnal radiation inversions.' },
+    ];
+    const cells = figs.map(f => this.renderFaaFigure({
+      src: `img/awh/${f.src}`,
+      figureNumber: f.fig,
+      title: f.title,
+      caption: f.caption,
+      alt: `FAA-H-8083-28A Figure ${f.fig}: ${f.title} turbulence`,
+    })).join('');
+    return `<div class="diagram-container"><div class="diagram-header"><span style="font-size:14px;color:white;font-family:var(--font-display);font-weight:700">💥 Turbulence Sources — FAA Handbook Ch 19</span></div>
+    <div style="background:#F8FAFC;padding:14px">
+      <p style="font-size:13px;color:#475569;margin:0 0 10px;line-height:1.6">The four mechanism types covered by FAA-H-8083-28A Chapter 19. <strong>Clear Air Turbulence (CAT)</strong> is treated separately in the lesson section that follows, alongside its jet-stream context.</p>
+      <div class="faa-fig-grid cols-2">${cells}</div>
     </div></div>`;
-  },
-
-  showTurbInfo(id){
-    const d={
-      cat:{title:'Clear Air Turbulence (CAT) — Jet Stream Zone',text:'CAT occurs at high altitudes (above 15,000 ft) in clear air, with NO visual warning. Primary cause: strong wind shear at jet stream boundaries, especially the north (cyclonic shear) side. Most severe near jet streaks and where the jet dips into troughs. Check Turbulence SIGMETs and high-altitude PIREPs before every flight above FL180. In-flight: slow to Va and maintain attitude, not altitude.'},
-      conv:{title:'Convective Turbulence — Thermal Layer',text:'Caused by convective updrafts (thermals) from solar heating of the surface. Most active warm summer afternoons with light winds. Cumuliform clouds mark the top of convective columns. Turbulence is found BELOW and INSIDE clouds, with generally smooth air ABOVE. "Dry thermals" in desert areas produce convective turbulence with no visible cue. Light chop to moderate turbulence typical; severe in towering cumulus.'},
-      mech:{title:'Mechanical Turbulence — Terrain Obstruction',text:'Obstructions (buildings, trees, ridges, mountains) disrupt smooth airflow into eddies. Intensity proportional to wind speed and terrain roughness. Mountain waves are the most severe form: can extend to 60,000 ft. Rotor zones below wave crests can be extreme/destructive. Surface turbulence near airports in strong crosswind conditions from terrain features — check PIREPs from recently-arrived aircraft.'},
-    };
-    document.getElementById('turb-info').style.display='block';
-    document.getElementById('turb-info-title').textContent=d[id].title;
-    document.getElementById('turb-info-text').textContent=d[id].text;
   },
 
   fogTypes(){
