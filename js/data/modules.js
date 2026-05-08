@@ -2713,24 +2713,9 @@ const MODULES = [
         id:'s15_1',title:'The Advisory Hierarchy',
         content:`
           <p>Aviation weather advisories form a <strong>priority hierarchy</strong> based on severity. Each type targets a different threat level and pilot population. Knowing which advisory applies to your flight is a fundamental pre-flight skill.</p>
-          <div style="display:grid;gap:10px;margin:16px 0">
-            ${[
-              {name:'Convective SIGMET',emoji:'⛈️',color:'#DC2626',bg:'#FEF2F2',who:'ALL aircraft',desc:'Highest priority aviation weather advisory. Issued for: embedded thunderstorms, severe/extreme turbulence, surface winds >50 kt from convection, hail ≥3/4 inch. Lines of CBs >60 NM long. Areas of CBs >3,000 sq mi. Tornadoes. Routinely issued at H+55, with special bulletins (WSTs) as needed. Active Convective SIGMETs on or near your route warrant serious evaluation before and during flight.'},
-              {name:'SIGMET (Non-Convective)',emoji:'🌋',color:'#7C3AED',bg:'#F5F3FF',who:'ALL aircraft',desc:'Severe icing not associated with thunderstorms. Severe/extreme turbulence (non-convective). Volcanic ash. Dust/sandstorms obscuring ≥3/8 of sky and >5,000 ft. Valid 4–6 hours. Identified by letter series (OSCAR, PAPA, etc.).'},
-              {name:'AIRMET Tango (Turbulence)',emoji:'💥',color:'#F59E0B',bg:'#FEF3C7',who:'Light aircraft primarily',desc:'Moderate turbulence. Sustained surface winds >30 kt. Low-level wind shear (LLWS). Valid 6 hours. Issued 4x/day; can be amended. Does NOT include severe turbulence — that triggers SIGMET.'},
-              {name:'AIRMET Sierra (IFR/Mountain)',emoji:'🌫️',color:'#64748B',bg:'#F8FAFC',who:'VFR pilots primarily',desc:'Ceilings <1,000 ft and/or visibility <3 SM affecting >50% of an area. Mountain obscuration. Valid 6 hours. Most common advisory encountered in pre-flight planning for VFR flights.'},
-              {name:'AIRMET Zulu (Icing)',emoji:'🧊',color:'#0284C7',bg:'#E0F2FE',who:'ALL aircraft',desc:'Moderate icing (not thunderstorm-related). Freezing level heights. Valid 6 hours. Note: Severe icing = non-convective SIGMET, not AIRMET.'},
-              {name:'CWA (Center Weather Advisory)',emoji:'📍',color:'#059669',bg:'#ECFDF5',who:'IFR/enroute aircraft',desc:'Short-term (≤2 hrs) hazardous weather advisory issued by Center Weather Service Units (CWSUs) embedded in ARTCCs. Supplements SIGMETs for quickly developing conditions. Valid max 2 hours.'},
-            ].map(a=>`
-            <div style="background:${a.bg};border-radius:16px;padding:14px;border-left:4px solid ${a.color}">
-              <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px;margin-bottom:6px">
-                <strong style="font-family:var(--font-display);font-size:14px;color:${a.color}">${a.emoji} ${a.name}</strong>
-                <span style="font-size:11px;background:${a.color};color:white;padding:2px 8px;border-radius:20px;font-family:var(--font-display);font-weight:700">${a.who}</span>
-              </div>
-              <p style="font-size:13px;color:#475569;margin:0">${a.desc}</p>
-            </div>`).join('')}
-          </div>
-        `
+          <p>The four categories below map operational domain to validity window — Convective SIGMETs and CWAs are short-fuse hazard products, SIGMETs span the moderate window, and AIRMETs cover the standard six-hour forecast period. Each card lists the coverage and issuing agency you'll see on the official products.</p>
+        `,
+        diagram:{type:'advisory_hierarchy'}
       },
       {
         id:'s15_2',title:'Convective SIGMETs in Detail',
@@ -2753,8 +2738,7 @@ const MODULES = [
               <span style="font-size:13px;color:#475569">${desc}</span>
             </div>`).join('')}
           </div>
-        `,
-        diagram:{type:'advisory_hierarchy'}
+        `
       },
       {
         id:'s15_5',title:'G-AIRMET & GFA Tool',
