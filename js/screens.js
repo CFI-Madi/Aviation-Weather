@@ -526,8 +526,30 @@ const Screens = {
           : `<button onclick="Router.navigate('quiz',{moduleId:'${mod.id}'})" style="flex:2;background:#10B981;color:white;border:none;border-radius:16px;padding:14px;font-family:var(--font-display);font-weight:800;font-size:15px;cursor:pointer">Start ${(mod.quiz||[]).length}-question quiz</button>`}
       </div>`;
 
-    // Init diagram
+    // Expand any inline FAA-figure sentinels in the lesson body, then init
+    // the section's primary diagram (if any).
+    this._expandFaaFigureSentinels(document.getElementById('lesson-content'));
     this._initDiagram(sec);
+  },
+
+  // Walk the lesson DOM for `<div data-faa-figure='{...}'>` placeholders and
+  // replace each with Diagrams.renderFaaFigure(config). Lets module content
+  // templates embed FAA figures inline despite modules.js loading before
+  // diagrams.js (so direct ${Diagrams.renderFaaFigure(...)} would be
+  // undefined at template evaluation time). All inline figures route through
+  // the helper, so style changes to .faa-figure stay in sync.
+  _expandFaaFigureSentinels(rootEl) {
+    if (!rootEl) return;
+    const sentinels = rootEl.querySelectorAll('[data-faa-figure]');
+    sentinels.forEach(el => {
+      const raw = el.dataset.faaFigure || '';
+      try {
+        const config = JSON.parse(raw);
+        el.outerHTML = Diagrams.renderFaaFigure(config);
+      } catch (e) {
+        console.warn('[_expandFaaFigureSentinels] failed to expand sentinel:', e.message, raw);
+      }
+    });
   },
 
   _renderDiagram(sec) {
