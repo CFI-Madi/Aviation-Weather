@@ -876,38 +876,32 @@ const Diagrams = {
     </div></div>`;
   },
 
+  // FAA-H-8083-28A Ch 18 — five fog formation diagrams. The section's lesson
+  // body in m9/s9_2 already carries five characteristic cards (when each
+  // forms, what wind speeds favor it, where it commonly occurs); these
+  // formation figures complement that operational summary by showing the
+  // *mechanism* visually. Note: the prior fogTypes SVG only had four tiles
+  // (frontal fog was missing); this swap adds it back as Fig 18-8.
   fogTypes(){
-    return `<div class="diagram-container"><div class="diagram-header"><span style="font-size:14px;color:white;font-family:var(--font-display);font-weight:700">🌫️ Fog Formation Types — Tap Each</span></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;background:#F8FAFC;gap:2px;padding:2px">
-      ${[
-        {id:'rad',name:'Radiation Fog',icon:'🌙',bg:'linear-gradient(180deg,#0C1B33,#1E3A5F,#334155)',time:'Night → Dawn',key:'radiation'},
-        {id:'adv',name:'Advection Fog',icon:'🌊',bg:'linear-gradient(135deg,#0C4A6E,#0284C7,#38BDF8)',time:'Any time',key:'advection'},
-        {id:'ups',name:'Upslope Fog',icon:'⛰️',bg:'linear-gradient(180deg,#064E3B,#059669,#6EE7B7)',time:'With onshore wind',key:'upslope'},
-        {id:'stm',name:'Steam Fog',icon:'♨️',bg:'linear-gradient(180deg,#7F1D1D,#DC2626,#FCA5A5)',time:'Cold air over warm water',key:'steam'},
-      ].map(f=>`
-      <div onclick="Diagrams.showFogDetail('${f.key}')" style="cursor:pointer;height:100px;background:${f.bg};display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden">
-        <div style="padding:8px;background:linear-gradient(0deg,rgba(0,0,0,.7),transparent)">
-          <div style="font-family:var(--font-display);font-weight:900;font-size:12px;color:white">${f.icon} ${f.name}</div>
-          <div style="font-size:9px;color:rgba(255,255,255,.7)">${f.time}</div>
-        </div>
-      </div>`).join('')}
-    </div>
-    <div id="fog-detail" style="display:none;padding:16px;background:var(--navy);color:white;font-family:var(--font-display);font-size:13px;line-height:1.6">
-      <strong id="fog-detail-title" style="color:#38BDF8;display:block;margin-bottom:6px"></strong>
-      <span id="fog-detail-text"></span>
+    const figs = [
+      { fig:'18-1', src:'awh_p0225_img_001.png', title:'Radiation Fog',                    caption:'Clear-sky nighttime cooling: surface radiates heat away, the shallow moist layer above cools to its dewpoint. Calm-to-light wind essential — calm leaves no mixing, >5 kt disperses.' },
+      { fig:'18-5', src:'awh_p0228_img_001.png', title:'Advection Fog',                    caption:'Warm moist air moves horizontally over a cooler surface and is chilled below its dewpoint. Classic California-coast pattern. Deepens with wind to ~15 kt; stronger wind lifts to low stratus.' },
+      { fig:'18-7', src:'awh_p0229_img_001.png', title:'Upslope Fog',                      caption:'Moist stable air cooled adiabatically as it lifts up terrain. Forms even under overcast. Common on the eastern slopes of the Rockies and Appalachians; can extend to high elevations.' },
+      { fig:'18-8', src:'awh_p0230_img_001.png', title:'Frontal Fog',                      caption:'Warm rain or drizzle falls through colder air below a warm front, evaporating and saturating that cold layer. Continuous fog from ground through the cloud above.' },
+      { fig:'18-9', src:'awh_p0231_img_001.png', title:'Steam Fog',                        caption:'Very cold air over warmer water — water evaporates into the cold air and immediately recondenses as visible steam wisps. Shallow and unstable; expect light turbulence flying through it.' },
+    ];
+    const cells = figs.map(f => this.renderFaaFigure({
+      src: `img/awh/${f.src}`,
+      figureNumber: f.fig,
+      title: f.title,
+      caption: f.caption,
+      alt: `FAA-H-8083-28A Figure ${f.fig}: ${f.title} formation`,
+    })).join('');
+    return `<div class="diagram-container"><div class="diagram-header"><span style="font-size:14px;color:white;font-family:var(--font-display);font-weight:700">🌫️ Fog Formation — FAA Handbook Ch 18</span></div>
+    <div style="background:#F8FAFC;padding:14px">
+      <p style="font-size:13px;color:#475569;margin:0 0 10px;line-height:1.6">Five formation mechanisms covered by FAA-H-8083-28A Chapter 18. Each figure shows how that fog type physically develops; the operational characteristics (when, where, and what wind speeds favor each) are in the cards in the section above.</p>
+      <div class="faa-fig-grid cols-2-3">${cells}</div>
     </div></div>`;
-  },
-
-  showFogDetail(id){
-    const d={
-      radiation:{title:'🌙 Radiation Fog',text:'The land surface cools by emitting infrared radiation on clear nights. When the surface cools below the dewpoint of the adjacent air, fog forms. Requirements: clear sky (no cloud "blanket"), light wind (calm-5 kt — mixing without dispersal), and sufficient moisture. Most dense near sunrise. Burns off with daytime heating — usually clears before noon unless clouds move in. Restricted to land; water cools too little at night.'},
-      advection:{title:'🌊 Advection Fog',text:'Warm moist air advects (moves horizontally) over a cooler surface and is chilled below its dewpoint. Classic example: California coast — warm Pacific air moves over the cold California Current. Can form any time of day or night. More extensive and persistent than radiation fog. Deepens with wind up to ~15 kt; stronger wind lifts it to low stratus. Can move inland 100+ miles.'},
-      upslope:{title:'⛰️ Upslope Fog',text:'Moist stable air cools adiabatically as it is pushed up sloping terrain by wind. Unlike radiation fog, can form under cloudy skies. Wind speeds of 5-15 kt most favorable. Common on eastern slopes of Rockies and Appalachians. Often quite dense and extends to high altitudes above the terrain. Difficult to differentiate from low stratus from the air.'},
-      steam:{title:'♨️ Steam Fog',text:'Very cold air moves over warmer water. Water evaporates into the cold air and immediately condenses, forming wisps that look like steam rising from the surface. Common over lakes and rivers on cold autumn mornings, and over the ocean in winter. Shallow and unstable — expect light turbulence when flying through it. Pilots have compared it to flying through a thin smoke layer at low altitude.'},
-    };
-    document.getElementById('fog-detail').style.display='block';
-    document.getElementById('fog-detail-title').textContent=d[id].title;
-    document.getElementById('fog-detail-text').textContent=d[id].text;
   },
 
   // ── NEW: MICROBURST APPROACH DIAGRAM ───────────────────────
