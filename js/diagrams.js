@@ -1387,54 +1387,64 @@ const Diagrams = {
     document.getElementById('wx-meaning').textContent=`${iLabel}${dLabel}${pLabel}`;
   },
 
-  // ── NEW: ADVISORY HIERARCHY DIAGRAM ─────────────────────────
+  // Pass 2b — Advisory hierarchy redrawn as a 2x2 category grid.
+  // Order: Convective SIGMET → SIGMET → CWA → AIRMET (validity-based, not
+  // severity). The pyramid metaphor is gone — these advisories cover
+  // different domains, not a single severity ladder, so the visual treats
+  // them as four parallel cards with distinct color tints.
+  // Colors reuse existing palette tokens (--hazard, --product, --emerald,
+  // --amber); no new colors introduced. CSS lives in styles.css.
   renderAdvisoryHierarchy(){
-    return `<div style="background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08);margin:16px 0">
-      <div class="diagram-header"><span style="color:white;font-family:var(--font-display);font-weight:700;font-size:14px">⚠️ Advisory Priority Pyramid — Tap Each Level</span></div>
-      <div style="padding:16px;background:#F8FAFC">
-        <svg viewBox="0 0 380 260" style="width:100%;display:block">
-          <!-- Pyramid levels -->
-          <g onclick="Diagrams.showAdvisory('csigmet')" style="cursor:pointer" tabindex="0" role="button" aria-label="Convective SIGMET — highest priority advisory" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.dispatchEvent(new MouseEvent('click'))}">
-            <polygon points="190,20 310,80 70,80" fill="#DC2626" opacity=".9"/>
-            <text x="190" y="58" text-anchor="middle" font-family="Nunito" font-size="11" font-weight="900" fill="white">⛈️ CONVECTIVE SIGMET</text>
-            <text x="190" y="72" text-anchor="middle" font-family="Nunito" font-size="9" fill="rgba(255,255,255,.8)">ALL aircraft · Highest priority</text>
-          </g>
-          <g onclick="Diagrams.showAdvisory('sigmet')" style="cursor:pointer" tabindex="0" role="button" aria-label="SIGMET — non-convective significant meteorological information" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.dispatchEvent(new MouseEvent('click'))}">
-            <polygon points="70,85 310,85 330,135 50,135" fill="#7C3AED" opacity=".9"/>
-            <text x="190" y="112" text-anchor="middle" font-family="Nunito" font-size="11" font-weight="900" fill="white">🌋 SIGMET (Non-Convective)</text>
-            <text x="190" y="126" text-anchor="middle" font-family="Nunito" font-size="9" fill="rgba(255,255,255,.8)">Severe icing · Sev turbulence · Volcanic ash</text>
-          </g>
-          <g onclick="Diagrams.showAdvisory('airmet')" style="cursor:pointer" tabindex="0" role="button" aria-label="AIRMET — Sierra, Tango, and Zulu advisories" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.dispatchEvent(new MouseEvent('click'))}">
-            <polygon points="50,140 330,140 350,195 30,195" fill="#F59E0B" opacity=".9"/>
-            <text x="190" y="166" text-anchor="middle" font-family="Nunito" font-size="11" font-weight="900" fill="white">📢 AIRMET (Sierra · Tango · Zulu)</text>
-            <text x="190" y="180" text-anchor="middle" font-family="Nunito" font-size="9" fill="rgba(255,255,255,.8)">Mod icing · Mod turbulence · IFR · LLWS</text>
-          </g>
-          <g onclick="Diagrams.showAdvisory('cwa')" style="cursor:pointer" tabindex="0" role="button" aria-label="Center Weather Advisory — short-term ARTCC supplement" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.dispatchEvent(new MouseEvent('click'))}">
-            <polygon points="30,200 350,200 370,250 10,250" fill="#059669" opacity=".9"/>
-            <text x="190" y="226" text-anchor="middle" font-family="Nunito" font-size="11" font-weight="900" fill="white">📍 CWA (Center Weather Advisory)</text>
-            <text x="190" y="240" text-anchor="middle" font-family="Nunito" font-size="9" fill="rgba(255,255,255,.8)">2-hr short-term · ARTCC supplement</text>
-          </g>
-        </svg>
-        <div id="adv-detail" style="background:var(--navy);border-radius:14px;padding:14px;color:white;font-family:var(--font-display);font-size:13px;line-height:1.6;margin-top:4px;display:none">
-          <strong id="adv-title" style="color:#F59E0B;display:block;margin-bottom:6px"></strong>
-          <span id="adv-text"></span>
-        </div>
+    const cards = [
+      {
+        color:'var(--hazard)', bg:'var(--hazard-light)',
+        emoji:'⛈️', name:'Convective SIGMET', code:'WST',
+        validity:'Up to 2 hours · issued at H+55, special bulletins (WSTs) as needed',
+        coverage:'<strong>Embedded thunderstorms</strong> · severe / extreme convective turbulence · convective surface winds &gt;50 kt · hail ≥3⁄4″ · lines of CBs &gt;60 NM · areas of CBs &gt;3,000 sq mi · tornadoes',
+        issuer:'<strong>Aviation Weather Center (AWC)</strong>, Kansas City',
+        aria:'Convective SIGMET — covers embedded thunderstorms and convective hazards; valid up to 2 hours; issued by AWC.'
+      },
+      {
+        color:'var(--product)', bg:'var(--product-light)',
+        emoji:'🌋', name:'SIGMET (non-convective)', code:'WS',
+        validity:'Up to 4 hours (6 hr for volcanic ash and tropical cyclones)',
+        coverage:'<strong>Severe icing</strong> not from thunderstorms · severe / extreme non-convective turbulence · volcanic ash · widespread dust or sandstorms obscuring ≥3⁄8 of the sky above 5,000 ft',
+        issuer:'<strong>Aviation Weather Center (AWC)</strong>',
+        aria:'Non-convective SIGMET — covers severe icing, severe non-convective turbulence, volcanic ash, and widespread dust/sandstorms; valid up to 4 hours; issued by AWC.'
+      },
+      {
+        color:'var(--emerald)', bg:'var(--emerald-light)',
+        emoji:'📍', name:'CWA', code:'Center Weather Advisory',
+        validity:'Up to 2 hours · issued only when needed',
+        coverage:'<strong>Short-term hazardous weather</strong> affecting NAS traffic flow within an ARTCC\'s airspace; supplements SIGMETs for rapidly developing conditions',
+        issuer:'<strong>Center Weather Service Unit (CWSU)</strong>, co-located with each ARTCC',
+        aria:'Center Weather Advisory — covers short-term hazardous weather within an ARTCC airspace; valid up to 2 hours; issued by CWSU.'
+      },
+      {
+        color:'var(--amber)', bg:'var(--amber-light)',
+        emoji:'🌫️💥❄️', name:'AIRMET', code:'WA / G-AIRMET',
+        validity:'6 hours per forecast period · issued every 6 hours, with updates as needed',
+        coverage:'<strong>Sierra:</strong> IFR (cigs &lt;1,000 ft and/or vis &lt;3 SM affecting &gt;50% of an area) and mountain obscuration · <strong>Tango:</strong> moderate turbulence, surface wind ≥30 kt, LLWS · <strong>Zulu:</strong> moderate icing, freezing levels',
+        issuer:'<strong>Aviation Weather Center (AWC)</strong>',
+        aria:'AIRMET (Sierra, Tango, Zulu) — covers IFR/mountain obscuration, moderate turbulence/wind, and moderate icing/freezing levels; valid 6 hours per forecast period; issued by AWC.'
+      },
+    ];
+    const items = cards.map(c => `<article class="advisory-card" style="--ad-color:${c.color};--ad-bg:${c.bg}" aria-label="${c.aria}">
+        <header class="ad-header">
+          <div class="ad-name">${c.emoji} ${c.name}</div>
+          <div class="ad-code">${c.code}</div>
+        </header>
+        <div class="ad-validity">Valid: ${c.validity}</div>
+        <div class="ad-coverage">${c.coverage}</div>
+        <div class="ad-issuer">Issued by: ${c.issuer}</div>
+      </article>`).join('');
+    return `<section class="diagram-container" style="margin:16px 0">
+      <div class="diagram-header"><span style="color:white;font-family:var(--font-display);font-weight:700;font-size:14px">⚠️ In-flight Advisory Categories</span></div>
+      <div style="padding:14px;background:#F8FAFC">
+        <p style="font-size:13px;color:#475569;margin:0 0 8px;line-height:1.55">Four advisory products, each covering a different operational domain. Ordered by validity-period length — <em>not</em> by severity ranking.</p>
+        <div class="advisory-grid">${items}</div>
       </div>
-    </div>`;
-  },
-
-  showAdvisory(id){
-    const data={
-      csigmet:{title:'⛈️ Convective SIGMET — Highest Priority',text:'Issued by AWC at H+55 and H+25 (special bulletins any time). Valid 2 hours. Covers: embedded thunderstorms, lines of CBs >60 NM, areas of CBs >3,000 sq mi, severe turbulence from convection, surface winds >50 kt from convection, hail ≥3/4 inch, tornadoes. MUST be obtained before any IFR flight. Applies to ALL aircraft — no exceptions based on equipment or certification. 14 CFR 91.103 requirement.'},
-      sigmet:{title:'🌋 SIGMET (Non-Convective) — High Priority',text:'Issued by AWC. Valid 4 hours (6 hours for volcanic ash/tropical cyclones). Identified by phonetic alphabet (OSCAR, PAPA, etc.). Covers: severe icing NOT associated with thunderstorms; severe or extreme turbulence NOT associated with thunderstorms; volcanic ash; dust/sandstorms obscuring ≥3/8 sky above 5,000 ft. Applies to ALL aircraft.'},
-      airmet:{title:'📢 AIRMET — Operational Priority',text:'G-AIRMET issued 4x/day, updated every 3 hours. Valid 6 hours. Three types: SIERRA (IFR ceilings <1,000 ft / vis <3 SM, mountain obscuration — primarily VFR pilots); TANGO (moderate turbulence, sustained surface winds >30 kt, LLWS — primarily light aircraft); ZULU (moderate icing not from thunderstorms, freezing levels — ALL aircraft). Does NOT include severe conditions — those trigger SIGMETs.'},
-      cwa:{title:'📍 CWA (Center Weather Advisory)',text:'Issued by CWSU (Center Weather Service Unit) meteorologists embedded in ARTCCs. Valid maximum 2 hours. The most real-time formal advisory product. Addresses rapidly developing hazardous weather not yet captured by SIGMETs/AIRMETs. Supplements existing advisories. Pilots can request CWAs from ATC. Used primarily by IFR/en-route operators within the ARTCC\'s airspace.'},
-    };
-    const d=data[id];
-    const el=document.getElementById('adv-detail');
-    el.style.display='block';
-    document.getElementById('adv-title').textContent=d.title;
-    document.getElementById('adv-text').textContent=d.text;
+    </section>`;
   },
 
   // ── NEW: METAR DECODE CHALLENGE (practice) ──────────────────
