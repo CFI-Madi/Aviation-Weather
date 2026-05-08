@@ -550,7 +550,6 @@ const Screens = {
       if (k === 'density_altitude') Diagrams.calcDA();
       if (k === 'lapse_rate_graph') Diagrams.updateLapseGraph();
       if (k === 'wave_cyclone') Diagrams.showCycloneStage(0);
-      if (k === 'cb_lifecycle') Diagrams.showLifecycleStage(0);
       if (k === 'microburst_approach') Diagrams.showMicroburstPhase(0);
       if (k === 'icing_severity') Diagrams.calcIcingRisk();
       if (k === 'fog_formation') Diagrams.calcFogRisk();

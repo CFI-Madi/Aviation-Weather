@@ -11,12 +11,10 @@ const Diagrams = {
     // Act 2 pattern (interactive with key)
     if (type === 'interactive') {
       const fns = {
-        cb_lifecycle:()=>this.cbLifecycle(),
         cb_ingredients:()=>this.cbIngredients(),
         ice_types:()=>this.iceTypes(),
         turbulence_sources:()=>this.turbulenceSources(),
         fog_types:()=>this.fogTypes(),
-        mountain_wave:()=>this.mountainWave(),
         microburst_approach:()=>this.microburstApproach(),
         icing_severity:()=>this.icingSeverityCalc(),
         turbulence_scale:()=>this.turbulenceScale(),
@@ -63,10 +61,6 @@ const Diagrams = {
       pressure_systems: {
         title: '🗺️ Pressure Systems — Tap Each Type',
         svgContent: this.pressureSystemsSVG(),
-      },
-      cold_front_cross: {
-        title: '❄️ Cold Front Cross-Section — Tap Features',
-        svgContent: this.coldFrontCrossSectionSVG(),
       }
     };
     const cfg = configs[key];
@@ -812,106 +806,6 @@ const Diagrams = {
     document.getElementById('ps-text').textContent = d.text;
   },
 
-  // ── NEW: COLD FRONT CROSS-SECTION ─────────────────────────
-  coldFrontCrossSectionSVG() {
-    // CORRECTED: Cold air is a wedge THICK on the left (origin/body of cP air mass) tapering
-    // to a thin leading edge on the right where it undercuts warm air at the surface.
-    // The frontal surface tilts from upper-LEFT (back into cold air at altitude)
-    // to lower-RIGHT (surface front position). This matches FAA-H-8083-28A Fig 11-6.
-    return `<div style="background:#0C1B33">
-      <svg viewBox="0 0 420 210" style="width:100%;display:block">
-        <defs>
-          <linearGradient id="warmAirCF" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#FEF3C7" stop-opacity=".75"/>
-            <stop offset="100%" stop-color="#FDE68A" stop-opacity=".35"/>
-          </linearGradient>
-          <linearGradient id="coldAirCF" x1="1" y1="0" x2="0" y2="0">
-            <stop offset="0%" stop-color="#BFDBFE" stop-opacity=".15"/>
-            <stop offset="100%" stop-color="#93C5FD" stop-opacity=".55"/>
-          </linearGradient>
-          <marker id="arr-cf" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
-            <polygon points="0 0, 7 2.5, 0 5" fill="#38BDF8"/>
-          </marker>
-          <marker id="arr-warm" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
-            <polygon points="0 0, 7 2.5, 0 5" fill="#FBBF24"/>
-          </marker>
-        </defs>
-        <!-- Sky background -->
-        <rect width="420" height="185" fill="#0F172A"/>
-        <!-- Ground -->
-        <rect x="0" y="185" width="420" height="25" fill="#374151"/>
-        <text x="210" y="200" text-anchor="middle" font-family="Nunito" font-size="9" fill="#9CA3AF">→ COLD FRONT ADVANCING EASTWARD (direction of movement)</text>
-
-        <!-- WARM AIR: fills the upper right — ahead of the surface front (east side) -->
-        <!-- Frontal surface: from upper-left (0, 22) to lower-right surface front at (300, 185) -->
-        <polygon points="0,22 0,0 420,0 420,185 300,185" fill="url(#warmAirCF)"/>
-
-        <!-- COLD AIR: thick wedge on left (body of cP air), thin leading edge at right (x=300) -->
-        <!-- Correct shape: (0,185) bottom-left · (300,185) leading edge on ground · (0,22) top of cold air body -->
-        <polygon points="0,185 300,185 0,22" fill="url(#coldAirCF)"/>
-
-        <!-- Frontal surface boundary line (upper-left to lower-right) -->
-        <line x1="0" y1="22" x2="300" y2="185" stroke="#60A5FA" stroke-width="2.5" stroke-dasharray="6,3"/>
-
-        <!-- Slope annotation -->
-        <text x="125" y="118" text-anchor="middle" font-family="Nunito" font-size="8.5" fill="#93C5FD" font-weight="800" transform="rotate(-32,125,118)">FRONTAL SURFACE ≈1:50–1:100</text>
-        <text x="125" y="128" text-anchor="middle" font-family="Nunito" font-size="7" fill="#64748B" transform="rotate(-32,125,128)">(slope exaggerated for scale)</text>
-
-        <!-- Labels for air masses -->
-        <text x="60" y="165" text-anchor="middle" font-family="Nunito" font-size="10" fill="#93C5FD" font-weight="800">❄️ COLD AIR (cP)</text>
-        <text x="355" y="50" text-anchor="middle" font-family="Nunito" font-size="10" fill="#FCD34D" font-weight="800">☀️ WARM AIR (mT)</text>
-
-        <!-- Cold air wind arrows (advancing →) -->
-        <line x1="30" y1="130" x2="95" y2="130" stroke="#38BDF8" stroke-width="2" marker-end="url(#arr-cf)"/>
-        <line x1="30" y1="150" x2="95" y2="150" stroke="#38BDF8" stroke-width="2" marker-end="url(#arr-cf)"/>
-
-        <!-- Warm air wind arrows (retreating / being pushed up →) -->
-        <line x1="320" y1="155" x2="385" y2="155" stroke="#FBBF24" stroke-width="2" marker-end="url(#arr-warm)"/>
-
-        <!-- Surface front position marker (triangle pointing direction of movement) -->
-        <polygon points="300,185 292,172 308,172" fill="#2563EB"/>
-
-        <!-- CB clouds just west of (behind) the surface front — cold fronts trigger CB at the slope -->
-        <ellipse cx="265" cy="142" rx="19" ry="16" fill="rgba(30,30,80,.65)" onclick="Diagrams.showCFInfo('cb')" style="cursor:pointer"/>
-        <ellipse cx="260" cy="130" rx="14" ry="13" fill="rgba(45,45,100,.7)" onclick="Diagrams.showCFInfo('cb')" style="cursor:pointer"/>
-        <ellipse cx="272" cy="133" rx="11" ry="10" fill="rgba(55,55,110,.65)" onclick="Diagrams.showCFInfo('cb')" style="cursor:pointer"/>
-        <text x="265" y="115" text-anchor="middle" font-family="Nunito" font-size="9" fill="#A5B4FC" font-weight="700">CB ⚡</text>
-
-        <!-- Precipitation shaft -->
-        ${[258,264,270,256,276].map((x,i)=>`<line x1="${x}" y1="${152+i*4}" x2="${x+1}" y2="${168+i*4}" stroke="#60A5FA" stroke-width="1.5" opacity=".75"/>`).join('')}
-
-        <!-- Gust front — leading edge of cold outflow AHEAD of the surface front -->
-        <line x1="318" y1="185" x2="332" y2="155" stroke="#F97316" stroke-width="2" stroke-dasharray="4,2" onclick="Diagrams.showCFInfo('gust')" style="cursor:pointer"/>
-        <text x="345" y="162" font-family="Nunito" font-size="8.5" fill="#F97316" font-weight="800" onclick="Diagrams.showCFInfo('gust')" style="cursor:pointer">GUST FRONT</text>
-
-        <!-- Pre-frontal squall line ahead of gust front -->
-        <ellipse cx="385" cy="130" rx="13" ry="20" fill="rgba(99,102,241,.35)" onclick="Diagrams.showCFInfo('squall')" style="cursor:pointer"/>
-        <text x="385" y="107" text-anchor="middle" font-family="Nunito" font-size="8" fill="#A5B4FC" onclick="Diagrams.showCFInfo('squall')" style="cursor:pointer">SQUALL</text>
-
-        <!-- Altitudes labels on left edge -->
-        <text x="4" y="60" font-family="Space Mono" font-size="7" fill="#475569">~30,000 ft</text>
-        <line x1="0" y1="55" x2="15" y2="55" stroke="#475569" stroke-width="1"/>
-        <text x="4" y="120" font-family="Space Mono" font-size="7" fill="#475569">~15,000 ft</text>
-        <line x1="0" y1="115" x2="15" y2="115" stroke="#475569" stroke-width="1"/>
-
-        <text x="210" y="16" text-anchor="middle" font-family="Nunito" font-size="11" fill="white" font-weight="800">Tap the features — Cold Front Cross-Section</text>
-      </svg>
-      <div id="cf-info" style="padding:14px;background:rgba(255,255,255,.06);color:white;font-family:var(--font-display);font-size:13px;line-height:1.6;border-top:1px solid rgba(255,255,255,.1)">
-        <div style="color:#94A3B8;text-align:center;padding:8px">↑ Tap features on the cross-section above</div>
-      </div>
-    </div>`;
-  },
-
-  showCFInfo(id) {
-    const info = {
-      cb: { title:'⛈️ Cumulonimbus Along Cold Front', text:'Cold fronts force warm, moist air upward rapidly along their steep slope (~1:100 ratio). This triggers vigorous convection and cumulonimbus development. Weather is intense but relatively narrow — typically 50-100 miles wide. Tornadoes can form along squall lines embedded in cold frontal systems. After front passage: rapid clearing, wind shift to NW, pressure rises, temperature drops.' },
-      gust: { title:'💨 Gust Front & Prefrontal Conditions', text:'The gust front is the leading edge of cold air outflow from thunderstorm downdrafts ahead of the main front. Can precede the main frontal surface by 15+ miles. Sudden wind shift, drop in temperature, gusty surface winds, and rapid pressure rise. Pilots on approach when a gust front arrives can experience severe LLWS — treat any approaching cold front as a potential gust-front threat.' },
-      squall: { title:'🌧️ Prefrontal Squall Line', text:'A line of severe thunderstorms that can develop 50-300 miles ahead of a cold front along a dryline or outflow boundary. Often MORE severe than the frontal thunderstorms themselves. Typical sequence: squall line first → clearing → main cold frontal precip → post-frontal cold clear conditions. Always check radar for prefrontal activity, not just the frontal position.' },
-    };
-    const d = info[id];
-    document.getElementById('cf-info').innerHTML = `<strong style="color:#EF4444;display:block;margin-bottom:6px">${d.title}</strong>${d.text}`;
-  },
-
   // ── NEW: INVERSION TYPES DIAGRAM ─────────────────────────
   inversionTypesSVG() {
     return `<div style="padding:16px;background:#F8FAFC">
@@ -1003,87 +897,6 @@ const Diagrams = {
     document.getElementById('cb-ing-popup').style.display='block';
     document.getElementById('cb-ing-title').textContent=i.title;
     document.getElementById('cb-ing-text').textContent=i.text;
-  },
-
-  cbLifecycle(){
-    return `<div class="diagram-container"><div class="diagram-header"><span style="font-size:14px;color:white;font-family:var(--font-display);font-weight:700">⛈️ Cell Lifecycle — Tap Each Stage</span></div>
-    <div style="padding:16px;background:#F8FAFC">
-      <div style="display:flex;justify-content:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-        ${['Towering Cumulus','Mature','Dissipating'].map((s,i)=>`<button onclick="Diagrams.showLifecycleStage(${i})" id="lc-btn-${i}" style="padding:8px 16px;border-radius:12px;border:2px solid ${i===0?'#DC2626':'#E2E8F0'};background:${i===0?'#FEF2F2':'white'};font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;color:${i===0?'#DC2626':'#94A3B8'}">${['⬆️','⛈️','⬇️'][i]} ${s}</button>`).join('')}
-      </div>
-      <svg id="lc-svg" viewBox="0 0 360 200" style="width:100%;display:block;background:linear-gradient(180deg,#0C1B33 0%,#1E3A8A 40%,#38BDF8 80%,#BAE6FD 100%);border-radius:12px"></svg>
-      <div id="lc-desc" style="margin-top:10px;padding:14px;background:var(--navy);border-radius:12px;color:white;font-family:var(--font-display);font-size:13px;line-height:1.6">
-        <strong style="color:#F43F5E;display:block;margin-bottom:4px">Towering Cumulus Stage</strong>
-        Dominated by a strong convective UPDRAFT (3,000+ fpm). No precipitation reaching surface yet. Rapidly building vertical extent — can grow to 30,000+ ft in minutes. Updraft is concentrated near the growing top. This is the "loading the gun" stage — all energy is going in, none coming out yet.
-      </div>
-    </div></div>`;
-  },
-
-  showLifecycleStage(n){
-    document.querySelectorAll('[id^=lc-btn-]').forEach((b,i)=>{b.style.borderColor=i===n?'#DC2626':'#E2E8F0';b.style.background=i===n?'#FEF2F2':'white';b.style.color=i===n?'#DC2626':'#94A3B8'});
-    const svg=document.getElementById('lc-svg');
-    const desc=document.getElementById('lc-desc');
-    const stages=[
-      {
-        svg:`<rect width="360" height="200" fill="url(#skyBG)"/>
-          <defs><linearGradient id="skyBG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0C1B33"/><stop offset="60%" stop-color="#1E3A8A"/><stop offset="100%" stop-color="#BAE6FD"/></linearGradient></defs>
-          <!-- Cumulus building -->
-          <ellipse cx="180" cy="140" rx="50" ry="30" fill="rgba(255,255,255,.6)"/>
-          <ellipse cx="165" cy="115" rx="38" ry="28" fill="rgba(255,255,255,.65)"/>
-          <ellipse cx="195" cy="110" rx="35" ry="26" fill="rgba(255,255,255,.65)"/>
-          <ellipse cx="180" cy="85" rx="30" ry="24" fill="rgba(255,255,255,.7)"/>
-          <ellipse cx="180" cy="60" rx="22" ry="18" fill="rgba(255,255,255,.75)"/>
-          <!-- Updraft arrows -->
-          <line x1="180" y1="185" x2="180" y2="155" stroke="#F43F5E" stroke-width="3" marker-end="url(#upArr)"/>
-          <defs><marker id="upArr" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#F43F5E"/></marker></defs>
-          <text x="195" y="178" font-family="Nunito" font-size="10" fill="#F43F5E" font-weight="700">UPDRAFT</text>`,
-        title:'Towering Cumulus Stage',
-        text:'Dominated by a strong convective UPDRAFT (3,000+ fpm). No precipitation reaching surface yet. Rapidly building vertical extent — can grow 30,000+ ft in minutes. This is the "loading the gun" stage — all energy is going in.'
-      },
-      {
-        svg:`<rect width="360" height="200" fill="url(#skyBG2)"/>
-          <defs>
-            <linearGradient id="skyBG2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0C1B33"/><stop offset="60%" stop-color="#1E3A8A"/><stop offset="100%" stop-color="#BAE6FD"/></linearGradient>
-            <marker id="upArr2" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#F43F5E"/></marker>
-            <marker id="dnArr" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3B82F6"/></marker>
-          </defs>
-          <!-- Anvil CB -->
-          <polygon points="80,30 280,30 310,45 80,45" fill="rgba(200,200,220,.5)"/>
-          <ellipse cx="180" cy="100" rx="65" ry="45" fill="rgba(50,50,80,.7)"/>
-          <ellipse cx="160" cy="120" rx="50" ry="35" fill="rgba(30,30,60,.8)"/>
-          <!-- Updraft left, downdraft right -->
-          <line x1="145" y1="180" x2="145" y2="110" stroke="#F43F5E" stroke-width="3" marker-end="url(#upArr2)"/>
-          <line x1="215" y1="110" x2="215" y2="180" stroke="#3B82F6" stroke-width="3" marker-end="url(#dnArr)"/>
-          <text x="125" y="175" font-family="Nunito" font-size="9" fill="#F43F5E" font-weight="700">UPDRAFT</text>
-          <text x="200" y="175" font-family="Nunito" font-size="9" fill="#3B82F6" font-weight="700">DOWNDRAFT</text>
-          <!-- Rain -->
-          ${[200,210,220,215,225].map((x,i)=>`<line x1="${x}" y1="${140+i*6}" x2="${x+1}" y2="${155+i*6}" stroke="#60A5FA" stroke-width="1.5"/>`).join('')}
-          <text x="180" y="18" text-anchor="middle" font-family="Nunito" font-size="10" fill="#94A3B8">ANVIL</text>`,
-        title:'Mature Stage',
-        text:'BOTH updraft and downdraft active simultaneously. Precipitation reaches surface — marks start of mature stage. Downdraft spreads as a gust front. Anvil spreads downwind. ALL HAZARDS AT PEAK INTENSITY near the end of this stage: lightning, hail, turbulence, wind shear.'
-      },
-      {
-        svg:`<rect width="360" height="200" fill="url(#skyBG3)"/>
-          <defs><linearGradient id="skyBG3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0C1B33"/><stop offset="60%" stop-color="#334155"/><stop offset="100%" stop-color="#94A3B8"/></linearGradient>
-          <marker id="dnArr3" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#60A5FA"/></marker></defs>
-          <!-- Remnant anvil -->
-          <polygon points="60,35 300,35 320,50 40,50" fill="rgba(180,180,200,.4)"/>
-          <!-- Dissipating cloud -->
-          <ellipse cx="180" cy="120" rx="55" ry="35" fill="rgba(100,116,139,.4)"/>
-          <ellipse cx="180" cy="100" rx="40" ry="25" fill="rgba(71,85,105,.3)"/>
-          <!-- All downdraft -->
-          <line x1="180" y1="100" x2="180" y2="175" stroke="#60A5FA" stroke-width="3" marker-end="url(#dnArr3)"/>
-          <line x1="160" y1="105" x2="160" y2="175" stroke="#60A5FA" stroke-width="2" marker-end="url(#dnArr3)"/>
-          <line x1="200" y1="105" x2="200" y2="175" stroke="#60A5FA" stroke-width="2" marker-end="url(#dnArr3)"/>
-          <text x="195" y="160" font-family="Nunito" font-size="9" fill="#60A5FA" font-weight="700">SUBSIDENCE</text>
-          <text x="180" y="18" text-anchor="middle" font-family="Nunito" font-size="10" fill="#94A3B8">REMNANT ANVIL</text>`,
-        title:'Dissipating Stage',
-        text:'Strong downdraft throughout. Subsiding air cuts off the updraft — moisture supply ends. Precipitation tapers off. Cloud vaporizes from below, leaving remnant anvil. Still potentially hazardous: gust front lingers, hail possible in precipitation shaft.'
-      }
-    ];
-    const s=stages[n];
-    svg.innerHTML=s.svg;
-    desc.innerHTML=`<strong style="color:#F43F5E;display:block;margin-bottom:4px">${s.title}</strong>${s.text}`;
   },
 
   iceTypes(){
@@ -1189,54 +1002,6 @@ const Diagrams = {
     document.getElementById('fog-detail').style.display='block';
     document.getElementById('fog-detail-title').textContent=d[id].title;
     document.getElementById('fog-detail-text').textContent=d[id].text;
-  },
-
-  mountainWave(){
-    return `<div class="diagram-container"><div class="diagram-header"><span style="font-size:14px;color:white;font-family:var(--font-display);font-weight:700">⛰️ Mountain Wave — Tap Each Zone</span></div>
-    <div style="background:#ECFDF5">
-      <svg viewBox="0 0 380 220" style="width:100%;display:block;background:linear-gradient(180deg,#1E3A8A 0%,#0284C7 40%,#BAE6FD 70%,#86EFAC 100%)">
-        <!-- Mountain -->
-        <polygon points="80,220 160,100 240,220" fill="#374151"/>
-        <polygon points="100,220 160,110 220,220" fill="#4B5563"/>
-        <!-- Wave crests -->
-        <path d="M160,90 Q190,60 220,90 Q250,120 280,90 Q310,60 340,90" stroke="rgba(255,255,255,.6)" stroke-width="2" fill="none" stroke-dasharray="5,3"/>
-        <!-- Lenticular clouds at crests -->
-        <ellipse cx="220" cy="82" rx="28" ry="10" fill="rgba(255,255,255,.75)" onclick="Diagrams.showWaveZone('lenticular')" style="cursor:pointer"/>
-        <ellipse cx="300" cy="82" rx="22" ry="9" fill="rgba(255,255,255,.6)" onclick="Diagrams.showWaveZone('lenticular')" style="cursor:pointer"/>
-        <!-- Rotor zone -->
-        <ellipse cx="195" cy="170" rx="30" ry="18" fill="rgba(239,68,68,.5)" onclick="Diagrams.showWaveZone('rotor')" style="cursor:pointer"/>
-        <text x="195" y="174" text-anchor="middle" font-family="Nunito" font-size="9" fill="white" font-weight="900">ROTOR ⚠️</text>
-        <!-- Downdraft arrow -->
-        <line x1="240" y1="110" x2="240" y2="170" stroke="#F43F5E" stroke-width="2.5"/>
-        <polygon points="236,165 244,165 240,175" fill="#F43F5E"/>
-        <text x="252" y="145" font-family="Nunito" font-size="9" fill="#F43F5E" font-weight="700">DOWNDRAFT</text>
-        <!-- Updraft -->
-        <line x1="175" y1="170" x2="175" y2="110" stroke="#10B981" stroke-width="2.5"/>
-        <polygon points="171,115 179,115 175,105" fill="#10B981"/>
-        <text x="110" y="145" font-family="Nunito" font-size="9" fill="#10B981" font-weight="700">UPDRAFT</text>
-        <!-- Wind arrow -->
-        <line x1="20" y1="100" x2="70" y2="100" stroke="white" stroke-width="2.5"/>
-        <polygon points="66,96 74,100 66,104" fill="white"/>
-        <text x="45" y="88" text-anchor="middle" font-family="Nunito" font-size="9" fill="white" font-weight="700">WIND →</text>
-        <!-- Labels -->
-        <text x="220" y="72" text-anchor="middle" font-family="Nunito" font-size="9" fill="white" font-weight="700">LENTICULAR</text>
-        <text x="165" y="210" text-anchor="middle" font-family="Nunito" font-size="9" fill="rgba(255,255,255,.8)" font-weight="700">Tap zones ↑</text>
-      </svg>
-      <div id="wave-info" style="display:none;padding:14px 16px;background:var(--navy);color:white;font-family:var(--font-display);font-size:13px;line-height:1.6">
-        <strong id="wave-info-title" style="color:#10B981;display:block;margin-bottom:4px"></strong>
-        <span id="wave-info-text"></span>
-      </div>
-    </div></div>`;
-  },
-
-  showWaveZone(id){
-    const d={
-      lenticular:{title:'🌥️ Lenticular Cloud (Standing Wave Crest)',text:'Lenticular clouds (ACSL/CCSL) form at wave crests where upward-moving air cools to saturation. They appear stationary because air is constantly flowing through them — they are standing waves, not static clouds. Smooth, laminar-looking edges = lighter turbulence. Lumpy, rolling, churning appearance = significant turbulence. ABSENCE of lenticulars in dry air does NOT mean no wave.'},
-      rotor:{title:'🌪️ Rotor Zone — AVOID',text:'The rotor zone forms below and downwind of a wave crest, at or below ridge level. It is an area of intense rolling/rotating motion with severe to EXTREME turbulence. Rolling moments can EXCEED aircraft roll authority — meaning the aircraft could be flipped upside down by the rotor. Especially dangerous at low altitudes near mountain airports. Rotor clouds may look like harmless cumulus from a distance — look for rounded, frothy, rapidly churning edges on the downwind side.'},
-    };
-    document.getElementById('wave-info').style.display='block';
-    document.getElementById('wave-info-title').textContent=d[id].title;
-    document.getElementById('wave-info-text').textContent=d[id].text;
   },
 
   // ── NEW: MICROBURST APPROACH DIAGRAM ───────────────────────
