@@ -2862,20 +2862,163 @@ const MODULES = [
         `
       }],
     quiz:[
-      {id:'q_m14_1',type:'mc',question:'Weather radar primarily detects:',options:['Turbulence intensity and location','Temperature gradients and icing potential','Precipitation (water droplets and hail) — NOT turbulence','Wind speed and direction at all altitudes'],correct:2,xp:10,explanation:'NEXRAD/WSR-88D radar detects the reflectivity of precipitation — water droplets and hail. It does NOT directly detect turbulence, icing, CAT, or wind shear. Clear corridors between radar echoes can contain the most severe turbulence (updraft/downdraft interface). Radar is a precipitation tool, not an all-hazard detector.',faaRef:'Ch. 15, 24',concept:'radar_products'},
-      {id:'q_m14_2',type:'mc',question:'Composite Reflectivity differs from Base Reflectivity in that it:',options:['Updates faster — every 2 minutes','Shows only the lowest elevation scan (0.5°)','Shows the MAXIMUM reflectivity from ALL elevation scans in each vertical column','Is only available for storms above 30,000 ft'],correct:2,xp:10,explanation:'Composite Reflectivity = maximum echo from any elevation scan in the vertical column. This reveals intense cells that may have cores well aloft — missed by the lowest-tilt Base Reflectivity scan. Most onboard NEXRAD avionics displays use Composite Reflectivity. It is the better product for identifying severe storm intensity.',faaRef:'Ch. 24',concept:'radar_products'},
-      {id:'q_m14_3',type:'timed',timeLimit:10,question:'A radar return showing 55 dBZ is characterized as:',options:['Light — trace precipitation','Moderate — routine operational impact','Heavy — serious concern','Extreme — structural threat; avoid at all costs'],correct:3,xp:15,explanation:'50+ dBZ = EXTREME intensity — correlates with very heavy precipitation, large hail, and almost certain severe to extreme turbulence. This is a no-fly zone. The FAA correlation table: <26=Light; 26-40=Moderate; 41-50=Heavy; >50=Extreme. Color scales vary by provider but always check the legend.',faaRef:'Ch. 24',concept:'radar_products'},
-      {id:'q_m14_4',type:'mc',question:'Datalinked radar in the cockpit (FIS-B via ADS-B) is NOT suitable for:',options:['General route planning around large storm systems','Understanding the overall convective pattern','Tactical storm penetration decisions — the image may be 5-20+ minutes old','Identifying areas of precipitation during cruise'],correct:2,xp:10,explanation:'FAA and industry guidance: datalinked radar (FIS-B, XM, etc.) has delays of 5–20+ minutes. Storms move and grow rapidly — the radar shows where precipitation WAS, not where it IS. Tactical decisions (penetrating a gap, flying close to cells) require real-time onboard radar, not datalink. Use datalink for strategic routing only.',faaRef:'Ch. 24',concept:'radar_products'},
-      {id:'q_m14_5',type:'scenario',scenario:'You are en route at FL200. Your EFB shows a large area of radar returns, but there appears to be a 15-NM gap between two cells. The returns show 35-45 dBZ on both sides of the gap. The datalink radar timestamp shows 12 minutes ago.',options:['Fly through the gap — radar shows no returns in the corridor','Avoid the gap — 12-minute-old radar may show a corridor that no longer exists; 35-45 dBZ cells indicate heavy precipitation; the gap may contain severe turbulence at the updraft/downdraft boundary','Descend to 10,000 ft where radar shows clear','Request ATC vectors through the gap — they have better radar'],correct:1,question:'What is your assessment of the gap?',xp:25,explanation:'Multiple red flags: (1) 12-minute-old datalink radar — the storms have moved; the gap may be closed. (2) 35-45 dBZ = Heavy-to-extreme returns on both sides — severe turbulence likely in the boundary zones. (3) Radar gaps = updraft/downdraft interface = worst turbulence. ATC radar is also not real-time enough for tactical decisions. The only safe choice is to deviate around the storm system entirely.',faaRef:'Ch. 24'},
-      {id:'q_m14_6',type:'mc',question:'Echo Tops radar product displays:',options:['The height of the 18 dBZ echo top above sea level — cloud tops are higher','The maximum wind speed at the top of each storm cell','The altitude of maximum reflectivity within each storm','The depth of precipitation from cloud base to surface'],correct:0,xp:10,explanation:'Echo Tops shows the height of the 18 dBZ radar echo above sea level (in thousands of feet). This is the top of detectable precipitation — cloud tops are higher still. Pilots use Echo Tops to gauge whether they can safely fly above a storm system. Rule of thumb: add 1,000–4,000 ft above Echo Tops as a buffer for thunderstorm avoidance.',faaRef:'Ch. 24',concept:'radar_products'},
-      {id:'q_m14_7',type:'mc',question:'Why might a radar show no returns even when precipitation exists?',options:['Radar only updates every 30 minutes — old data is removed','Beam overshoot — at long range the radar beam passes over the top of precipitation','Radar cannot detect frozen precipitation at any range','All precipitation appears on radar if the gain is properly set'],correct:1,xp:10,explanation:'Beam overshoot: as radar range increases, the beam angle takes it higher in the atmosphere. At 150-250 NM from the radar site, the beam may completely overshoot precipitation — showing nothing when significant weather exists. Always be aware of the nearest radar site location and consider areas far from radar as potentially underrepresented.',faaRef:'Ch. 24',concept:'radar_products'}
+      {
+        id: 'q_m14_1', type: 'scenario',
+        scenario: 'Cruising at FL230, the NEXRAD on your EFB shows two strong cells along your route with a clean 8-NM corridor between them. Both flanking cells are showing 45 dBZ. The corridor itself shows no precipitation returns at all.',
+        question: 'What does the "clear corridor" actually represent in terms of the hazards radar can and cannot detect, and why is the gap NOT a safe penetration route?',
+        options: [
+          'The corridor is safe — radar shows no returns, so there is no weather hazard inside',
+          'Radar detects PRECIPITATION, not turbulence. The clean gap between two intense cells is the updraft/downdraft interface — exactly where the worst turbulence and wind shear concentrate. Absence of precipitation is not absence of hazard. Deviate around the entire system, not through it',
+          'The corridor is safe because turbulence reflects equally well as precipitation — if there is no return, there is no turbulence',
+          'The gap shows where the radar beam is blocked; the actual returns are unreliable in the gap area'
+        ],
+        correct: 1, xp: 10,
+        explanation: 'NEXRAD/WSR-88D detects reflectivity from precipitation — water droplets and hail. It does NOT directly detect turbulence, icing, CAT, wind shear, or non-precipitating clouds. The "clean corridor" between two strong cells is often the worst place to be: the boundary between an updraft (in one cell) and a downdraft (in the other), where wind shear and severe turbulence concentrate. Operationally — a gap on the radar is not a proven-clear route; in convective environments, unverified means unsafe. Deviate around storm systems entirely; never penetrate a gap based on radar alone.',
+        faaRef: 'Ch. 15, 24', concept: 'radar_products'
+      },
+      {
+        id: 'q_m14_2', type: 'scenario',
+        scenario: 'IFR routing through a layered weather field on a frontal day. The Base Reflectivity scan (lowest tilt, 0.5°) shows a band of stratiform precip with no organized cell cores — looks like flyable rain. The Composite Reflectivity scan over the same area shows several embedded 45-dBZ cores at higher altitudes that the base scan did not pick up.',
+        question: 'Which product should you trust for the routing decision, and why does the choice matter?',
+        options: [
+          'Base Reflectivity is always more accurate because it is the lowest tilt; ignore Composite',
+          'Composite Reflectivity scans the entire vertical column and shows the MAXIMUM return at any altitude — embedded CB cores aloft will appear in Composite even when the lowest-tilt Base scan is clean of them. For a layered/frontal weather day, Composite is the product that flags the embedded convective cores you cannot afford to fly through. Use Composite for severe-weather identification; Base for surface-precipitation awareness',
+          'The two products are interchangeable; pick whichever updates first',
+          'Skip both and rely solely on satellite imagery'
+        ],
+        correct: 1, xp: 10,
+        explanation: 'Base Reflectivity = lowest elevation tilt only (0.5°). Composite Reflectivity = MAXIMUM reflectivity from ALL elevation scans in the vertical column. On a layered or frontal day, embedded CB cores aloft (e.g., between 18,000 and 30,000 ft) can be invisible to the Base scan but show clearly in Composite because the highest-intensity tilt is what gets displayed. Most onboard NEXRAD avionics displays default to Composite for that reason. The corollary: Base alone can mislead a pilot into thinking a stratiform area is uniform when it actually hides convective cores. For severe-weather recognition, default to Composite.',
+        faaRef: 'Ch. 24', concept: 'radar_products'
+      },
+      {
+        id: 'q_m14_3', type: 'scenario',
+        scenario: 'Your radar display shows a 55-dBZ core ahead at 25 NM. You are IFR at FL200 with no airborne radar — only the datalinked NEXRAD on the EFB.',
+        question: 'Classify the intensity per FAA Table 24-1, decide the minimum lateral avoidance distance per AC 00-24C, and brief the action.',
+        options: [
+          '55 dBZ = Moderate — proceed with 5 NM lateral offset',
+          '55 dBZ exceeds the >50 dBZ threshold for EXTREME intensity (FAA-H-8083-28A Table 24-1: <30 light / 30–40 moderate / 40–50 heavy / >50 extreme). AC 00-24C calls for a minimum 20 NM lateral avoidance from any cell showing severe intensity, with greater margins for extreme cores. Request immediate deviation; do not penetrate; treat datalink position as approximate (assume the cell may be closer than displayed)',
+          '55 dBZ = Heavy — penetrate with caution at reduced airspeed',
+          'Color displays vary; the 55 dBZ value is unreliable without knowing the EFB color legend'
+        ],
+        correct: 1, xp: 15,
+        explanation: 'Per FAA-H-8083-28A Table 24-1 (corrected reference): <30 dBZ = light, 30–40 = moderate, 40–50 = heavy, >50 = extreme. A 55 dBZ core is solidly in the EXTREME category — large hail, severe-to-extreme turbulence, structural threat. AC 00-24C "Thunderstorms" specifies a 20 NM minimum lateral avoidance from any cell showing severe intensity, with wider margins (some operators use 30 NM or more) for extreme cores. The datalink range and timestamp introduce additional uncertainty — treat the displayed position as approximate; assume the cell is closer and growing. Never penetrate at any speed.',
+        faaRef: 'Ch. 24', concept: 'radar_products'
+      },
+      {
+        id: 'q_m14_4', type: 'scenario',
+        scenario: 'Pre-flight briefing for a 350-NM IFR cross-country. Latest FIS-B NEXRAD shows a frontal line of cells well east of your departure, oriented N-S, with a clear sector to the west of the line that includes most of your route. Datalink timestamp is 8 minutes old.',
+        question: 'How should you USE this NEXRAD data in your pre-flight briefing — what is it good for, and how should you brief the latency?',
+        options: [
+          'Use it to plan tactical penetration of the frontal line at the narrowest gap',
+          'Use it for STRATEGIC routing — confirm the bulk of the convective system is east of your planned route and decide which side of the front to fly. Brief the 8-minute latency as a "where the weather WAS" indicator: cells will have moved 4–7 NM in 8 minutes at typical 30–50 kt motion, so build margin into the route. Do not use datalink for in-close cell-by-cell avoidance once airborne',
+          'Treat the 8-minute lag as acceptable for tactical decisions because the latency is short',
+          'Datalink is only useful in the cockpit, not for pre-flight briefing — use only the live AWC charts'
+        ],
+        correct: 1, xp: 10,
+        explanation: 'FIS-B / SiriusXM datalink NEXRAD is a STRATEGIC tool, not a tactical one. Proper use: confirm the synoptic picture, pick the right side of a frontal line, decide whether to delay or reroute, identify the location and motion of a storm system. The latency (5–20 minutes depending on product) means the displayed image shows where precipitation WAS, not where it IS — a cell moving at 40 kt covers 5–7 NM in an 8-minute lag. For pre-flight briefing this is fine because you are making decisions on tens-of-NM scales that absorb the lag. For in-close (within 20–40 NM) cell avoidance, the lag plus beam-overshoot effects make the picture unreliable — use airborne radar or visual avoidance instead.',
+        faaRef: 'Ch. 24', concept: 'radar_products'
+      },
+      {id:'q_m14_5',type:'scenario',scenario:'You are en route at FL200. Your EFB shows a large area of radar returns, but there appears to be a 15-NM gap between two cells. The returns show 35-45 dBZ on both sides of the gap. The datalink radar timestamp shows 12 minutes ago.',options:['Fly through the gap — radar shows no returns in the corridor','Avoid the gap — 12-minute-old radar may show a corridor that no longer exists; 35-45 dBZ cells indicate moderate-to-heavy precipitation; the gap may contain severe turbulence at the updraft/downdraft boundary','Descend to 10,000 ft where radar shows clear','Request ATC vectors through the gap — they have better radar'],correct:1,question:'What is your assessment of the gap?',xp:25,explanation:'Multiple red flags: (1) 12-minute-old datalink radar — the storms have moved; the gap may be closed. (2) 35-45 dBZ spans moderate-to-heavy returns on both sides (per FAA-H-8083-28A Table 24-1: 30–40 moderate, 40–50 heavy) — severe turbulence likely in the boundary zones regardless of category. (3) Radar gaps = updraft/downdraft interface = worst turbulence. ATC radar is also not real-time enough for tactical decisions. The only safe choice is to deviate around the storm system entirely.',faaRef:'Ch. 24'},
+      {
+        id: 'q_m14_6', type: 'scenario',
+        scenario: 'NEXRAD Echo Tops shows a thunderstorm at 35,000 ft over your route. You are en route turbine traffic at FL340 considering whether to overfly the cell.',
+        question: 'Should you trust FL340 as overflight altitude over a 35,000-ft Echo Tops indication, and what does the FAA buffer guidance say?',
+        options: [
+          'Yes — FL340 is 1,000 ft above echo tops, which is adequate clearance',
+          'No — Echo Tops display the height of the 18-dBZ radar echo top, but cloud tops are HIGHER (often 1,000–4,000 ft above the radar echo top), and a developing CB can grow several thousand feet between the scan and your overflight. Standard guidance is 1,000–4,000 ft of buffer ABOVE Echo Tops (more for severe storms), and even that is inadequate for a CB still building. Climb significantly higher or deviate laterally',
+          'Yes, because Echo Tops is calibrated to include a built-in 4,000-ft buffer',
+          'No, but for the wrong reason — Echo Tops shows cloud tops directly and turbine aircraft can never overfly a thunderstorm at any altitude'
+        ],
+        correct: 1, xp: 10,
+        explanation: 'Echo Tops shows the height of the 18-dBZ radar echo top, expressed in thousands of feet MSL. Two important caveats: (1) cloud tops are HIGHER than the echo top — water droplets thin out before they disappear from radar, so the visible cloud often extends 1,000–4,000 ft above the radar echo. (2) A developing CB can grow at 1,000–3,000 fpm; between the radar scan and your overflight, the storm may have climbed several thousand feet. Standard buffer-above-echo-tops guidance is 1,000–4,000 ft for typical thunderstorms, considerably more for severe or rapidly-developing storms. FL340 over a 35,000-ft echo-tops indication is INSIDE the buffer envelope — climb higher or deviate.',
+        faaRef: 'Ch. 24', concept: 'radar_products'
+      },
+      {
+        id: 'q_m14_7', type: 'scenario',
+        scenario: 'NEXRAD display shows a strong cell along your route. The reflectivity scan shows a 55-dBZ core. The velocity (Doppler) product over the same cell shows an adjacent green-and-red couplet — green pixels right next to red pixels with sharply differing radial velocities.',
+        question: 'What does the green/red couplet represent on the velocity display, and what does it imply about the severity of the cell?',
+        options: [
+          'A radar artifact caused by ground clutter — ignore it',
+          'A mesocyclone signature: green (radial wind toward the radar) immediately adjacent to red (radial wind away from the radar) at the same cell indicates rotation. Combined with the 55-dBZ reflectivity core, this signals a severe storm with potential for tornadic development. Increase avoidance distance well beyond the standard 20 NM and consider rerouting entirely; pair velocity with reflectivity for a complete storm picture',
+          'Two adjacent storm cells producing offsetting wind returns — treat them as separate weak cells',
+          'A signature of beam overshoot at long range — the actual storm is weaker than the display suggests'
+        ],
+        correct: 1, xp: 10,
+        explanation: 'NEXRAD velocity (Doppler) shows wind speed toward/away from the radar — green = toward, red = away. A tight green/red couplet at a single cell means air moving toward the radar is right next to air moving away from the radar at the same location: that is rotation, the radar signature of a mesocyclone. Mesocyclones are organized rotation in supercells and are the precursor signal for tornadoes. When a mesocyclone signature appears alongside a 55-dBZ reflectivity core, you are looking at a severe-to-tornadic storm — the standard 20 NM thunderstorm avoidance is a floor, not a ceiling, and a much wider deviation is warranted. Operationally — pair velocity with reflectivity for the full picture: reflectivity tells you where the precipitation is, velocity tells you how dangerous the cell is.',
+        faaRef: 'Ch. 24', concept: 'radar_products'
+      }
     ,
-      {id:'q_m14_8',type:'timed',timeLimit:10,question:'At night, which satellite imagery type is most useful for identifying active thunderstorm locations and heights?',options:['Visible — shows cloud texture and shadows clearly','Water vapor — shows moisture at 500 mb level','Enhanced infrared (IR) — shows cold cloud tops in color, works 24/7','Surface radar reflectivity — satellite is not useful at night'],correct:2,xp:15,explanation:'Visible satellite requires sunlight and is useless at night. Enhanced infrared measures cloud-top temperature 24/7, using colors where coldest (highest) tops appear bright red or black — identifying CB anvils and active storm cores. Always use an animated loop to assess movement. Water vapor shows upper-level moisture but doesn’t resolve individual storm cells as precisely.',faaRef:'Ch. 24',concept:'radar_products'}
+      {
+        id: 'q_m14_8', type: 'scenario',
+        scenario: '0230L IFR cross-country, scattered showers along route per the latest NEXRAD. You want to verify whether any active CB cores are forming — including low-topped, updraft-dominated cells that may not yet be producing enough precipitation to register on radar.',
+        question: 'Which satellite product gives you the best night-time picture of active convective cores, and why?',
+        options: [
+          'Visible imagery — the highest-resolution product available',
+          'Enhanced infrared (IR) — measures cloud-top temperature 24/7, with deep-red/black coloring on the coldest tops marking the highest convective towers. Active CBs show clearly even before they produce precipitation that radar can detect. Visible is useless at night; water vapor shows mid-upper moisture but does not resolve individual storm cells precisely. Always use the animated loop to see motion and growth',
+          'Water vapor — gives you the radar correlation directly',
+          'Surface radar reflectivity — satellite is not useful at night'
+        ],
+        correct: 1, xp: 15,
+        explanation: 'Visible satellite needs sunlight; useless after sunset. Enhanced IR measures cloud-top temperature continuously — coldest tops appear deep red or black on the standard color enhancement. Active CB anvils are unmistakable in IR even when their precipitation cores have not yet developed enough reflectivity to show on radar. Water vapor (mid-upper troposphere moisture) is good for jet-stream position and large-scale moisture transport but does not give cell-resolution detail. The animated loop is the critical workflow — a single frame tells you little; 2 hours of animation shows whether the cells are growing, weakening, or moving in a direction that affects your route.',
+        faaRef: 'Ch. 24', concept: 'radar_products'
+      }
     ,
-      {id:'q_m14_9',type:'mc',question:'Why does aircraft weather radar show only the LEADING EDGE of an intense storm cell rather than its full extent?',options:['Aircraft radar has limited range and cannot detect storms beyond 50 NM','Heavy precipitation at the leading edge attenuates (absorbs/scatters) the 3-cm radar beam, preventing energy from penetrating to show storms behind the leading edge','Aircraft radar uses a different wavelength that only shows precipitation intensity, not distance','Modern aircraft radar has been updated to show full storm extent — older aircraft had this limitation'],correct:1,xp:10,explanation:'Aircraft weather radar typically uses 3-cm wavelength. At 3 cm, precipitation attenuation is severe — heavy rain near the radar absorbs and scatters so much energy that little reaches storms behind it. What appears to be a gap between storm cells on aircraft radar may actually be a continuation of intense precipitation hidden by attenuation. This is a critical limitation: never attempt to fly through a gap shown on airborne radar in a convective environment — it may not be a real gap.',faaRef:'Ch. 15',concept:'radar_products'},
-      {id:'q_m14_10',type:'timed',timeLimit:10,question:'On a NEXRAD reflectivity display, which color typically indicates the most intense precipitation requiring immediate avoidance?',options:['Green — moderate rainfall, safe to penetrate in most aircraft','Yellow/orange — heavy rain, use caution','Red and magenta/purple — extreme reflectivity (65+ dBZ), large hail, severe thunderstorm'],correct:2,xp:10,explanation:'Standard NEXRAD reflectivity color scale: Green = light (15-30 dBZ, light rain). Yellow = moderate (35-40 dBZ, moderate rain). Orange/red = heavy (45-55 dBZ, heavy rain, possible hail). Magenta/purple = extreme (60-75 dBZ, large hail, severe thunderstorm). The NWS uses 35 dBZ as the threshold for significant precipitation. Any cell showing red should be avoided by at least 20 NM; magenta/purple cells should be given maximum available separation.',faaRef:'Ch. 15',concept:'radar_products'},
-      {id:'q_m14_11',type:'mc',question:'Anomalous propagation (AP) on a radar display refers to:',options:['Unusual storm motion caused by jet stream winds','False echoes created when the radar beam bends toward the ground due to a temperature inversion, showing ground targets as precipitation','Loss of radar signal caused by beam blockage from terrain','Precipitation that appears to move backward on radar loop'],correct:1,xp:10,explanation:'Anomalous propagation (AP) occurs when a temperature inversion causes the radar beam to bend downward (super-refraction) and strike the ground, producing false echoes that look like precipitation. AP typically shows as: irregular, flat echoes near the radar, a "bulls-eye" pattern, or returns that appear in clear weather overnight/early morning when inversions are common. Key diagnostic: AP doesn’t move coherently on a loop animation — use the animated loop to distinguish AP from real precipitation.',faaRef:'Ch. 15',concept:'radar_products'},
-      {id:'q_m14_12',type:'scenario',scenario:'You are 40 NM from a line of cells and your EFB shows a NEXRAD image with 5-minute-old data. The cells appear to be moving at 35 kt toward your position. Your aircraft cruises at 110 kt.',question:'Using only NEXRAD to navigate between two gaps in the cells, what is the critical hazard?',options:['None — 40 NM provides plenty of decision time at 35 kt cell motion','The NEXRAD data is 5+ minutes old. Cells move and develop rapidly. Gaps visible now may have closed. Airborne radar with REAL-TIME display must be used for in-close convective avoidance — NEXRAD is for STRATEGIC avoidance only.','NEXRAD is accurate enough for in-close avoidance at distances under 50 NM','The 35 kt cell motion means you have 69 minutes before the cells reach you — adequate time'],correct:1,xp:20,explanation:'NEXRAD datalink (FIS-B, ForeFlight, etc.) has 5-15 minutes of latency from scan to your cockpit. At 35 kt cell motion, a cell can move 3-9 NM during that latency. A gap that appears safe may have closed. For this reason, NEXRAD is used ONLY for strategic avoidance (staying well clear of storm systems) — NEVER for navigating between cells. Airborne weather radar with real-time display is required for in-close avoidance. If you don’t have airborne radar, stay at least 20 NM from any convective activity.',faaRef:'Ch. 3, 15'}
+      {
+        id: 'q_m14_9', type: 'scenario',
+        scenario: 'Onboard 3-cm aircraft weather radar shows a strong leading-edge cell at 20 NM with what appears to be a clear corridor immediately behind it. You are tempted to penetrate the gap to save the deviation.',
+        question: 'What is the most likely explanation for the apparent clear area behind the strong leading edge, and what is the safe action?',
+        options: [
+          'The clear area is real; the storm has only one cell — penetrate at reduced airspeed',
+          'Attenuation shadow — heavy precipitation in the leading edge absorbs and scatters the 3-cm radar pulse, leaving little energy to reach storms beyond. The "clear" area behind the strong return is likely a hidden second cell (or continuation of the first). Never penetrate an apparent gap behind a strong return on airborne radar in a convective environment; deviate laterally around the entire system',
+          'Doppler interference creates the false shadow; modern radars correct for it automatically',
+          'The radar antenna is mis-tilted; the shadow disappears with elevation adjustment'
+        ],
+        correct: 1, xp: 10,
+        explanation: 'Aircraft weather radar typically operates at 3-cm wavelength (X-band). Heavy precipitation strongly absorbs and scatters this wavelength — the radar pulse loses much of its energy passing through the leading edge of a storm, leaving too little to detect cells behind it. The visible result is an "attenuation shadow": an apparent clear area immediately downrange of a strong return that may actually contain hidden cells. Critical operational rule: in a convective environment, never trust an apparent gap on airborne radar that sits behind a strong return. Treat all such gaps as suspect; deviate around the entire complex laterally. Attenuation is one of several reasons airborne radar requires interpretation, not literal reading.',
+        faaRef: 'Ch. 15', concept: 'radar_products'
+      },
+      {
+        id: 'q_m14_10', type: 'scenario',
+        scenario: 'Pre-flight briefing on the AWC NEXRAD product. Along your planned route you see a mix of green, yellow, orange, red, and isolated magenta returns.',
+        question: 'Map the colors to the corrected dBZ categories and brief the avoidance strategy.',
+        options: [
+          'Green = light; yellow = moderate; orange = heavy; red = extreme; magenta = beyond extreme. Use 5 NM avoidance for any color',
+          'Standard NEXRAD scale: green ≈ light (<30 dBZ), yellow/orange ≈ moderate (30–40 dBZ), red ≈ heavy (40–50 dBZ), magenta/purple ≈ extreme (>50 dBZ). Per AC 00-24C, give any cell showing red or magenta a minimum 20 NM lateral avoidance — wider for the magenta extreme cores. Color legends vary by provider so always check the legend on the actual product before relying on color-to-category mapping',
+          'Color displays are unreliable; only numerical dBZ readouts matter',
+          'Light through extreme can all be safely overflown by 1,000 ft; lateral avoidance is unnecessary'
+        ],
+        correct: 1, xp: 10,
+        explanation: 'Per the corrected FAA-H-8083-28A Table 24-1 thresholds: <30 dBZ = light, 30–40 = moderate, 40–50 = heavy, >50 = extreme. The standard NEXRAD color enhancement is green (light), yellow → orange (moderate), red (heavy), and magenta/purple (extreme); but color scales DIFFER between providers (NWS, ForeFlight, SiriusXM, Garmin, etc.) — always read the legend on the actual product. AC 00-24C "Thunderstorms" calls for a 20 NM minimum lateral avoidance from any cell showing severe intensity (heavy/extreme); operators commonly add wider margins for extreme cores. Overflying convective cells is rarely safe regardless of altitude — vertical motions in CBs can climb tens of thousands of feet rapidly.',
+        faaRef: 'Ch. 24', concept: 'radar_products'
+      },
+      {
+        id: 'q_m14_11', type: 'scenario',
+        scenario: '0500L pre-departure check. The local NEXRAD product shows an unusual flat, irregular bulls-eye pattern of 25-dBZ returns centered on the radar site. The animated loop over the last hour shows the pattern barely moves; the actual sky overhead is clear under a cold, calm temperature inversion.',
+        question: 'What is most likely happening on the radar display, and how do you confirm it?',
+        options: [
+          'A real but very weak band of stratiform precipitation; check NEXRAD again in 15 minutes',
+          'Anomalous propagation (AP) — the cold/calm overnight temperature inversion is bending the radar beam downward (super-refraction), causing it to strike the ground around the radar and return false ground-target echoes. Confirm via the animated loop: real precipitation moves coherently with the wind; AP does not move and does not propagate. The clear sky overhead is the third confirmation',
+          'Beam overshoot at long range producing wraparound returns',
+          'A radar maintenance test; ignore'
+        ],
+        correct: 1, xp: 10,
+        explanation: 'Anomalous propagation (AP) is the radar phenomenon where a strong temperature inversion bends the radar beam downward (super-refraction) until it strikes the ground or buildings, producing false echoes that look like precipitation. Diagnostic signs: irregular, flat returns concentrated near the radar site (often a "bulls-eye"); echoes that do not move on the animated loop the way real precipitation would; and a real-world sky that is clear or near-clear despite the false returns. AP is most common during cold/calm overnight inversions — the same setup that produces radiation fog. The animated loop is the definitive diagnostic — real precipitation moves with the wind; AP does not.',
+        faaRef: 'Ch. 15', concept: 'radar_products'
+      },
+      {
+        id: 'q_m14_12', type: 'scenario',
+        scenario: 'You are 220 NM from the nearest WSR-88D radar site. The NEXRAD display shows a clear sector along your route. A PIREP from another aircraft 30 minutes ago reported a thunderstorm with tops to 15,000 ft AGL in that exact corridor — but nothing shows on your display.',
+        question: 'What is the most likely explanation for the disagreement, and what does that tell you about trusting "clear" radar at long range?',
+        options: [
+          'The PIREP is stale and unreliable; trust the radar',
+          'Beam overshoot — at 220 NM the WSR-88D 0.5° tilt beam center is at roughly 19,000+ ft AGL (per s14_beam_geometry: ~19,000 ft at 200 NM), so a cell with tops at 15,000 ft is below the beam entirely and produces no return. The "clear" radar sector is misleading — the cell is real but invisible. Operational rule: at ranges beyond ~150 NM from the nearest WSR-88D, treat the display as showing only upper-level weather; PIREPs of low-topped cells are more reliable than the radar “no return”',
+          'Radar attenuation from intervening light precipitation; the cell is detectable but suppressed',
+          'The PIREP altitude is wrong; cells with 15,000-ft tops always show on radar'
+        ],
+        correct: 1, xp: 20,
+        explanation: 'WSR-88D beam height vs range from the radar (s14_beam_geometry): at 100 NM the 0.5° beam center is ~5,000 ft AGL; at 150 NM it is ~12,000 ft AGL; at 200 NM it is ~19,000 ft AGL; beyond 200 NM only the tallest cells register at all. A thunderstorm with tops at 15,000 ft — a real and operationally significant cell — sits entirely below the beam at 220 NM and produces NO radar return. The display will show "clear" along that corridor. Operational rule: at ranges beyond ~150 NM from the nearest WSR-88D, the display tells you about upper-level weather only; low-topped cells are systematically invisible. PIREPs become more authoritative than radar in those zones. The 40 / 80 / 150 NM rule of thumb in the section is the planning floor: within 40 NM, datalink is reasonable; 40–80 NM, strategic use; 80–150 NM, upper-weather only; beyond 150 NM, situational awareness only.',
+        faaRef: 'Ch. 15, 24', concept: 'radar_products'
+      }
     ]
   },
 
