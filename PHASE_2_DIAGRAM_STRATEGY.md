@@ -4,6 +4,8 @@
 **Status:** Recommendation only. No code changes yet — implementation pending your approval.
 **Date:** 2026-05-07
 
+> **Chapter references corrected** — see `PHASE_2B_PICKS.md` for canonical FAA figure locations (Ch 9 jets, Ch 10 wind, Ch 11 fronts, Ch 19 turbulence, Ch 25 charts).
+
 ---
 
 ## Q1. Inventory
