@@ -12,7 +12,6 @@ const Diagrams = {
     if (type === 'interactive') {
       const fns = {
         cb_ingredients:()=>this.cbIngredients(),
-        ice_types:()=>this.iceTypes(),
         turbulence_sources:()=>this.turbulenceSources(),
         fog_types:()=>this.fogTypes(),
         microburst_approach:()=>this.microburstApproach(),
@@ -241,10 +240,6 @@ const Diagrams = {
       lapse_rate_graph: {
         title: '📈 Lapse Rate Stability Graph',
         content: this.lapseRateGraph()
-      },
-      inversion_types: {
-        title: '🌡️ Temperature Inversion Types',
-        content: this.inversionTypesSVG()
       }
     };
     const cfg = configs[key];
@@ -704,43 +699,6 @@ const Diagrams = {
     });
   },
 
-  // ── NEW: INVERSION TYPES DIAGRAM ─────────────────────────
-  inversionTypesSVG() {
-    return `<div style="padding:16px;background:#F8FAFC">
-      <p style="font-family:var(--font-display);font-size:14px;color:#64748B;margin:0 0 14px">Tap each inversion type to see formation mechanism and aviation effects:</p>
-      <div style="display:grid;gap:8px">
-        ${[
-          ['Radiation Inversion','🌙',`Forms overnight as the surface radiates heat. Cool surface → cold air below, relatively warmer air above. Typically <1,000 ft deep. Burns off after sunrise as surface heats. Associated with radiation fog, smooth early-morning flying, then developing turbulence as it erodes.`,'#E0F2FE','#0284C7','rad'],
-          ['Subsidence Inversion','⬆️',`Air sinks and warms in a high-pressure system. Creates a very persistent inversion at 2,000-5,000 ft. Can trap pollution, smoke, and moisture below it. California "June Gloom" is a classic example — marine stratus trapped below a strong subsidence inversion. Can last days to weeks.`,'#FEF3C7','#D97706','sub'],
-          ['Frontal Inversion','🌡️',`Warm air overriding cold air along a frontal boundary. The warm air layer is warmer than the cold air below — classic inversion structure. Can produce icing above the frontal surface (warm air is moist) and freezing drizzle below (supercooled drops falling into cold air). Most hazardous icing scenarios often involve frontal inversions.`,'#FFE4E6','#EF4444','fro'],
-        ].map(([title,emoji,desc,bg,col,id])=>`
-        <div onclick="Diagrams.showInvInfo('${id}')" style="background:${bg};border-radius:14px;padding:14px;cursor:pointer;border:2px solid ${col}30;display:flex;gap:12px;align-items:flex-start">
-          <span style="font-size:24px;flex-shrink:0">${emoji}</span>
-          <div>
-            <div style="font-family:var(--font-display);font-weight:800;font-size:14px;color:${col};margin-bottom:4px">${title}</div>
-            <div style="font-size:12px;color:#475569;line-height:1.5">${desc}</div>
-          </div>
-        </div>`).join('')}
-      </div>
-      <div id="inv-detail" style="background:var(--navy);border-radius:14px;padding:14px;color:white;font-family:var(--font-display);font-size:13px;line-height:1.6;margin-top:10px;display:none">
-        <strong id="inv-title" style="color:#F59E0B;display:block;margin-bottom:6px"></strong>
-        <span id="inv-text"></span>
-      </div>
-    </div>`;
-  },
-
-  showInvInfo(id) {
-    const info = {
-      rad: { title:'🌙 Radiation Inversion — Pilot Briefing', text:'Best time to fly? Dawn/early morning before the radiation inversion erodes — air is smooth and visibility is good above the fog layer. Worst time? Mid-morning to noon as the inversion breaks up — turbulent mixing layer develops, fog lifts to stratus then dissipates, but ceilings may be variable. If departing early: check that ceiling and vis will improve, not worsen, during your flight.' },
-      sub: { title:'⬆️ Subsidence Inversion — Pilot Briefing', text:'The subsidence inversion acts as a "ceiling" on convection and visibility. Below it: hazy, restricted visibility, low ceilings possible. Above it: clear and smooth VFR conditions. Filing IFR through the stratus layer is often the solution in coastal areas. Be aware: the inversion base may lower overnight and rise midday. Watch the trend, not just the current METAR.' },
-      fro: { title:'🌡️ Frontal Inversion — Pilot Briefing', text:'Frontal inversions are the source of some of the most hazardous icing scenarios. The classic "freezing rain trap": warm rain falls from above-freezing air above the frontal surface through below-freezing air near the surface. SLD conditions possible. Pilots caught below a warm front in this temperature structure may find no safe altitude — icing below (freezing level) and IMC above (clouds). Only escape: fly out of the frontal zone laterally.' },
-    };
-    const d = info[id];
-    document.getElementById('inv-detail').style.display = 'block';
-    document.getElementById('inv-title').textContent = d.title;
-    document.getElementById('inv-text').textContent = d.text;
-  },
-
   showOrgInfo(id) {
     const info = {
       noaa: { title:'🌐 NOAA — National Oceanic and Atmospheric Administration', text:'Parent agency for all US weather. Operates the NESDIS satellite network (GOES-East and GOES-West) — the source of every satellite loop on aviationweather.gov. Oversees the National Weather Service. NOAA does not issue pilot-specific products directly — the NWS handles that role — but NOAA funding and satellites underpin everything pilots rely on.' },
@@ -814,40 +772,6 @@ const Diagrams = {
     document.getElementById('cb-ing-popup').style.display='block';
     document.getElementById('cb-ing-title').textContent=i.title;
     document.getElementById('cb-ing-text').textContent=i.text;
-  },
-
-  iceTypes(){
-    return `<div class="diagram-container"><div class="diagram-header"><span style="font-size:14px;color:white;font-family:var(--font-display);font-weight:700">🧊 Ice Types — Tap Each Type</span></div>
-    <div style="background:#F0F9FF">
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr">
-        ${[
-          {id:'rime',name:'Rime Ice',desc:'Rough, milky, opaque. Small droplets freeze instantly. Most frequently reported. Grows INTO the airstream from leading edges. Brittle — easier to remove. More common at colder temps (-15°C and below).', color:'#94A3B8',bg:'linear-gradient(180deg,#0C1B33,#1E3A5F,#334155)'},
-          {id:'clear',name:'Clear Ice',desc:'Glossy, transparent, dense. Large droplets flow aft before freezing. Forms HORNS at leading edge top/bottom. Spreads beyond deicing equipment. Most hazardous type. More common near 0°C. SLDs are a form of clear icing.',color:'#60A5FA',bg:'linear-gradient(180deg,#0C1B33,#1D4ED8,#60A5FA)'},
-          {id:'mixed',name:'Mixed Ice',desc:'Combination of rime and clear. Layers of opaque and clear ice. Similar hazard to clear ice — can form horns and spread aft. Most common in variable conditions with different droplet sizes.',color:'#A5B4FC',bg:'linear-gradient(180deg,#0C1B33,#312E81,#818CF8)'},
-        ].map(t=>`
-        <div onclick="Diagrams.showIceDetail('${t.id}')" style="cursor:pointer;height:110px;background:${t.bg};display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden">
-          <div style="position:relative;z-index:2;padding:8px;background:linear-gradient(0deg,rgba(0,0,0,.7),transparent)">
-            <div style="font-family:var(--font-display);font-weight:900;font-size:12px;color:white">${t.name}</div>
-            <div style="font-size:9px;color:rgba(255,255,255,.7)">Tap for details</div>
-          </div>
-        </div>`).join('')}
-      </div>
-      <div id="ice-detail" style="display:none;padding:16px;background:var(--navy);color:white;font-family:var(--font-display);font-size:13px;line-height:1.6">
-        <strong id="ice-detail-title" style="color:#38BDF8;display:block;margin-bottom:6px"></strong>
-        <span id="ice-detail-text"></span>
-      </div>
-    </div></div>`;
-  },
-
-  showIceDetail(id){
-    const d={
-      rime:{title:'Rime Ice — Rough & Opaque',text:'Rime ice forms when small supercooled droplets freeze INSTANTLY on contact with the airframe. The rapid freezing traps air, creating a porous, brittle, milky-colored ice that grows INTO the airstream from the leading edge. Most frequently reported icing type. Favors colder temperatures, lower liquid water content, smaller droplets. Jagged texture disrupts the airfoil boundary layer. More easily removed by deicing equipment than clear ice.'},
-      clear:{title:'Clear Ice — Glossy & Most Hazardous',text:'Clear (glaze) ice forms when large supercooled droplets freeze GRADUALLY — the unfrozen portion flows aft before freezing. The result: dense, transparent ice that is hard to see and spreads beyond the coverage area of deicing equipment. MOST HAZARDOUS: forms horns at the top and bottom of the leading edge that drastically alter the airfoil shape. Significantly harder to remove. SLDs (freezing rain/drizzle) produce the most extreme clear icing, accreting far aft on the wing.'},
-      mixed:{title:'Mixed Ice — Layers of Both',text:'Mixed icing occurs when an aircraft encounters small-scale variations in liquid water content, temperature, and droplet sizes — collecting both rime and clear ice simultaneously. Appears as distinct layers of opaque and clear ice when viewed from the side. Hazard profile similar to clear ice: can form horns, spread beyond deicing equipment coverage, and cause handling difficulties. Common in areas where cloud structure varies rapidly.'},
-    };
-    document.getElementById('ice-detail').style.display='block';
-    document.getElementById('ice-detail-title').textContent=d[id].title;
-    document.getElementById('ice-detail-text').textContent=d[id].text;
   },
 
   // FAA-H-8083-28A Ch 19 — turbulence types by mechanism. The four figures
