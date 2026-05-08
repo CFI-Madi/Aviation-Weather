@@ -144,6 +144,8 @@ const Diagrams = {
         <!-- Aircraft icon -->
         <text x="200" y="240" font-size="22" text-anchor="middle">✈️</text>
       </svg>
+      <!-- Pass 2c scale-callout: layer rectangles use equal vertical bands for legibility — strict-to-scale would render the troposphere as a sliver and the upper layers as full screens. -->
+      <div style="background:rgba(12,27,51,0.05);padding:6px 12px;font-family:var(--font-mono);font-size:10px;color:#64748B;text-align:center;letter-spacing:.02em;border-top:1px solid rgba(12,27,51,0.08)">Not to scale — layer thicknesses exaggerated for clarity</div>
       <div id="atmo-popup" style="display:none;position:absolute;bottom:0;left:0;right:0;background:rgba(12,27,51,0.96);color:white;padding:16px;font-family:var(--font-display);font-size:13px;line-height:1.5">
         <strong id="atmo-popup-title" style="color:#38BDF8;display:block;margin-bottom:6px"></strong>
         <span id="atmo-popup-text"></span>
