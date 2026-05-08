@@ -829,47 +829,74 @@ const MODULES = [
     ],
     quiz: [
       {
-        id: 'q_m4_1', type: 'mc',
-        question: 'Cumuliform clouds indicate that the atmosphere is:',
-        options: ['Stable — air is resistant to vertical motion','Unstable — air parcel rises freely when lifted','In a temperature inversion — smooth conditions','Absolutely stable — stratus will follow'],
+        id: 'q_m4_1', type: 'scenario',
+        scenario: 'Preflight at KJQF 0900L. The morning sky was clear at sunrise; by 0900L, fair-weather cumulus has begun popping up over the Piedmont and is visibly building each time you look.',
+        question: 'What does the cumuliform development tell you about today’s atmosphere, and what should you brief about turbulence and afternoon weather?',
+        options: [
+          'A stable atmosphere — cumuliform clouds form from radiational cooling and mean a smooth day',
+          'An unstable atmosphere — lifted parcels are warmer than surroundings and keep rising; brief increasing low-level turbulence through midday and the possibility of TCu or thunderstorms by afternoon',
+          'A temperature inversion below the cloud bases — expect smooth flying through the layer',
+          'An approaching warm front — the cumulus will dissipate by midday'
+        ],
         correct: 1, xp: 10,
-        explanation: 'Cumuliform clouds (cumulus, cumulonimbus) are the "fingerprint" of an UNSTABLE atmosphere. Their vertical development means lifted parcels are warmer than surroundings and keep rising. Stratiform clouds indicate stability.',
-        faaRef: 'Ch. 12, 13'
+        explanation: 'Cumuliform clouds (cumulus, towering cumulus, cumulonimbus) are the visual fingerprint of an UNSTABLE atmosphere — lifted parcels stay warmer than their surroundings and keep climbing. Stratiform clouds (stratus, altostratus, nimbostratus) indicate stability. The "Cu growing through the morning" pattern is the canonical signal that today is a popcorn-convection day: low-level turbulence builds with surface heating, and TCu or isolated CB development by 1500–1700L is a real possibility. Plan a morning departure or a route west of expected afternoon convergence.',
+        faaRef: 'Ch. 12, 13', concept: 'stability'
       },
       {
-        id: 'q_m4_2', type: 'mc',
-        question: 'The Dry Adiabatic Lapse Rate (DALR) is:',
-        options: ['2°C per 1,000 ft — same as the Standard Lapse Rate','3°C (5.4°F) per 1,000 ft','1.5°C per 1,000 ft — the Moist Adiabatic Lapse Rate','Variable, changes with humidity'],
+        id: 'q_m4_2', type: 'scenario',
+        scenario: 'Synoptic westerly flow at 24°C surface temperature is forced up over the Blue Ridge, lifting an unsaturated surface parcel about 4,000 ft to the ridge top. The parcel does NOT reach saturation during the lift.',
+        question: 'Apply the Dry Adiabatic Lapse Rate (DALR) — what is the parcel temperature at the ridge top, and what does that drop tell you about cloud-formation potential along the windward slope?',
+        options: [
+          'Parcel temperature ≈ 16°C — the DALR is 2°C per 1,000 ft (same as ISA), so a 4,000 ft lift cools the parcel by 8°C',
+          'Parcel temperature ≈ 12°C — the DALR is 3°C per 1,000 ft, so a 4,000 ft lift cools the parcel by 12°C; if the parcel had higher humidity it would have hit the LCL during the lift and started forming windward cloud',
+          'Parcel temperature ≈ 18°C — the DALR varies with humidity and lift rate; you cannot calculate without knowing the dewpoint',
+          'Parcel temperature ≈ 24°C unchanged — adiabatic lifting does not cool unsaturated air'
+        ],
+        correct: 1, xp: 15,
+        explanation: 'The Dry Adiabatic Lapse Rate is 3°C (5.4°F) per 1,000 ft — the rate at which an UNSATURATED parcel cools as it rises. A 4,000 ft lift cools by 4 × 3 = 12°C, so a 24°C surface parcel arrives at the ridge top at ~12°C. Once a parcel reaches saturation (the LCL), latent-heat release slows the cooling to the Moist (Saturated) Adiabatic Lapse Rate (~1.5–2°C/1,000 ft) — the parcel keeps cooling but more slowly. Operationally: orographic windward-slope cloud forms whenever the surface parcel reaches its LCL during the lift; using DALR plus the surface T-Td spread tells you whether the ridge will be capped in cloud or stay clear.',
+        faaRef: 'Ch. 13', concept: 'stability'
+      },
+      {
+        id: 'q_m4_3', type: 'scenario',
+        scenario: 'A SkewT sounding shows a layer between 2,000 and 4,000 ft AGL with a measured Environmental Lapse Rate (ELR) of about 4°C/1,000 ft. Surface heating is forecast to push afternoon temperatures well above the morning baseline.',
+        question: 'Classify the stability of that layer and predict the convective character of any parcel forced into it.',
+        options: [
+          'Conditionally unstable — only saturated parcels rise freely; dry parcels stay stable',
+          'Absolutely unstable — ELR exceeds the DALR (3°C/1,000 ft), so any parcel (saturated or not) is always warmer than its surroundings and rises freely; expect vigorous convection, strong updrafts, towering cumulus, and likely thunderstorms',
+          'Absolutely stable — ELR exceeds the DALR, so any rising parcel is colder than surroundings and sinks back',
+          'Neutrally stable — ELR equals DALR, so parcels neither accelerate nor decelerate'
+        ],
         correct: 1, xp: 10,
-        explanation: 'The DALR is 3°C (5.4°F) per 1,000 ft — the rate at which an UNSATURATED parcel of air cools as it rises adiabatically. Once saturation is reached, latent heat release slows the cooling to the MALR (~1.5–2°C/1,000 ft).',
-        faaRef: 'Ch. 13'
+        explanation: 'Absolute instability requires ELR > DALR. With ELR ~4°C/1,000 ft (above the 3°C DALR), even a dry parcel pushed into the layer stays warmer than the surrounding air for the whole rise — no MALR transition needed. The result is vigorous convective overturning: TCu growth, strong updrafts that can exceed 1,000 fpm, and a high probability of CB development if moisture is sufficient. Absolute instability is unusual at the synoptic scale — it tends to be local and transient, often appearing in superheated boundary layers on hot afternoons and resolving fast as overturning mixes the layer.',
+        faaRef: 'Ch. 13', concept: 'stability'
       },
       {
-        id: 'q_m4_3', type: 'mc',
-        question: 'For the atmosphere to be ABSOLUTELY UNSTABLE, the Environmental Lapse Rate (ELR) must:',
-        options: ['Be less than the MALR','Equal the Standard Lapse Rate exactly','Exceed the DALR (>3°C/1,000 ft)','Exceed the MALR but be less than the DALR'],
-        correct: 2, xp: 10,
-        explanation: 'Absolutely unstable: ELR > DALR. In this case, a rising parcel (even unsaturated) is always warmer than the environment and keeps rising freely. This produces vigorous convection, towering cumulus, and thunderstorms.',
-        faaRef: 'Ch. 13'
+        id: 'q_m4_4', type: 'scenario',
+        scenario: 'TAF for your destination reads (in part): "BKN040 BKN140 OVC250 -RA". You are an IFR pilot briefing the approach.',
+        question: 'Classify the three reported cloud groups by altitude family, and identify which one is the IFR ceiling driver vs which one is the warm-front harbinger.',
+        options: [
+          'BKN040 is HIGH ice cloud, BKN140 is MIDDLE alto, OVC250 is LOW stratus — OVC250 is the ceiling driver',
+          'BKN040 is LOW (stratus / stratocumulus family) and is the IFR ceiling driver — that is what you fly the approach into; BKN140 is MIDDLE (alto family) and contributes the steady light rain; OVC250 is HIGH (cirrus family, ice crystals) and is the warm-front harbinger that signals weather worsening 12–24 hours out',
+          'All three groups are middle clouds with equal operational weight',
+          'Only the highest reported layer matters for the approach brief'
+        ],
+        correct: 1, xp: 20,
+        explanation: 'Cloud altitude classification: HIGH (>20,000 ft) = cirrus family (Ci, Cs, Cc — ice crystals, cirrostratus produces the halo); MIDDLE (6,500–20,000 ft) = alto family (Ac, As — gray-blue sheets, light continuous precip); LOW (<6,500 ft) = strato family (St, Sc — drizzle, ceilings) and Ns (continuous moderate-heavy precip); VERTICAL DEVELOPMENT = cumulus family (Cu, TCu, Cb — surface to tropopause, severe hazards). On this TAF: BKN040 is the IFR ceiling driver — it is what you break out of on the approach. BKN140 (alto level) is contributing the light rain. OVC250 (cirrus level) is the warm-front signal — it tells you tomorrow’s synoptic picture is degrading even though current ceilings are usable.',
+        faaRef: 'Ch. 12, App. A', concept: 'stability'
       },
       {
-        id: 'q_m4_4', type: 'drag_drop',
-        question: 'Match each cloud type to its correct altitude level:',
-        items: ['Cirrus', 'Altostratus', 'Stratus', 'Cumulonimbus'],
-        targets: ['HIGH (>20,000 ft)', 'MIDDLE (6,500–20,000 ft)', 'LOW (<6,500 ft)', 'VERTICAL DEVELOPMENT'],
-        answers: {'Cirrus':'HIGH (>20,000 ft)', 'Altostratus':'MIDDLE (6,500–20,000 ft)', 'Stratus':'LOW (<6,500 ft)', 'Cumulonimbus':'VERTICAL DEVELOPMENT'},
-        xp: 20,
-        explanation: 'Cloud altitude classification: HIGH = cirrus family (ice crystals); MIDDLE = alto prefix; LOW = strato prefix; Vertical development = cumulus family (surface to tropopause).',
-        faaRef: 'Ch. 12, App. A'
-      },
-      {
-        id: 'q_m4_5', type: 'timed',
-        timeLimit: 8,
-        question: 'A temperature inversion ALWAYS creates:',
-        options: ['Absolute instability — cumulonimbus likely','Absolute stability — the inverted layer resists convection','Conditionally unstable conditions','Geostrophic wind at the surface'],
+        id: 'q_m4_5', type: 'scenario',
+        scenario: 'Cold, calm winter night across the Piedmont — clear skies, light surface wind, no overcast to retain heat. You are planning a sunrise departure tomorrow morning.',
+        question: 'What surface inversion formation mechanism is operating overnight under these conditions, and what should you expect for the dawn departure?',
+        options: [
+          'Subsidence inversion from a high-pressure system aloft — expect smooth conditions all the way to cruise',
+          'Radiation inversion from overnight surface cooling — clear-sky / calm-wind nights let the ground radiate heat to space, chilling the surface air below the air a few hundred to a few thousand feet up. Expect a surface-based inversion at sunrise: low-level fog or haze trapped below, smooth flying above the inversion top, and potential wind-shear at the boundary',
+          'Advection inversion from warm air moving over a cold surface — expect upslope fog and IMC',
+          'Cold-air drainage from elevated terrain only — irrelevant on flat Piedmont terrain'
+        ],
         correct: 1, xp: 25,
-        explanation: 'A temperature inversion (temperature INCREASING with altitude) is absolutely stable. The layer strongly resists any vertical motion. Air forced upward into the inversion will be colder than the environment and sink back down.',
-        faaRef: 'Ch. 13'
+        explanation: 'There are four canonical inversion-formation mechanisms (s4_4): RADIATION cooling (clear, calm overnight surface cooling — the dominant mechanism on this scenario), SUBSIDENCE (sinking air aloft warming adiabatically inside a high-pressure dome), ADVECTION (warm air moving over a cold surface or cold air over warm), and DRAINAGE (cold air sliding into valleys overnight). Clear sky + calm wind is the textbook radiation-inversion setup: the ground radiates infrared heat to space; the air immediately above the surface chills below the air a few hundred to a few thousand feet up. By sunrise you have temperature INCREASING through that lower layer — moisture, smoke, and pollutants are trapped below; visibility and ceilings are likely degraded; turbulence and wind shear concentrate at the inversion top. The fog/mist often does not lift until solar heating mixes the layer.',
+        faaRef: 'Ch. 13', concept: 'stability'
       },
       {
         id: 'q_m4_6', type: 'scenario',
@@ -886,57 +913,81 @@ const MODULES = [
         faaRef: 'Ch. 13'
       },
       {
-        id: 'q_m4_7', type: 'mc',
-        question: 'Altocumulus castellanus clouds in the morning sky are a strong signal of:',
-        options: ['Stable conditions — expect smooth flights all day','Significant instability aloft — afternoon thunderstorms likely','A warm front approaching within 6 hours','High-altitude icing but stable surface conditions'],
+        id: 'q_m4_7', type: 'scenario',
+        scenario: '0900L preflight at KJQF for a planned 1500L afternoon flight. Looking up, you see clearly turreted altocumulus castellanus (Ac cas) at mid-levels — castle-like cumulus towers rising from an altocumulus layer.',
+        question: 'What should you forecast about the day’s convective evolution, and how should that shape the planned 1500L departure?',
+        options: [
+          'Stable conditions — Ac cas signals a smooth day; depart at 1500L as planned',
+          'Significant instability already present in the MIDDLE troposphere — Ac cas in the morning is a classic predictor of severe afternoon convection. Move the departure forward to before 1300L if possible, or accept the risk of an in-flight deviation around afternoon TCu/CB',
+          'Approaching warm front within 6 hours — expect ceiling lowering, no convective concern',
+          'High-altitude icing only, with stable surface conditions — proceed as planned'
+        ],
         correct: 1, xp: 10,
-        explanation: 'Altocumulus castellanus (Ac cas) are turreted, castle-like cumulus towers growing from an altocumulus layer. They indicate significant instability in the MIDDLE troposphere. When seen in the morning, they are a reliable predictor of severe afternoon convection — a classic "severe storm day" indicator used by forecasters.',
-        faaRef: 'Ch. 12'
+        explanation: 'Altocumulus castellanus (Ac cas) are turreted, castle-like cumulus towers growing from an altocumulus layer — they indicate significant instability already present in the MIDDLE troposphere even before surface heating peaks. Forecasters use morning Ac cas as a reliable predictor of severe afternoon convection because the mid-level instability gets a boost from rising surface temperatures and any low-level moisture, and the parcels that reach the unstable mid-level layer accelerate rapidly upward. Operationally: move the flight forward to morning where possible, or plan deviations around the afternoon convective field.',
+        faaRef: 'Ch. 12', concept: 'stability'
       },
       {
         id: 'q_m4_8', type: 'drag_drop',
-        question: 'Match each cloud description to the correct cloud type:',
-        items: ['Wispy ice streaks — warm front signal', 'Dark featureless — continuous rain', 'Lumpy rolls — most common worldwide', 'Extreme hazard — avoid 20 NM'],
-        targets: ['Cirrus', 'Nimbostratus', 'Stratocumulus', 'Cumulonimbus'],
+        question: 'Match each operational cloud signature to the genus that best explains it:',
+        items: [
+          'Thin uniform veil at 28,000 ft producing a pronounced halo around the moon — leading the synoptic field by 12–24 hours',
+          'Lumpy, rolled cloud sheet at 3,500 ft AGL with occasional gaps showing blue, no precipitation — the most common cloud type globally',
+          'Dark, featureless overcast at 4,000 ft with continuous moderate rain falling, ceiling persistent and slowly lowering through the day',
+          'Anvil top to FL400 with overshooting dome, hard cauliflower lower body, lightning visible — IMC avoidance distance 20 NM minimum'
+        ],
+        targets: ['Cirrostratus', 'Stratocumulus', 'Nimbostratus', 'Cumulonimbus'],
         answers: {
-          'Wispy ice streaks — warm front signal': 'Cirrus',
-          'Dark featureless — continuous rain': 'Nimbostratus',
-          'Lumpy rolls — most common worldwide': 'Stratocumulus',
-          'Extreme hazard — avoid 20 NM': 'Cumulonimbus'
+          'Thin uniform veil at 28,000 ft producing a pronounced halo around the moon — leading the synoptic field by 12–24 hours': 'Cirrostratus',
+          'Lumpy, rolled cloud sheet at 3,500 ft AGL with occasional gaps showing blue, no precipitation — the most common cloud type globally': 'Stratocumulus',
+          'Dark, featureless overcast at 4,000 ft with continuous moderate rain falling, ceiling persistent and slowly lowering through the day': 'Nimbostratus',
+          'Anvil top to FL400 with overshooting dome, hard cauliflower lower body, lightning visible — IMC avoidance distance 20 NM minimum': 'Cumulonimbus'
         },
         xp: 20,
-        explanation: 'Cloud ID key: Cirrus = wispy ice streaks (warm front signal); Nimbostratus = dark featureless continuous precip (IFR hazard); Stratocumulus = most common cloud type globally; Cumulonimbus = thunderstorm, avoid 20 NM in IMC.',
-        faaRef: 'Ch. 12, App. A'
+        explanation: 'Genus-trait keys (operational signatures, not just vocabulary): Cirrostratus (Cs) — high ice cloud, thin uniform veil, the halo around sun/moon is the definitive marker, signals an approaching warm front 12–24 hours out. Stratocumulus (Sc) — low lumpy rolls with gaps, the most common cloud worldwide, no organized precipitation. Nimbostratus (Ns) — low to mid dark featureless overcast, continuous moderate-to-heavy precipitation, ceilings persistent — the canonical IFR-ceiling driver in steady-rain situations. Cumulonimbus (Cb) — vertical development with anvil + overshooting top, the thunderstorm cloud, 20 NM IMC avoidance, every other hazard (icing, turbulence, hail, lightning) lives inside it.',
+        faaRef: 'Ch. 12, App. A', concept: 'stability'
       },
       {
-        id: 'q_m4_9', type: 'mc',
-        question: 'An Environment Lapse Rate (ELR) of 2.5°C/1,000 ft means the atmosphere is:',
+        id: 'q_m4_9', type: 'scenario',
+        scenario: '0900L preflight at KJQF for a planned 1500L afternoon flight. Surface obs: 18°C / dewpoint 14°C (4°C spread). A recent climb-out PIREP measured OAT 12°C at 5,000 ft and 7°C at 7,000 ft, giving a layer ELR of 2.5°C/1,000 ft. Synoptic forcing is weak; the day’s heating cycle dominates.',
+        question: 'Forecast the cumulus development through the day, and decide what that means for the 1500L departure.',
         options: [
-          'Absolutely unstable — ELR exceeds the DALR (3°C/1,000 ft)',
-          'Conditionally unstable — ELR is between the MALR (~1.5°C) and DALR (3°C/1,000 ft)',
-          'Absolutely stable — ELR is less than the MALR (1.5°C/1,000 ft)',
-          'Neutrally stable — ELR exactly equals the DALR'
+          'Stable conditions all day — smooth flight at 1500L expected',
+          'Conditional instability + Piedmont surface heating + sufficient moisture (4°C T-Td spread → LCL ≈ 1,600 ft AGL) is the classic afternoon-thunderstorm setup. Morning thermals lift parcels to the LCL, latent-heat release breaks the conditional barrier, and cumulus builds through midday — likely TCu/CB by 1500–1700L. Move the departure to the morning, or plan a route west of expected convergence',
+          'Absolutely unstable atmosphere — vigorous convection from sunrise',
+          'The ELR alone determines convection; surface heating and moisture do not matter'
         ],
         correct: 1, xp: 10,
-        explanation: 'Stability categories by ELR: Absolutely Unstable = ELR > DALR (3°C/1,000 ft) — any parcel rises freely. Conditionally Unstable = ELR between MALR (~1.5°C) and DALR (3°C) — dry parcels are stable, saturated (cloudy) parcels are unstable. Absolutely Stable = ELR < MALR (1.5°C) — all parcels are stable. At 2.5°C/1,000 ft, the atmosphere is CONDITIONALLY UNSTABLE — the most common aviation scenario.',
-        faaRef: 'Ch. 13'
+        explanation: 'Conditional instability (MALR < ELR < DALR — here 1.5 < 2.5 < 3.0) is the most common atmospheric state and the one that drives the classic popcorn-convection day. Three ingredients have to come together: (1) the conditional ELR layer, (2) a lifting mechanism (today: surface heating producing thermals), and (3) enough moisture that parcels can reach the LCL before they run out of buoyancy. Given a 4°C T-Td spread, LCL ≈ 4 × 400 = 1,600 ft AGL — easily reached by morning thermals. Once parcels condense at the LCL, latent heat release lets them ride the MALR all the way through the conditional layer; cumulus builds through midday and often becomes TCu/CB by mid-to-late afternoon. Operational pattern: morning is smooth, midday turbulence builds, late afternoon is convective. Brief and depart accordingly.',
+        faaRef: 'Ch. 13', concept: 'stability'
       },
       {
-        id: 'q_m4_10', type: 'timed',
-        timeLimit: 10,
-        question: 'Towering cumulus clouds (TCu) are a visual indication of:',
+        id: 'q_m4_10', type: 'scenario',
+        scenario: 'Cross-country at 7,500 ft over the Carolinas on a hot summer afternoon. At your 2 o’clock position about 8 NM out, a tall cumulus tower with sharp cauliflower edges is visibly building — anvil has not yet formed but the vertical extent is doubling every 15–20 minutes.',
+        question: 'Identify the cloud type, the headline hazards inside and below it, and the immediate avoidance strategy.',
         options: [
-          'A stable atmosphere with strong inversions',
-          'Strong convective instability — significant turbulence within and below, potential CB development',
-          'Cirrus-level ice clouds indicating a distant warm front',
-          'Orographic lift producing harmless cumulus over terrain'
+          'Stable cumulus with strong inversions above — fly through, expect smooth conditions',
+          'Towering cumulus (TCu) — strong convective instability with severe turbulence inside and below, updrafts often exceeding 1,000 fpm, icing above the freezing level, and a real risk of CB development. Increase lateral separation early; do not fly under the rapidly-growing tower; consider an altitude that keeps you below the freezing level if you must continue past',
+          'High-altitude cirrus indicating a distant warm front',
+          'Orographic cumulus over terrain — harmless to overfly'
         ],
         correct: 1, xp: 15,
-        explanation: 'Towering cumulus (TCu) are the visual fingerprint of strong convective instability. They signal: severe turbulence below and inside the cloud, strong updrafts exceeding 1,000 fpm, icing above the freezing level, and potential cumulonimbus (CB) development. Give TCu the same respect as CB — treat the cloud top as the approximate upper limit of severe turbulence and stay well clear.',
-        faaRef: 'Ch. 12, 13'
+        explanation: 'Towering cumulus (TCu) is the visual fingerprint of strong convective instability — sharp cauliflower edges, hard outline, doubling vertical extent every 15–20 minutes. Hazards: severe turbulence inside and immediately below the cloud, sustained updrafts that can exceed 1,000 fpm, icing above the freezing level, and a real probability of evolving into a fully-developed cumulonimbus (anvil forms, lightning starts) within the next 30–60 minutes. Treat TCu with the same respect as CB: increase lateral separation early (well before reaching it, not when you are abeam), avoid the area under the tower (gust front, microburst potential), and keep the freezing level in mind for any altitude that takes you near or into the cloud. Cumulonimbus avoidance distance — 20 NM in IMC — is a useful planning floor when the TCu is rapidly growing.',
+        faaRef: 'Ch. 12, 13', concept: 'stability'
+      },
+      {
+        id: 'q_m4_11', type: 'scenario',
+        scenario: 'Pre-departure METAR at KJQF reads "METAR KJQF 1455Z 27008KT 10SM CLR 22/12 A3001". Planned VFR cruise altitude is 5,500 ft MSL (KJQF field elevation ~700 ft, so cruise is ~4,800 ft AGL). You want to know if afternoon cumulus bases will be high enough to keep your cruise altitude clear.',
+        question: 'Apply the LCL formula and brief whether your planned 5,500 ft VFR cruise is likely to stay clear of cumulus bases as the afternoon develops.',
+        options: [
+          'LCL ≈ 800 ft AGL — cruise will be solidly inside the cumulus layer; cancel',
+          'LCL ≈ 4,000 ft AGL (T-Td spread = 10°C × 400 ft) — cumulus bases will form near 4,000 ft AGL ≈ 4,700 ft MSL once afternoon parcels reach saturation; the planned 5,500 ft cruise sits just above expected cumulus bases, so brief either a higher cruise or be ready to deviate if Cu builds along route',
+          'LCL ≈ 12,000 ft AGL — cruise is far below cloud base, no concern',
+          'LCL cannot be estimated from a METAR; need a SkewT'
+        ],
+        correct: 1, xp: 10,
+        explanation: 'LCL ≈ (T − Td in °C) × 400 ft AGL is a quick cockpit estimator for cumulus base height. METAR T = 22°C / Td = 12°C → spread = 10°C → LCL ≈ 10 × 400 = 4,000 ft AGL ≈ 4,700 ft MSL given a 700 ft field elevation. Cumulus bases form near the LCL once afternoon parcels reach saturation. A 5,500 ft cruise is only ~800 ft above expected bases — close enough that growing cumulus along the route can force a deviation up or laterally. Decision input: a wider T-Td spread = higher cloud bases (better VFR), a narrower spread = lower bases (potentially below your cruise). Brief the spread before every VFR cross-country.',
+        faaRef: 'Ch. 12', concept: 'stability'
       }
-    ,
-      {id:'q_m4_11',type:'mc',question:'The Lifting Condensation Level (LCL) can be quickly estimated from a METAR using:',options:['Pressure and altimeter setting only','Temperature-dewpoint spread: LCL ≈ (T−Td in °C) × 400 ft AGL','Wind speed and direction at the surface','The difference between reported altitude and pressure altitude'],correct:1,xp:10,explanation:'LCL ≈ (T−Td)×400 ft AGL. A METAR showing T=24/Td=14 (spread=10°C) gives LCL≈4,000 ft AGL. This is why surface dewpoint matters so much — a spread of 2°C means cloud base near 800 ft AGL. Low T-Td spread = low ceilings. High spread = high bases, better VFR conditions.',faaRef:'Ch. 12',concept:'stability'}
     ]
   },
 
