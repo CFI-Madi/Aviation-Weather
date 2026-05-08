@@ -3,7 +3,7 @@
 // Cache name: bump version string to force cache refresh on deploy
 // ============================================================
 
-const CACHE_NAME = 'wx-academy-v2';
+const CACHE_NAME = 'wx-academy-v3';
 
 const APP_SHELL = [
   './',
@@ -23,6 +23,7 @@ const APP_SHELL = [
   './js/data/case_studies.js',
   './js/data/achievements.js',
   './js/data/faa_validation.js',
+  // PROCESS_DIAGRAMS — semantically-named copies in use since v1
   './img/awh/density_altitude_01.png',
   './img/awh/density_altitude_02.png',
   './img/awh/temperature_inversion_01.png',
@@ -39,7 +40,30 @@ const APP_SHELL = [
   './img/awh/orographic_effect_02.png',
   './img/awh/orographic_effect_03.png',
   './img/awh/metar_syntax.png',
-  './img/awh/taf_change_groups.png'
+  './img/awh/taf_change_groups.png',
+  // Pass 2b FAA-handbook figure swaps — cloud gallery (Appendix A)
+  './img/awh/awh_p0492_img_001.png',
+  './img/awh/awh_p0493_img_001.png',
+  './img/awh/awh_p0494_img_001.png',
+  './img/awh/awh_p0495_img_001.png',
+  './img/awh/awh_p0496_img_001.png',
+  './img/awh/awh_p0497_img_001.png',
+  './img/awh/awh_p0498_img_001.png',
+  './img/awh/awh_p0499_img_001.png',
+  './img/awh/awh_p0499_img_002.png',
+  './img/awh/awh_p0500_img_001.png',
+  './img/awh/awh_p0501_img_001.png',
+  './img/awh/awh_p0501_img_002.png',
+  // Pass 2b — six main figure swaps + the s3_2 inline addition
+  './img/awh/awh_p0119_img_002.png',  // Fig 9-5  Polar + Subtropical Jet Streams
+  './img/awh/awh_p0126_img_001.png',  // Fig 10-8 Geostrophic Wind
+  './img/awh/awh_p0127_img_002.png',  // Fig 10-10 Surface Wind Forces (inline in s3_2)
+  './img/awh/awh_p0142_img_002.png',  // Fig 11-4 Front Symbols
+  './img/awh/awh_p0237_img_001.png',  // Fig 19-1 Convective Turbulence
+  './img/awh/awh_p0239_img_002.png',  // Fig 19-4 Mechanical Turbulence
+  './img/awh/awh_p0240_img_001.png',  // Fig 19-5 Wind Shear Turbulence
+  './img/awh/awh_p0241_img_001.png',  // Fig 19-6 Wind Shear with Inversion
+  './img/awh/awh_p0354_img_001.png',  // Fig 25-5 Surface Chart Pressure Patterns
 ];
 
 // ── Install: pre-cache all app shell assets ───────────────────
