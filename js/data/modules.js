@@ -547,28 +547,46 @@ const MODULES = [
     ],
     quiz: [
       {
-        id: 'q_m3_1', type: 'mc',
-        question: 'The Pressure Gradient Force (PGF) directs wind:',
-        options: ['Parallel to isobars, from west to east','From high pressure to low pressure, perpendicular to isobars','From low pressure to high pressure','Vertically, from surface to tropopause'],
-        correct: 1, xp: 10,
-        explanation: 'PGF acts perpendicular to isobars, pushing air from HIGH toward LOW pressure. The magnitude of PGF depends on how tightly packed the isobars are — closely-spaced isobars = strong PGF = fast wind.',
-        faaRef: 'Ch. 10'
+        id: 'q_m3_1', type: 'scenario',
+        scenario: 'Surface analysis chart over the Carolinas shows tightly-packed isobars (every 4 mb, ~50 NM apart) with a deep Low to the north. You are briefing a VFR cross-country.',
+        question: 'What does the isobar spacing tell you about expected wind speed, and how does Pressure Gradient Force (PGF) determine wind direction relative to those isobars?',
+        options: [
+          'Tightly-packed isobars indicate weak wind because air piles up; PGF flows along isobars',
+          'Tightly-packed isobars indicate strong wind — PGF magnitude scales inversely with isobar spacing — and PGF acts perpendicular to isobars (high to low pressure); the steeper the gradient, the faster the wind',
+          'Isobar spacing only matters for the sea-level chart; at altitude wind is independent of pressure pattern',
+          'Wind always blows parallel to isobars at all altitudes; spacing is irrelevant'
+        ],
+        correct: 1, xp: 15,
+        explanation: 'PGF is the primary driving force for wind. Its magnitude scales inversely with isobar spacing — closely-packed isobars produce strong PGF, widely-spaced isobars weak. Direction is always perpendicular to isobars, from high to low pressure. On a tight-gradient day, expect strong winds aloft (where Coriolis turns the flow parallel to isobars but speed is still set by the gradient) and gusty surface conditions (where friction adds inflow toward the low). The chart visualization is direct: read the spacing for speed; trace perpendicular for the underlying force direction.',
+        faaRef: 'Ch. 10', concept: 'wind_mechanics'
       },
       {
-        id: 'q_m3_2', type: 'mc',
-        question: 'Coriolis force deflects wind in the Northern Hemisphere:',
-        options: ['To the left','To the right','Downward','It has no effect in the Northern Hemisphere'],
-        correct: 1, xp: 10,
-        explanation: 'Coriolis deflects wind to the RIGHT in the Northern Hemisphere (to the left in the Southern Hemisphere). This is why NH low-pressure systems spin counterclockwise (winds deflected right create the rotation pattern) and highs spin clockwise.',
-        faaRef: 'Ch. 10'
+        id: 'q_m3_2', type: 'scenario',
+        scenario: 'Surface analysis chart shows a deep Low pressure system in the Northern Hemisphere with wind barbs spiraling counterclockwise inward toward the center.',
+        question: 'Why does NH surface wind around a Low spiral counterclockwise inward, when PGF alone would push air straight from high to low?',
+        options: [
+          'Earth’s gravity pulls air clockwise in the NH; the chart symbols are mirrored from reality',
+          'Coriolis force deflects moving air to the right in the NH — air starts moving from high → low under PGF, gets curved right by Coriolis, and ends up spiraling counterclockwise around the Low. Friction near the surface lets PGF pull the wind slightly across the isobars, completing the inward spiral',
+          'NH Lows actually rotate clockwise; chart conventions are global and not hemisphere-dependent',
+          'Wind direction around Lows is dictated by the prevailing jet stream above the system'
+        ],
+        correct: 1, xp: 15,
+        explanation: 'Coriolis force, a consequence of Earth’s rotation, deflects moving air to the right in the Northern Hemisphere (left in the Southern Hemisphere). When PGF pushes air outward from a high or inward toward a low, Coriolis curves the path. Around an NH Low, the deflection bends the inflowing air into a counterclockwise spiral; around a high, it produces clockwise outflow. Near the surface, friction reduces wind speed (and therefore Coriolis), so the inflow does not fully parallel the isobars — a small angle into the low survives and creates the inward component that brings moisture and convergence to the low’s center.',
+        faaRef: 'Ch. 10', concept: 'wind_mechanics'
       },
       {
-        id: 'q_m3_3', type: 'mc',
-        question: 'Geostrophic (upper-level) winds flow:',
-        options: ['Perpendicular to isobars, toward low pressure','Parallel to isobars — PGF and Coriolis are balanced','In a circular pattern around high pressure only','From equator to poles at all altitudes'],
-        correct: 1, xp: 10,
-        explanation: 'Above ~2,000 ft AGL over flat terrain (the top of the friction layer), friction is negligible. PGF and Coriolis come into balance, resulting in wind flowing parallel to isobars. This is the geostrophic wind. It\'s why you can determine pressure gradient from wind direction at altitude.',
-        faaRef: 'Ch. 10'
+        id: 'q_m3_3', type: 'scenario',
+        scenario: 'Cruising eastbound at FL230. Looking at the 500-mb constant-pressure chart, the height contours over your position run NW-to-SE, with values decreasing from south to north. No major frontal boundary on the chart.',
+        question: 'Without printed wind data, what direction is the geostrophic wind blowing across your position, and why is reading the contours sufficient to know?',
+        options: [
+          'North to south — air falls from high to low pressure regardless of altitude',
+          'NE to SW, parallel to the contours, with lower heights to the left in the NH — at altitude PGF and Coriolis are balanced, so wind flows along isobars/contours rather than across them; the slope of the contours tells you direction by inspection',
+          'East to west, because all upper winds blow opposite to surface winds',
+          'Random direction — without a printed wind barb you cannot tell'
+        ],
+        correct: 1, xp: 15,
+        explanation: 'Above the friction layer, friction is negligible. PGF (always perpendicular to isobars/contours, high → low) is fully balanced by Coriolis (NH right-deflection). The result: geostrophic wind flows parallel to the contours, with low heights/pressure to the left of the wind in the NH (Buys-Ballot’s Law). Reading the contour slope and applying that rule gives you wind direction by inspection — a foundational technique for high-altitude IFR planning. Buys-Ballot’s Law is the same physics expressed for the cockpit: stand with your back to the wind, low to your left.',
+        faaRef: 'Ch. 10', concept: 'wind_mechanics'
       },
       {
         id: 'q_m3_4', type: 'scenario',
@@ -585,21 +603,32 @@ const MODULES = [
         faaRef: 'Ch. 9'
       },
       {
-        id: 'q_m3_5', type: 'timed',
-        timeLimit: 10,
-        question: 'A sea breeze blows:',
-        options: ['From land to sea, during the night','From sea to land, during the day','From sea to land, during the night','From land to sea, all day'],
-        correct: 1, xp: 20,
-        explanation: 'Sea breeze blows FROM sea TO land during the DAY, because land heats faster than water → lower pressure over hot land → air flows from high (cool sea) to low (warm land). Land breeze is the night reversal (land cools faster).',
-        faaRef: 'Ch. 10'
+        id: 'q_m3_5', type: 'scenario',
+        scenario: 'Inbound to KILM (Wilmington, coastal NC) at 1430 local on a clear summer afternoon. Surface wind at the airport was variable/light all morning; the latest ATIS now reports 110/12 (onshore from the Atlantic). You are setting up the approach.',
+        question: 'What atmospheric mechanism drives the wind shift you are seeing, and how should you brief the approach?',
+        options: [
+          'A frontal passage — the change is permanent until tomorrow; expect IMC behind the front',
+          'Sea breeze developing inland — daytime sea-to-land flow as the land surface heats faster than the ocean. The onshore flow may strengthen through the afternoon, can shift the favored runway from the calm-morning configuration, and the sea-breeze convergence line can trigger isolated cumulus or thunderstorms a few miles inland; check NEXRAD before final',
+          'The morning calm was an instrument error; the 110 reading is ground truth and was always there',
+          'Coriolis-induced backing — every coastal field experiences this once per day regardless of weather'
+        ],
+        correct: 1, xp: 15,
+        explanation: 'Sea breeze develops when daytime solar heating warms the land faster than the adjacent water. Lower pressure forms over the warm land, drawing air inland from the cooler sea — a classic onshore flow. It typically begins late morning, peaks early-to-mid afternoon, and decays after sunset (often replaced by a weaker land breeze overnight). Operationally: the onshore flow can change the favored runway from the calm-morning configuration; the convergence line where onshore flow meets the warmer inland air mass can trigger lines of cumulus or isolated thunderstorms several miles inland — a known nuisance over Florida and the Carolina coast.',
+        faaRef: 'Ch. 10', concept: 'wind_mechanics'
       },
       {
-        id: 'q_m3_6', type: 'mc',
-        question: 'Clear Air Turbulence (CAT) most commonly occurs:',
-        options: ['Inside thunderstorm anvils','On the edges of jet streams, especially the northern periphery','Near the surface in unstable air','Only below 10,000 ft MSL'],
-        correct: 1, xp: 10,
-        explanation: 'CAT forms from strong wind shear at the edges of jet streams — especially the northern (cyclonic shear) side. It provides NO visual warning (no clouds). It is most severe in jet streaks and near troughs in the jet stream pattern.',
-        faaRef: 'Ch. 9'
+        id: 'q_m3_6', type: 'scenario',
+        scenario: 'Eastbound at FL360 on a winter day. The latest SIGWX prog chart shows the polar jet running roughly east-west just north of your route, with a 130-kt core at FL340. Sky is clear and PIREPs along your altitude are silent so far.',
+        question: 'Where, relative to the jet axis, is Clear Air Turbulence (CAT) most commonly reported, and what visual warning will you get?',
+        options: [
+          'South of the core, with cumulus buildups marking it',
+          'On the cyclonic (cold/poleward, typically northern in the NH) side of the core and within the ±5,000 ft shear layers, especially near jet streaks and trough axes — and there is NO visual warning, CAT forms in clear air',
+          'Inside the core only; outside the core the air is always smooth',
+          'Below the surface friction layer, never at altitude'
+        ],
+        correct: 1, xp: 15,
+        explanation: 'CAT is generated by strong vertical and horizontal wind shear at the edges of jet streams. The cyclonic (cold/poleward) side of the core has the steepest shear because that is where the meridional temperature gradient is strongest. The ±5,000 ft band above and below the maximum-wind core is also a CAT-prone zone. Jet streaks (localized wind-speed maxima embedded in the jet) and sharp trough axes amplify the shear. Critically, CAT is invisible — clear air, no cloud cue. Defenses: read SIGWX charts for forecast CAT bands, check PIREPs along your altitude, and plan to descend or laterally offset if you encounter sustained moderate-or-greater turbulence.',
+        faaRef: 'Ch. 9', concept: 'wind_mechanics'
       },
       {
         id: 'q_m3_7', type: 'scenario',
@@ -616,38 +645,75 @@ const MODULES = [
         faaRef: 'Ch. 10, 12', concept: 'wind_mechanics'
       },
       {
-        id: 'q_m3_8', type: 'timed',
-        timeLimit: 10,
-        question: 'In the Northern Hemisphere, surface winds around a LOW pressure system circulate:',
-        options: ['Clockwise and outward','Counterclockwise and inward','Counterclockwise and outward','Clockwise and inward'],
-        correct: 1, xp: 15,
-        explanation: 'NH surface winds spiral COUNTERCLOCKWISE and INWARD into Low pressure centers (friction causes inflow). HIGH pressure spirals CLOCKWISE and OUTWARD. Reversed in Southern Hemisphere. This is a foundational concept for reading surface weather charts.',
-        faaRef: 'Ch. 10'
-      },
-      {
-        id: 'q_m3_9', type: 'mc',
-        question: 'The Coriolis force causes wind to deflect to the RIGHT in the Northern Hemisphere. At what location is the Coriolis effect ZERO?',
-        options: ['The North Pole', 'The Equator', 'At 45° North latitude', 'Above the tropopause'],
-        correct: 1, xp: 10,
-        explanation: 'Coriolis force is caused by Earth\'s rotation and is proportional to the sine of latitude. At the equator (0° latitude), sin(0°) = 0, so Coriolis force is zero — winds move directly from high to low pressure without deflection. At the poles (90°), Coriolis is maximum. This is why tropical weather systems can develop rotation only when they drift far enough from the equator.',
-        faaRef: 'Ch. 9'
-      },
-      {
-        id: 'q_m3_10', type: 'mc',
-        question: 'Why do winds at altitude (above the friction layer) flow nearly parallel to isobars rather than crossing them?',
+        id: 'q_m3_8', type: 'scenario',
+        scenario: 'Surface analysis chart shows a deep Low centered over the Great Lakes. You are flying VFR over central Indiana (south of the Low). No surface observations are printed at your position, but you can read the chart.',
+        question: 'Predicting from the chart alone, what surface wind direction and behavior should you brief at your position?',
         options: [
-          'Friction is reduced at altitude, so only pressure gradient force and Coriolis force are in balance — producing geostrophic flow parallel to isobars',
-          'Jet streams force winds to follow isobars at all altitudes',
-          'The tropopause acts as a physical boundary preventing cross-isobar flow',
-          'Upper-level winds have no pressure gradient, so they follow the contours of constant pressure surfaces'
+          'Wind from the north — air flows directly from high (south) to low (north) without deflection',
+          'Wind from the east-southeast, blowing slightly inward toward the Low — NH surface winds spiral counterclockwise and inward into Lows because Coriolis deflects the inflow rightward, and friction (active below ~2,000 ft AGL) lets the wind cross isobars at 10–45° toward low pressure. Expect gusty conditions if the isobars are tight',
+          'Wind from the west, parallel to the isobars — all surface winds flow parallel to isobars regardless of friction',
+          'Calm — surface friction cancels all wind beneath a Low'
         ],
-        correct: 0, xp: 10,
-        explanation: 'Near the surface, friction slows the wind — the Coriolis force is reduced, and the pressure gradient force can push air across isobars toward low pressure (15–45° angle). Above ~2,000 ft (the friction layer), friction is negligible. Coriolis fully balances the pressure gradient force, producing GEOSTROPHIC wind that flows parallel to isobars (or height contours on constant-pressure charts).',
-        faaRef: 'Ch. 10'
+        correct: 1, xp: 15,
+        explanation: 'NH surface winds around a Low spiral counterclockwise and inward. Mechanically: PGF pushes air from high to low pressure; Coriolis deflects moving air to the right; friction (active below ~2,000 ft AGL over flat terrain) slows the wind enough that it crosses isobars at an angle (10° over water/smooth terrain, up to 45° over rough/mountainous terrain) toward the low. South of a Great Lakes Low, that geometry produces an east-to-southeast surface wind blowing toward the Low. Highs behave oppositely — clockwise and outward. Reading the surface chart this way is foundational for cross-country wind planning before departure.',
+        faaRef: 'Ch. 10', concept: 'wind_mechanics'
+      },
+      {
+        id: 'q_m3_9', type: 'scenario',
+        scenario: 'Ferrying near the equator on a long over-water leg, the autopilot is holding heading. You notice the GPS-reported track stays essentially identical to the heading even when crossing zones with significant pressure gradient — wind is not curving the aircraft path the way it would at higher latitudes.',
+        question: 'Why does wind at this latitude not curl into well-organized circulation patterns the way it does in the mid-latitudes?',
+        options: [
+          'Equatorial regions are too warm for Coriolis to act',
+          'Coriolis force is proportional to the sine of latitude — at the equator (0°), sin(0) = 0 and the force vanishes. Wind flows directly from high to low pressure with no rightward deflection, so circulations are weak and disorganized. This is also why tropical cyclones cannot form right on the equator: there is no Coriolis to start the spin',
+          'Pressure gradients at the equator are zero, so wind does not move at all',
+          'Coriolis acts in the opposite direction at the equator and cancels itself out'
+        ],
+        correct: 1, xp: 15,
+        explanation: 'Coriolis force is f = 2Ω·sin(φ), where φ is latitude. At the equator (0°), sin(0) = 0 and the deflection vanishes — air responds to PGF directly without curving. Two practical consequences for aviation: low-latitude flight planning relies more on direct PGF reasoning than on geostrophic-balance assumptions; and tropical-cyclone formation requires drift to roughly 5° latitude or more before initial rotation can be sustained. As latitude increases, the deflecting force grows steadily — which is why mid-latitude weather organizes into the strong CCW-low / CW-high patterns the surface charts show.',
+        faaRef: 'Ch. 9', concept: 'wind_mechanics'
+      },
+      {
+        id: 'q_m3_10', type: 'scenario',
+        scenario: 'Cruise descent from 9,500 ft into a destination at ~700 ft MSL over flat farmland. Winds aloft at 9,000 ft were forecast 270/30; surface ATIS now reports 240/15. The wind direction shifts noticeably during descent below ~3,000 AGL and the speed drops.',
+        question: 'What atmospheric mechanism explains the wind backing and slowing during descent, and what does this mean operationally?',
+        options: [
+          'Magnetic variation increases near the surface, shifting the reported wind',
+          'As you descend below the top of the friction layer (~2,000 ft AGL over flat terrain), surface friction reduces wind speed and therefore reduces Coriolis force; with PGF unchanged, the imbalance lets the wind cross isobars at 10–45° toward low pressure (a backing shift in the NH for typical westerly geostrophic flow) and slow down. Operationally: expect a different runway crosswind component than the cruise winds-aloft suggested; brief that delta during descent',
+          'The decrease in air density at lower altitudes stops Coriolis from acting',
+          'Wind direction at the surface is always 90° offset from the geostrophic wind aloft'
+        ],
+        correct: 1, xp: 20,
+        explanation: 'Above the friction layer (~2,000 ft AGL over flat terrain), wind is approximately geostrophic — PGF and Coriolis are in balance and wind flows parallel to isobars. Descending into the friction layer, friction slows the wind. Slower wind means weaker Coriolis (Coriolis scales with speed), but PGF does not change. The imbalance lets PGF pull the wind across the isobars toward low pressure — a backing shift in the NH for typical westerly geostrophic flow — AND reduces speed. The cross-isobar angle is ~10° over smooth surfaces and water, up to 45° over rough/mountainous terrain. Practical: forecast surface wind is NOT the same as forecast 3,000–9,000 ft winds aloft; brief the descent crosswind transition before configuring for the approach.',
+        faaRef: 'Ch. 10', concept: 'wind_mechanics'
+      },
+      {
+        id: 'q_m3_11', type: 'scenario',
+        scenario: 'Cruising VFR at 6,500 ft over central Tennessee. Forecast called for light south winds; instead, you have been flying through a steady 30-kt wind from due east for the last 50 NM. No frontal-passage features (no temperature change, no turbulence, no pressure jump on the altimeter setting). You want to figure out where the unforecast pressure system is.',
+        question: 'Using Buys-Ballot’s Law, where is the low pressure system relative to your position, and what does that imply for routing decisions?',
+        options: [
+          'Low pressure is directly behind you to the west; route west to avoid weather',
+          'Low pressure is to your LEFT in the NH when your back is to the wind. Wind from the east means your back is to the east → low is to your NORTH. Expect deteriorating weather northbound, improving weather southbound; if your destination is north, brief and reassess',
+          'Low pressure is to your right; turn right to fly toward better weather',
+          'Buys-Ballot’s Law applies only in the Southern Hemisphere; the steady wind tells you nothing'
+        ],
+        correct: 1, xp: 20,
+        explanation: 'Buys-Ballot’s Law (NH): with your back to the wind, low pressure is to your LEFT (slightly ahead) and high pressure is to your right. It is a direct consequence of Coriolis right-deflection — geostrophic wind flows parallel to isobars with low pressure on its left in the NH. Applied here: wind from the east means your back is to the east, so the low is to your NORTH. Operationally — a 30-kt sustained wind well above forecast tells you a synoptic system has shifted; flying north would carry you toward the low (likely deteriorating ceilings, increasing precipitation), and southbound would carry you toward higher pressure (typically better VFR). The static rule (Buys-Ballot) turns an unexpected steady wind into navigation information; the dynamic counterpart — recognizing a frontal passage from a CHANGING wind — is covered separately.',
+        faaRef: 'Ch. 10', concept: 'wind_mechanics'
+      },
+      {
+        id: 'q_m3_12', type: 'scenario',
+        scenario: 'Departing KJQF for KRDU (47 NM, course 047°). Latest winds aloft: surface 290/08, 3,000 ft 270/15, 6,000 ft 250/18. The wind direction shifts counterclockwise with altitude and the speed increases.',
+        question: 'What is the wind situation indicated by this profile, and which altitude gives the best tailwind component for the NE leg?',
+        options: [
+          'Wind data is inconsistent — the profile makes no physical sense; recheck the brief',
+          'Steady westerly flow throughout, increasing in speed and rotating counterclockwise with altitude as friction releases its grip — the surface wind crosses isobars (typical 10° offset on smooth terrain), the upper winds approach geostrophic. For course 047°, the 6,000 ft 250/18 sits about 23° off the tail (~90% tailwind, ~17 kt); 3,000 ft yields ~11 kt; surface gives ~4 kt — climb to 6,000 ft for the best groundspeed',
+          'The westerly winds indicate an approaching cold front; delay the flight',
+          'Surface 290/08 is the truth; the upper-level data are forecast errors'
+        ],
+        correct: 1, xp: 15,
+        explanation: 'The wind profile is the friction-layer concept (s3_2) made visible. At the surface, friction reduces wind speed and Coriolis enough that wind crosses isobars at ~10° toward low pressure (a small offset from geostrophic). At 6,000 ft (well above the ~2,000 ft AGL friction-layer top), the wind is approximately geostrophic — parallel to isobars and faster. Tailwind component on a 047° course: take the angle between the course-reciprocal (227°) and the wind vector. For 250/18, that is 23° off the tail; clock-rule estimate ≈ 90% × 18 ≈ 17 kt of tailwind. For 270/15, 43° off → ~70% × 15 ≈ 11 kt. For 290/08, 63° off → ~45% × 8 ≈ 4 kt. Cruising at 6,000 ft wins the leg by a comfortable margin — the friction-layer concept paying real-world dividends.',
+        faaRef: 'Ch. 10', concept: 'wind_mechanics'
       }
-    ,
-      {id:'q_m3_11',type:'mc',question:'Buys-Ballot’s Law states that in the Northern Hemisphere, if you stand with your back to the wind:',options:['High pressure is to your left, low pressure is to your right','Low pressure is to your left, high pressure is to your right','High pressure is directly ahead, low pressure is directly behind','Wind always blows from high to low pressure in a straight line'],correct:1,xp:10,explanation:'Buys-Ballot’s Law: stand with your back to the wind in the NH — low pressure is to your LEFT (slightly ahead), high pressure is to your RIGHT. This works because the Coriolis force deflects wind to the right, causing it to spiral counterclockwise around lows and clockwise around highs. Practical use: if a storm system is to your north and you’re flying south, the wind will be from the west (favorable tailwind). If flying north, the wind will be from the east (headwind).',faaRef:'Ch. 10',concept:'wind_mechanics'},
-      {id:'q_m3_12',type:'scenario',scenario:'You are at KJQF planning a flight to KRDU (47 NM northeast). Winds aloft at 6,000 ft show 25018KT. At 3,000 ft: 27015KT. Surface wind at departure: 290/08KT.',question:'Based on wind data, what can you conclude about today’s winds in the Piedmont?',options:['Winds are calm and variable — no useful information','Westerly winds throughout all levels with increasing speed aloft. Consistent with the normal pattern — backing from surface (290) to 3,000 ft (270) then shifting slightly more northwesterly aloft (250) with increasing speed. Good for an eastbound flight with tailwind component to KRDU.','The westerly winds indicate an approaching cold front — delay the flight','You should fly at 3,000 ft to minimize headwind'],correct:1,xp:15,explanation:'The wind data shows consistent westerly flow increasing with altitude: surface 290/8kt, 3,000 ft 270/15kt, 6,000 ft 250/18kt. This is a normal westerly wind profile. An eastbound flight to KRDU (northeast) with a westerly wind component will have a favorable tailwind/crosswind. No frontal pattern indicated — just synoptic westerly flow. Flying at 6,000 ft gives the most favorable wind for this eastbound leg.',faaRef:'Ch. 10'}
     ]
   },
 
