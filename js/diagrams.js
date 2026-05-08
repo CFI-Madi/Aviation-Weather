@@ -35,6 +35,42 @@ const Diagrams = {
     return '';
   },
 
+  // ===== SHARED HELPERS =====
+  // Single render path for every FAA-handbook PNG swap.
+  // Renders an image with an attribution strip on top (mono font, sky-blue on navy)
+  // and an optional teaching caption below. Image sizing follows the existing
+  // PROCESS_DIAGRAMS convention (width:100%, max-height:320px, object-fit:contain).
+  // Graceful degradation: missing figureNumber → "FAA-H-8083-28A" only;
+  // missing alt → derive from title, otherwise warn and use a generic fallback.
+  renderFaaFigure({ src, figureNumber, title, caption, alt } = {}) {
+    if (!src) {
+      console.warn('[renderFaaFigure] src is required');
+      return '';
+    }
+    const attribParts = ['FAA-H-8083-28A'];
+    if (figureNumber) attribParts.push(`Fig ${figureNumber}`);
+    const attribText = attribParts.join(' · ');
+    const titleSuffix = title ? ` <span class="faa-fig-title">— ${title}</span>` : '';
+
+    let altText = alt;
+    if (!altText && title) altText = title;
+    if (!altText) {
+      console.warn('[renderFaaFigure] missing alt and title for', src);
+      altText = 'FAA aviation weather handbook figure';
+    }
+    const altEsc = String(altText).replace(/"/g, '&quot;');
+
+    const captionHtml = caption
+      ? `<div class="faa-fig-caption">${caption}</div>`
+      : '';
+
+    return `<figure class="faa-figure">
+      <div class="faa-fig-tag">${attribText}${titleSuffix}</div>
+      <img src="${src}" alt="${altEsc}">
+      ${captionHtml}
+    </figure>`;
+  },
+
   // ===== ACT 1 DIAGRAMS =====
   renderHotspot(key) {
     const configs = {

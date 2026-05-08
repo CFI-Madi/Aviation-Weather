@@ -70,6 +70,18 @@ h1,h2,h3{font-family:var(--font-display)}
 .data-tag{display:inline-block;background:var(--navy);color:white;font-family:var(--font-mono);font-size:12px;padding:2px 8px;border-radius:6px;font-weight:700}
 .diagram-container{background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08);margin:20px 0}
 .diagram-header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);padding:14px 20px;display:flex;align-items:center;gap:10px}
+/* FAA handbook image swap — single render path; see Diagrams.renderFaaFigure */
+.faa-figure{background:var(--navy);border-radius:16px;overflow:hidden;margin:14px 0;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.faa-fig-tag{padding:8px 14px;font-family:var(--font-mono);font-size:12px;color:var(--sky);background:var(--navy);letter-spacing:.02em;border-bottom:1px solid rgba(56,189,248,.15)}
+.faa-fig-tag .faa-fig-title{color:rgba(255,255,255,.72);font-weight:600}
+.faa-figure>img{width:100%;display:block;max-height:320px;object-fit:contain;background:white}
+.faa-fig-caption{padding:10px 14px;font-family:var(--font-display);font-size:12px;color:rgba(255,255,255,.78);line-height:1.55;border-top:1px solid rgba(56,189,248,.15)}
+/* Multi-figure grid (used by turbulence + cloud gallery swaps) — responsive: 1col mobile, 2col tablet, 3col desktop */
+.faa-fig-grid{display:grid;gap:12px;grid-template-columns:1fr;margin:14px 0}
+@media(min-width:560px){.faa-fig-grid.cols-2-3{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:560px){.faa-fig-grid.cols-2{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:768px){.faa-fig-grid.cols-2-3{grid-template-columns:repeat(3,1fr)}}
+.faa-fig-grid>.faa-figure{margin:0}
 .section-tab{padding:8px 18px;border-radius:20px;font-family:var(--font-display);font-size:14px;font-weight:700;cursor:pointer;border:2px solid transparent;transition:all .2s;white-space:nowrap;color:#64748B;background:white}
 .section-tab.active{color:var(--sky-dark);border-color:var(--sky-dark);background:var(--sky-light)}
 .module-card{position:relative;overflow:hidden}
