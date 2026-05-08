@@ -752,31 +752,50 @@ const Diagrams = {
   },
 
   // ===== ACT 2 DIAGRAMS =====
+  // Pass 2c redraw: ONE unified triangle with three labeled sides instead of
+  // three separate triangles. The original SVG implied the three ingredients
+  // were independent (each in its own triangle) — but the FAA's teaching is
+  // that ALL THREE must be present simultaneously. A single triangle with
+  // three sides (moisture / instability / lift) makes that simultaneity
+  // structurally explicit: removing any one side and the triangle no longer
+  // encloses anything. Tap each side to surface the ingredient detail in
+  // the existing showCBInfo popup.
   cbIngredients(){
-    return `<div class="diagram-container"><div class="diagram-header"><span style="font-size:14px;color:white;font-family:var(--font-display);font-weight:700">⛈️ CB Ingredients — Tap Each Triangle</span></div>
-    <div style="background:#0C1B33;padding:20px;position:relative;min-height:200px">
-      <svg viewBox="0 0 360 180" style="width:100%;display:block">
-        <defs><linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0C1B33"/><stop offset="100%" stop-color="#1E3A5F"/></linearGradient></defs>
-        <rect width="360" height="180" fill="url(#bgGrad)"/>
-        <!-- Three triangles -->
-        <g onclick="Diagrams.showCBInfo('moisture')" style="cursor:pointer" tabindex="0" role="button" aria-label="CB Ingredient: Moisture" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.dispatchEvent(new MouseEvent('click'))}">
-          <polygon points="60,150 120,50 180,150" fill="#0369A1" opacity=".8" stroke="#38BDF8" stroke-width="2"/>
-          <text x="120" y="120" text-anchor="middle" font-family="Nunito" font-size="11" fill="white" font-weight="800">💧</text>
-          <text x="120" y="135" text-anchor="middle" font-family="Nunito" font-size="9" fill="#BAE6FD">MOISTURE</text>
-        </g>
-        <g onclick="Diagrams.showCBInfo('instability')" style="cursor:pointer" tabindex="0" role="button" aria-label="CB Ingredient: Instability" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.dispatchEvent(new MouseEvent('click'))}">
-          <polygon points="130,150 190,50 250,150" fill="#B45309" opacity=".8" stroke="#F59E0B" stroke-width="2"/>
-          <text x="190" y="120" text-anchor="middle" font-family="Nunito" font-size="11" fill="white" font-weight="800">📈</text>
-          <text x="190" y="135" text-anchor="middle" font-family="Nunito" font-size="9" fill="#FDE68A">INSTABILITY</text>
-        </g>
-        <g onclick="Diagrams.showCBInfo('lift')" style="cursor:pointer" tabindex="0" role="button" aria-label="CB Ingredient: Lift" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.dispatchEvent(new MouseEvent('click'))}">
-          <polygon points="200,150 260,50 320,150" fill="#6D28D9" opacity=".8" stroke="#8B5CF6" stroke-width="2"/>
-          <text x="260" y="120" text-anchor="middle" font-family="Nunito" font-size="11" fill="white" font-weight="800">⬆️</text>
-          <text x="260" y="135" text-anchor="middle" font-family="Nunito" font-size="9" fill="#C4B5FD">LIFT</text>
-        </g>
-        <text x="180" y="30" text-anchor="middle" font-family="Nunito" font-size="12" fill="#94A3B8">Remove ANY one → No thunderstorm</text>
+    // Triangle vertices (apex on top): apex (180, 35), bottom-left (40, 175),
+    // bottom-right (320, 175). Each side is a separate clickable hit-box
+    // (transparent thick polyline) overlaying a thin colored stroke.
+    return `<div class="diagram-container"><div class="diagram-header"><span style="font-size:14px;color:white;font-family:var(--font-display);font-weight:700">⛈️ Three Ingredients of a Thunderstorm — Tap Each Side</span></div>
+    <div style="background:#0C1B33;padding:18px 18px 4px;position:relative">
+      <svg viewBox="0 0 360 200" style="width:100%;display:block">
+        <defs>
+          <linearGradient id="cbi-bg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0C1B33"/>
+            <stop offset="100%" stop-color="#1E3A5F"/>
+          </linearGradient>
+        </defs>
+        <rect width="360" height="200" fill="url(#cbi-bg)"/>
+        <!-- Triangle outline (visible) -->
+        <polygon points="180,35 320,175 40,175" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.12)" stroke-width="1" stroke-dasharray="3,3"/>
+        <!-- Each side: visible colored line + invisible thick hit-box overlay -->
+        <!-- Moisture: left side (apex to bottom-left) -->
+        <line x1="180" y1="35" x2="40" y2="175" stroke="var(--sky)" stroke-width="4" stroke-linecap="round"/>
+        <line x1="180" y1="35" x2="40" y2="175" stroke="transparent" stroke-width="22" stroke-linecap="round" onclick="Diagrams.showCBInfo('moisture')" tabindex="0" role="button" aria-label="Ingredient: Moisture" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.dispatchEvent(new MouseEvent('click'))}" style="cursor:pointer"/>
+        <text x="98" y="98" text-anchor="middle" font-family="Nunito" font-size="11" fill="#BAE6FD" font-weight="900" transform="rotate(-44 98 98)" pointer-events="none">💧 MOISTURE</text>
+        <!-- Instability: right side (apex to bottom-right) -->
+        <line x1="180" y1="35" x2="320" y2="175" stroke="var(--amber)" stroke-width="4" stroke-linecap="round"/>
+        <line x1="180" y1="35" x2="320" y2="175" stroke="transparent" stroke-width="22" stroke-linecap="round" onclick="Diagrams.showCBInfo('instability')" tabindex="0" role="button" aria-label="Ingredient: Instability" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.dispatchEvent(new MouseEvent('click'))}" style="cursor:pointer"/>
+        <text x="262" y="98" text-anchor="middle" font-family="Nunito" font-size="11" fill="#FDE68A" font-weight="900" transform="rotate(44 262 98)" pointer-events="none">📈 INSTABILITY</text>
+        <!-- Lift: bottom side (bottom-left to bottom-right) -->
+        <line x1="40" y1="175" x2="320" y2="175" stroke="var(--product)" stroke-width="4" stroke-linecap="round"/>
+        <line x1="40" y1="175" x2="320" y2="175" stroke="transparent" stroke-width="22" stroke-linecap="round" onclick="Diagrams.showCBInfo('lift')" tabindex="0" role="button" aria-label="Ingredient: Lift" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.dispatchEvent(new MouseEvent('click'))}" style="cursor:pointer"/>
+        <text x="180" y="193" text-anchor="middle" font-family="Nunito" font-size="11" fill="#C4B5FD" font-weight="900" pointer-events="none">⬆️ LIFT</text>
+        <!-- Center label: the result -->
+        <text x="180" y="118" text-anchor="middle" font-family="Nunito" font-size="22" fill="white" pointer-events="none">⛈️</text>
+        <text x="180" y="138" text-anchor="middle" font-family="Nunito" font-size="11" fill="white" font-weight="900" pointer-events="none">THUNDERSTORM</text>
+        <text x="180" y="152" text-anchor="middle" font-family="Nunito" font-size="9" fill="#94A3B8" pointer-events="none">all three required</text>
       </svg>
-      <div id="cb-ing-popup" style="display:none;padding:12px 16px;background:rgba(255,255,255,.08);color:white;font-family:var(--font-display);font-size:13px;line-height:1.5;border-top:1px solid rgba(255,255,255,.1)">
+      <p style="font-family:var(--font-mono);font-size:10px;color:#64748B;text-align:center;margin:8px 0 0">Remove ANY one side → triangle collapses → no thunderstorm</p>
+      <div id="cb-ing-popup" style="display:none;padding:12px 16px;margin:10px -18px 0;background:rgba(255,255,255,.08);color:white;font-family:var(--font-display);font-size:13px;line-height:1.5;border-top:1px solid rgba(255,255,255,.1)">
         <strong id="cb-ing-title" style="color:#F59E0B;display:block;margin-bottom:4px"></strong>
         <span id="cb-ing-text"></span>
       </div>
