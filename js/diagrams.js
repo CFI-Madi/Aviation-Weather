@@ -174,11 +174,16 @@ const Diagrams = {
   // alone doesn't carry.
   //
   // Row vertical bands (percent of figure height) are calibrated against
-  // Fig 11-4's table layout (header band ~14%, four equal data rows ~19%
-  // each, footer note ~10%). Click targets fan out to the whole figure
-  // width; image is rendered at width:100%/max-height:320px with
-  // object-fit:contain so the percent positions stay aligned with the
-  // visible image at every viewport width.
+  // Fig 11-4's specific table layout in the FAA-H-8083-28A (Dec 2024)
+  // edition: header band ~14%, four equal data rows ~19% each, footer
+  // note ~10%. Mobile-verified at 657px viewport — overlays remain aligned
+  // because the image is rendered at width:100%/max-height:320px with
+  // object-fit:contain, so the row percentages scale proportionally with
+  // the visible image at every viewport width.
+  // ⚠️ If FAA ever updates Fig 11-4's layout (e.g., adds a header bar or
+  // changes row count), recalibrate the `top` percentages in the rows
+  // array below — the structural assumption is "header + 4 equal rows
+  // + footer". Click each row at narrow viewport to spot misalignment.
   frontsSVG() {
     const rows = [
       { key:'fr-cold', top:14, label:'Cold Front',       title:'❄️ Cold Front',
