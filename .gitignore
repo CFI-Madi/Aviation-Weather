@@ -23,6 +23,4 @@ build/
 .tmp-*
 
 # Workflow / prompt files specific to this development session
-claude-code-briefing.md
-claude-code-push-prompt.md
-claude-code-phase-prompts.md
+claude-code-*.md
