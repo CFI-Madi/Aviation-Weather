@@ -1052,5 +1052,232 @@ const CASE_STUDIES = [
       {id:'qcs15_2',question:'A non-instrument-rated pilot trapped on top of a solid overcast with deteriorating weather at all known airports should:',options:['Continue searching for a hole in the clouds — one will appear eventually','Immediately contact ATC (on 121.5 if necessary), declare emergency, and request vectors to the nearest airport with VFR conditions or an IFR approach. Use all remaining fuel time wisely — don\'t waste time looking for holes that may not exist.'],correct:1,explanation:'A VFR pilot trapped above an undercast is in an emergency situation, even if the aircraft is currently operating normally. The correct immediate actions: (1) squawk 7700 (emergency); (2) contact ATC on 121.5 or known center frequency; (3) state situation clearly — "non-instrument-rated pilot above overcast, unable to descend, need assistance"; (4) accept ATC vectors to the nearest VFR conditions or airport with an instrument approach; (5) do not delay — every minute of searching burns fuel that could have been used reaching the alternate.'},
       {id:'qcs15_3',question:'A TAF shows "BECMG 1315/1318 OVC008" for your destination. Your ETA is 1330Z. This means:',options:['Conditions will be 800-ft OVC by exactly 1315Z — you will arrive just in time','Conditions are becoming OVC at 800 ft sometime between 1315 and 1318Z. At your 1330Z ETA, conditions will be OVC008 — below safe VFR minimums for an unfamiliar airport. Plan accordingly.'],correct:1,explanation:'BECMG 1315/1318 OVC008 means the ceiling will become 800 ft overcast sometime within that 3-hour window. Your 1330Z ETA falls right in the middle of this transition — you may arrive to find conditions at or below IFR minimums. At 800 ft OVC, VFR entry into the traffic pattern at an unfamiliar airport is at or below safe operating limits. The correct pre-flight decision: either have an IFR alternate, depart later, or accept that the flight may need to divert.'}
     ]
+  },
+  {
+    id:'cs16',
+    caseType: 'verified',
+    verified: true,
+    title:'The Storm at the End of the Runway',
+    subtitle:'Microburst-induced wind shear during takeoff, New Orleans 1982',
+    category:'Microburst on Takeoff',
+    hazard:'Microburst on Takeoff',
+    severity:'fatal',
+    faaRef:'Ch. 22',
+    icon:'⛈️',
+    color:'#DC2626',
+    aircraft:'Boeing 727-235 (N4737)',
+    pilot:'Captain (11,727 hrs total, 10,595 in 727), First Officer (6,127 hrs total, 3,914 in 727), Flight Engineer (19,904 hrs total, 10,508 in 727) — all senior, current, 727-experienced',
+    date:'July 9, 1982, 1607 CDT, New Orleans International Airport (MSY)',
+    ntsbAccidentNumber:'NTSB-AAR-83/02',
+    ntsbSourceType:'final_report',
+    ntsbTitle:'Pan American World Airways, Clipper 759, Boeing 727-235, N4737, New Orleans International Airport, Kenner, Louisiana, July 9, 1982',
+    ntsbUrl:'https://www.ntsb.gov/investigations/AccidentReports/Reports/AAR8302.pdf',
+    brief:`
+      <p>Pan American Flight 759 was a scheduled multi-leg flight Miami–New Orleans–Las Vegas–San Diego. The crew taxied for departure on Runway 10 at MSY in the late afternoon. Thunderstorms were active east and east-northeast of the departure end. Tower-reported winds at takeoff clearance were "gusty and swirling."</p>
+      <p>The Low-Level Wind Shear Alert System (LLWAS) at MSY was a 1980s-generation perimeter-anemometer system that detected surface gradients between sensors. It had no capability to detect an airborne microburst column descending over the departure path. No microburst alert was issued, because no system on the field could issue one.</p>
+    `,
+    weather:`
+      <div style="background:#0C1B33;border-radius:12px;padding:14px;margin:12px 0;font-family:var(--font-mono);font-size:11px;color:white">
+        <div style="color:#94A3B8;margin-bottom:8px;font-family:var(--font-display);font-size:10px;font-weight:700">DEPARTURE CONDITIONS — MSY RUNWAY 10</div>
+        <div style="color:#38BDF8">Surface winds: gusty, swirling, variable direction</div>
+        <div style="color:#F59E0B">Thunderstorms: east and east-northeast of departure end</div>
+        <div style="color:#EF4444">Microburst: developing over departure path, undetected</div>
+        <div style="color:#94A3B8">LLWAS: 1980s perimeter anemometer system — surface only</div>
+        <div style="color:#94A3B8">Forecast: scattered to broken at 3,000 ft, moderate rain in cells</div>
+      </div>
+    `,
+    narrative:`
+      <p>Flight 759 lifted off Runway 10 at 16:07:57 CDT. The aircraft climbed to between 95 and 150 feet AGL — and then began to descend. The crew applied recovery inputs but the descent continued.</p>
+      <p>Approximately 2,376 feet beyond the end of the runway, the 727 struck a row of trees while still in a near-level pitch attitude at about 50 feet AGL. The aircraft continued forward another 2,234 feet, breaking up as it impacted trees and houses in the suburb of Kenner.</p>
+      <p>All 145 occupants were killed. Eight people on the ground were also killed. The total of 153 fatalities made the accident the second-deadliest in U.S. aviation history at the time.</p>
+      <p>The NTSB investigation concluded that the aircraft had encountered a microburst on the departure path — a downdraft column with a strong divergent outflow that produced a rapid headwind-to-tailwind transition during the climb. The crew's training and the era's wind shear detection technology were inadequate for the scenario. The accident drove the FAA's subsequent push for Terminal Doppler Weather Radar (TDWR) at major airports, the standardization of the windshear escape maneuver, and the deployment of onboard predictive wind shear systems on transport aircraft.</p>
+    `,
+    probableCause:`The aircraft's encounter with a microburst-induced wind shear which imposed a downdraft and decreasing headwind shear of such magnitude during liftoff that the pilots could not recognize and react to it in time to prevent impact with trees beyond the departure end of the runway. Contributing to the accident was the limited capability of then-current wind shear detection technology to provide the crew with timely warnings of the encounter.`,
+    lessons:[
+      'On takeoff, the microburst pattern is the mirror of the approach pattern: a brief headwind boost during initial climb, followed by a fatal headwind-to-tailwind transition. Recognizing the boost as a warning — rather than enjoying it as a tailwind — is the key.',
+      'Visible thunderstorms over or near the departure path are an unconditional reason to delay takeoff, even with no specific wind shear advisory issued. The absence of an alert does not mean the absence of shear.',
+      '1980s-era LLWAS perimeter systems detected surface wind gradients, not airborne microbursts. Modern Terminal Doppler Weather Radar (TDWR) and onboard predictive wind shear systems were direct policy responses to this class of accident.',
+      'Crew experience does not protect against an unrecognized microburst. The Pan Am 759 crew had over 37,000 combined flight hours — the threat was not a skill gap, it was a detection-and-recognition gap that 1982 technology could not close.',
+      'If you see CB or TS within 2-3 miles of the departure or arrival path, treat it as an active hazard. Wait. The economic cost of a delay is trivial compared to the survivability of a microburst penetration.'
+    ],
+    discoveryQuestions: [
+      {
+        q: 'The crew received "gusty and swirling" surface winds at takeoff clearance. Why was that report insufficient warning of the microburst hazard?',
+        opts: [
+          'Surface wind reports always understate the severity of conditions aloft',
+          'A microburst is a vertical-axis phenomenon descending from aloft — its existence and intensity cannot be inferred from surface anemometer readings, which is what 1980s LLWAS measured',
+          'The tower controller failed to relay an LLWAS alert that was active at the time',
+          'The crew should have requested a different runway because of the wind report'
+        ],
+        response: 'The 1980s LLWAS detected horizontal wind gradients between perimeter sensors. A microburst column forms aloft and slams downward — by the time the outflow reaches the surface and crosses two perimeter sensors, an aircraft on the takeoff roll is already committed. The "gusty and swirling" report told the crew the air was disturbed; it did not and could not tell them a microburst was over the departure path. The visible TS to the east was the actual warning the crew needed to weight more heavily.'
+      },
+      {
+        q: 'A 727 climbing through 100 ft AGL begins to lose altitude despite normal pitch attitude and full takeoff thrust. What is the only correct response?',
+        opts: [
+          'Reduce pitch to gain airspeed before climbing again',
+          'Maintain full thrust, hold the pitch attitude that produces stick-shaker minus a small margin, and accept altitude deviation rather than chase airspeed — the goal is to clear obstacles, not maintain Vy',
+          'Lower the nose to fly through the shear and re-establish normal climb on the other side',
+          'Reduce thrust briefly to allow the aircraft to settle, then re-apply'
+        ],
+        response: 'The microburst escape maneuver as it has been refined since this accident: max thrust, pitch to stick-shaker minus a small margin, accept airspeed bleed and altitude deviation, do not pursue normal climb performance. The objective is clearing the windshear region with the aircraft still flying — not maintaining Vy. A 727 climbing through 100 ft with the throttles already at takeoff thrust has no remaining performance reserve except angle of attack. Lowering the nose into a tailwind-and-downdraft is fatal; it exchanges the only remaining margin (AOA) for an airspeed gain that the next moment of the encounter consumes anyway.'
+      }
+    ],
+    quiz:[
+      {id:'qcs16_1',question:'The microburst on takeoff vs. on approach has a key tactical difference. What is it?',options:['On takeoff, you have more energy reserve and the encounter is easier to survive','On takeoff, the aircraft is at maximum thrust with no remaining performance reserve except angle of attack — there is no power left to add when the tailwind hits','On takeoff, the autopilot can fly the escape maneuver more reliably than on approach','Microbursts on takeoff are weaker than on approach because of ground effect'],correct:1,explanation:'On approach, an aircraft typically has reduced power and configuration drag — adding power and going around recovers most encounters. On takeoff, the aircraft is already at takeoff thrust. When the tailwind/downdraft phase hits, there is no extra thrust to add. The only remaining margin is angle of attack — pitching to stick-shaker. This is why takeoff microburst encounters have historically had poorer survival rates than approach encounters.'},
+      {id:'qcs16_2',question:'The Pan Am 759 crew had over 37,000 combined flight hours and was current and trained per the standards of the era. Why did the accident happen anyway?',options:['Crew fatigue from a multi-leg day reduced their reaction time','The detection and recognition gap — 1980s wind shear detection technology and crew training procedures were not capable of providing timely microburst warning','A maintenance issue with the 727 reduced its climb performance below specification','The runway was too short for the 727\'s takeoff weight that day'],correct:1,explanation:'This was a procedural and technological gap, not a skill gap. The crew did everything the era\'s training and equipment supported. The accident drove direct FAA action: terminal Doppler weather radar deployment at major airports, modern microburst-aware crew training, the windshear escape maneuver standardization, and onboard predictive wind shear systems on transport aircraft. Modern crews are protected by systems that did not exist in 1982.'},
+      {id:'qcs16_3',question:'You are taxiing for departure. A thunderstorm cell is visible 2-3 miles east of the departure end, moving slowly. ATC has not issued any wind shear advisory. The correct action is:',options:['Continue with takeoff — no advisory means no detected hazard','Hold short. A visible CB within 2-3 miles of the departure or arrival path is an unconditional reason to delay regardless of advisory state','Request an immediate departure to beat the storm','Request a runway change to put the storm behind you'],correct:1,explanation:'A visible CB is direct visual evidence of a convective hazard. The absence of an advisory means current detection technology has not yet identified shear — not that no shear exists. Microburst lifecycles are minutes; a cell that looked benign 5 minutes ago may have a microburst column descending now. The conservative answer — hold for the cell to pass or move — has zero survival downside.'}
+    ]
+  },
+  {
+    id:'cs17',
+    caseType: 'verified',
+    verified: true,
+    title:'The Gap That Closed',
+    subtitle:'Beechcraft A36 IFR through line of thunderstorms, datalink NEXRAD lag',
+    category:'Thunderstorm Penetration',
+    hazard:'Datalink NEXRAD Latency',
+    severity:'fatal',
+    faaRef:'Ch. 14, 25',
+    icon:'⛈️',
+    color:'#7C3AED',
+    aircraft:'Beechcraft A36 Bonanza (N976S)',
+    pilot:'Instrument-rated private pilot, IR earned <2 years prior, ~32 hours actual instrument time',
+    date:'May 31, 2012, ~1656 CDT, Macon, Mississippi',
+    ntsbAccidentNumber:'ERA12FA376',
+    ntsbSourceType:'carol',
+    ntsbTitle:'Aviation Investigation Final Report — Beechcraft A36 Bonanza, N976S, Macon MS, 31 May 2012',
+    ntsbUrl:'https://data.ntsb.gov/carol-main-public/basic-search/aviation?searchTerm=ERA12FA376',
+    brief:`
+      <p>The pilot was on an IFR flight plan flying a long cross-country leg in a single-engine Bonanza equipped with XM WX Satellite Weather (datalink NEXRAD Composite) and a stormscope. The route crossed a line of thunderstorms ahead. The pilot identified an apparent gap in the cockpit NEXRAD imagery and elected to fly through it.</p>
+      <p>The pilot's logged actual-instrument time was approximately 32 hours. The instrument rating had been earned within the prior two years.</p>
+    `,
+    weather:`
+      <div style="background:#0C1B33;border-radius:12px;padding:14px;margin:12px 0;font-family:var(--font-mono);font-size:11px;color:white">
+        <div style="color:#94A3B8;margin-bottom:8px;font-family:var(--font-display);font-size:10px;font-weight:700">WEATHER PRODUCTS ON BOARD</div>
+        <div style="color:#38BDF8">XM WX Satellite Weather: NEXRAD Composite — datalink, age 6-7 minutes</div>
+        <div style="color:#38BDF8">Stormscope/strikefinder: real-time lightning, low spatial detail</div>
+        <div style="color:#94A3B8">No onboard radar (which would have given real-time precip detail)</div>
+        <div style="color:#F59E0B">NEXRAD frame at 1650: aircraft position depicted clear of precip</div>
+        <div style="color:#EF4444">Ground-based radar truth at 1656: aircraft inside ≥50 dBZ Level 5 cell</div>
+        <div style="color:#EF4444">The "gap" had filled in during the latency window</div>
+      </div>
+    `,
+    narrative:`
+      <p>At 1650, the satellite-delivered NEXRAD composite image displayed in the cockpit showed the aircraft's position in clear air between cells — an apparent gap in the convective line. The pilot continued.</p>
+      <p>Six minutes later, at 1656, ground-based NEXRAD recorded the aircraft inside a cell of 50 dBZ or greater reflectivity (Level 5 — extreme). The cockpit display, pulling from the same 1650 frame plus normal processing latency, still showed the aircraft clear of precipitation. The "gap" had filled in during the latency window.</p>
+      <p>The aircraft broke up in flight. The wreckage path was consistent with structural failure inside the cell. The pilot was fatally injured.</p>
+      <p>The NTSB cited the pilot's decision to attempt to fly between cells while relying on weather products that did not provide real-time information. The Board's discussion noted that XM-style datalink NEXRAD is fundamentally a strategic planning tool — the latency is intrinsic to how the product is generated and distributed (sweep aggregation, ground processing, satellite uplink). It is not suitable for tactical avoidance of cells in close proximity.</p>
+    `,
+    probableCause:`The pilot's decision to attempt to fly between thunderstorm cells while utilizing weather information that was not capable of providing real-time data. Contributing to the accident was the pilot's limited actual instrument experience and his reliance on a NEXRAD product that was 6-7 minutes old at the time of the encounter.`,
+    lessons:[
+      'Datalink NEXRAD (XM WX Satellite Weather, FIS-B, etc.) is a strategic tool — useful for route-level decisions hundreds of miles ahead. It is NOT a tactical tool for picking gaps in nearby convective lines. End-to-end latency is typically 5-15 minutes from radar sweep to cockpit display.',
+      'A "gap" between cells on a datalink image may be a 5-10 minute old snapshot of a region that has since closed. Convective cells can develop from clear air to Level 5 reflectivity inside the latency window.',
+      'Onboard real-time radar or visual avoidance with a wide margin is the only safe approach to convective penetration. Without onboard radar, the only safe path is a deviation around the entire line — measured in tens of miles, not within-line gap-picking.',
+      'A stormscope/strikefinder provides real-time lightning data but with low spatial resolution. It complements NEXRAD; it does not substitute for it. Lightning gaps are not necessarily safe corridors — cells can produce heavy precipitation and severe turbulence with low lightning activity.',
+      'A pilot with 32 hours actual instrument time and a recently-earned IR is not flying with the experience margin a thunderstorm-line decision requires. Adopting the conservative deviation pattern as a default identity — "I am the kind of pilot who deviates 30 miles around the line" — prevents the gap-picking decision from being available in the first place.'
+    ],
+    discoveryQuestions: [
+      {
+        q: 'The cockpit NEXRAD image at 1650 showed clear air. Ground truth at 1656 was the aircraft inside a Level 5 cell. What property of datalink NEXRAD made the displayed image fundamentally misleading?',
+        opts: [
+          'The XM antenna had a partial obstruction reducing data fidelity',
+          'Datalink NEXRAD has inherent end-to-end latency (radar sweep → ground processing → satellite uplink → cockpit display) of 5-15 minutes — what you see is always a snapshot of the past',
+          'The pilot had filtered out low-reflectivity returns to declutter the display',
+          'NEXRAD does not detect cells over flat terrain'
+        ],
+        response: 'The datalink NEXRAD chain has structural latency: ground radar sweeps every ~5 min, reflectivity data is mosaicked into a composite, the composite is uplinked to the satellite and broadcast on a cycle, the receiver decodes and renders. By the time you see the image, it is 5-15 minutes old. For a slow-developing weather pattern hundreds of miles away, this is fine. For a thunderstorm cell that can intensify from clear to Level 5 in 10 minutes, the displayed image and reality diverge dangerously. This case shows that divergence reaching its terminal point.'
+      },
+      {
+        q: 'A pilot with limited actual instrument time, no onboard radar, and a datalink NEXRAD product is approaching a line of convective cells with a visible gap. What is the conservatively correct decision?',
+        opts: [
+          'Fly through the gap with reduced airspeed for turbulence',
+          'Climb above the line if cells are reported below FL200',
+          'Deviate around the entire line — the deviation should be measured in tens of miles, not minutes — and accept the ~30-minute time penalty',
+          'Request vectors through the gap from ATC, who has more current radar'
+        ],
+        response: 'The structural latency makes any gap an unverifiable target. ATC radar is more current but radar in general (ground or air) shows precipitation, not turbulence — and a "clear" gap can contain severe turbulence and updrafts even without heavy precipitation. The conservative answer is the only safe answer: deviate around the line. A 30-minute deviation is trivial compared to the ~100% fatality rate of a Level 5 penetration in a single-engine piston. The flight plan absorbs the time. The aircraft does not absorb the cell.'
+      }
+    ],
+    quiz:[
+      {id:'qcs17_1',question:'A pilot equipped with XM WX Satellite Weather sees a clear gap between two cells on the cockpit display. The pilot is 15 minutes from the gap. What is the safest interpretation?',options:['The gap is real and will remain open as the pilot transits','The gap is 5-15 minutes old; by the time the pilot reaches it, the cells may have grown and closed it','The gap is conservative — the cells on the display are likely larger than reality','If any cell is visible the entire route is unsafe'],correct:1,explanation:'Datalink NEXRAD is structurally latent: 5-15 minutes from radar sweep to cockpit display. A "gap" on the screen is a snapshot of the past. Convective cells can develop or fill in faster than the latency window. Treating a datalink image as ground truth — especially for cells you will reach in less than the latency interval — is the failure mode of the entire ERA12FA376 sequence and many similar accidents.'},
+      {id:'qcs17_2',question:'For tactical avoidance of nearby thunderstorm cells, the only equipment-class that provides real-time spatial data is:',options:['Datalink NEXRAD (XM, FIS-B)','Stormscope / strikefinder (lightning detection)','Onboard real-time weather radar','A current METAR for the destination'],correct:2,explanation:'Onboard radar transmits and receives in real time, providing current returns at the aircraft\'s exact range. Datalink NEXRAD is delayed. Stormscope provides real-time lightning data but low spatial resolution. METARs are point observations of surface conditions, not aloft. For close-in tactical decisions about specific cells, onboard radar (or visual avoidance with wide margin) is the standard. GA aircraft without onboard radar must use wide deviation, measured in tens of miles around an entire line — not within-line gap-picking.'},
+      {id:'qcs17_3',question:'The pilot in ERA12FA376 had earned the instrument rating less than 2 years prior with approximately 32 hours of actual instrument experience. How should this experience profile have shaped the convective-line decision?',options:['The IR demonstrates the pilot can handle convective penetration if needed','32 hours of actual is sufficient for any IFR decision','A pilot with limited actual experience should adopt a stable identity as "the kind of pilot who deviates wide around convective lines" — this case shows the cost of trying to thread the gap','Actual instrument time is irrelevant to convective avoidance decisions'],correct:2,explanation:'Convective penetration decisions amplify the consequence of every other variable: weather product limitations, aircraft equipment, pilot experience. A low-time IR holder has not yet built the pattern recognition that distinguishes a survivable buildup from a developing cell. The conservative deviation pattern is not a tax on capability — it is what experienced convective-flying pilots do too. Adopting it as default identity prevents the gap-picking decision from being available.'}
+    ]
+  },
+  {
+    id:'cs18',
+    caseType: 'verified',
+    verified: true,
+    title:'Circling Until the Tank Was Empty',
+    subtitle:'Piper Comanche fuel exhaustion after weather circling, four occupants survived',
+    category:'Fuel Management',
+    hazard:'Weather Decision → Fuel Cascade',
+    severity:'serious injury',
+    faaRef:'Ch. 26',
+    icon:'⛽',
+    color:'#F59E0B',
+    aircraft:'Piper PA-24-250 Comanche (N5897P)',
+    pilot:'Private pilot (son), with father (aircraft owner, also pilot) acting as co-pilot. Two additional family members on board.',
+    date:'November 28, 2014, late afternoon, near Andrews University Airpark (C20), Berrien Springs, Michigan',
+    ntsbAccidentNumber:'CEN15CA064',
+    ntsbSourceType:'carol',
+    ntsbTitle:'Aviation Investigation Final Report — Piper PA-24-250 Comanche, N5897P, Berrien Springs MI, 28 Nov 2014',
+    ntsbUrl:'https://data.ntsb.gov/carol-main-public/basic-search/aviation?searchTerm=CEN15CA064',
+    brief:`
+      <p>The pilot, his father (the aircraft owner, also a pilot, acting as co-pilot), the father's wife, and the pilot's girlfriend departed Richmond, Indiana for a Thanksgiving family gathering at Andrews University Airpark, Berrien Springs, Michigan. The pilot calculated approximately 90 minutes of fuel on board for a flight planned at approximately 70 minutes.</p>
+      <p>The fuel margin was thin but presented as legal: a 20-minute reserve over a 70-minute leg. The plan presumed weather and routing as briefed.</p>
+    `,
+    weather:`
+      <div style="background:#0C1B33;border-radius:12px;padding:14px;margin:12px 0;font-family:var(--font-mono);font-size:11px;color:white">
+        <div style="color:#94A3B8;margin-bottom:8px;font-family:var(--font-display);font-size:10px;font-weight:700">FUEL & WEATHER MARGIN</div>
+        <div style="color:#38BDF8">Planned flight time: ~70 minutes</div>
+        <div style="color:#38BDF8">Fuel on board: ~90 minutes</div>
+        <div style="color:#F59E0B">Reserve buffer: ~20 minutes (operationally thin)</div>
+        <div style="color:#EF4444">At destination: weather present — pilot elected to circle waiting for clearance</div>
+        <div style="color:#EF4444">Circling consumed the reserve before weather cleared</div>
+        <div style="color:#94A3B8">No diversion attempted</div>
+      </div>
+    `,
+    narrative:`
+      <p>The flight proceeded as planned until the aircraft approached Berrien Springs. The pilot encountered weather at the destination and elected to circle the area, waiting for the weather to clear rather than diverting to an alternate.</p>
+      <p>The 20-minute reserve was consumed by the circling. Approximately 4 miles from the runway, the engine quit — fuel exhaustion, total loss of power. The aircraft was no longer powered. A forced landing into trees and terrain followed.</p>
+      <p>Two occupants were seriously injured. Two received minor injuries. All four survived.</p>
+      <p>The NTSB cited the pilot's inadequate fuel planning. The teaching frame is broader than the cause statement: the pilot's plan was nominally legal, but it had no margin for the most common contingency on a cross-country flight — weather requiring time. Once the decision to circle was made, the fuel reserve was committed to a process whose termination was outside the pilot's control.</p>
+    `,
+    probableCause:`The pilot's inadequate fuel planning, which resulted in fuel exhaustion and a total loss of engine power during the approach to the destination airport.`,
+    lessons:[
+      'Legal fuel reserves (45 min night VFR, 30 min day VFR under 14 CFR 91.151) are minimums, not plans. The 20-minute buffer in this flight was below the 30-minute day-VFR reserve and operationally inadequate — it had no margin for any contingency that requires time-on-station.',
+      'Weather decisions are silent fuel decisions. Every minute spent circling, holding, or routing around weather consumes the same fuel as forward progress — but the reserve was sized for forward progress only.',
+      'When weather appears at destination, the choice between circling and diverting is a fuel decision before it is a weather decision. Calculate: at current burn, how many minutes can I wait? Compare to: how long can the weather plausibly stay this bad? If wait-budget is shorter than the weather forecast, divert.',
+      'The "I will just wait it out" psychology is structurally biased toward the dangerous option: the cost of waiting (fuel) is invisible while you do it, while the cost of diverting (time, inconvenience) is visible. Make the invisible cost visible by writing the math before you start circling.',
+      'A four-occupant family flight is high-stakes not because of the aircraft but because of the cargo. The non-fatal outcome here was luck. The same decision sequence in slightly different terrain or weather is a four-fatality accident.'
+    ],
+    discoveryQuestions: [
+      {
+        q: 'The pilot calculated 90 minutes of fuel for a 70-minute flight — a 20-minute buffer. What was wrong with this plan as a cross-country plan, even before weather appeared?',
+        opts: [
+          'The flight was illegal — VFR reserves require 60 minutes day, not 20',
+          'The plan had no margin for the most common cross-country contingency (weather requiring time-on-station). A buffer that is legal-minimum is a minimum, not a plan — and weather hold is the contingency that consumes margin most aggressively',
+          'The pilot should have calculated 60 minutes for the flight, not 70',
+          'The aircraft\'s fuel gauges are unreliable on the PA-24, requiring a different reserve standard'
+        ],
+        response: '14 CFR 91.151 requires 30 minutes day-VFR / 45 minutes night-VFR reserve beyond planned arrival. The pilot\'s 20-minute buffer was below the legal day-VFR minimum and well below any operationally sound contingency-aware plan. Cross-country flights regularly require 20-30 minutes of unplanned holding for weather; a flight plan that cannot absorb that contingency is a flight plan that has not accounted for the standard contingencies. "Legal minimum + nothing" is not planning — it is gambling with the smallest visible margin.'
+      },
+      {
+        q: 'When the pilot encountered weather at the destination, the decision was between circling and diverting. What calculation should drive that decision?',
+        opts: [
+          'Circle if the destination is the planned airport — the plan should be honored',
+          'Divert if an alternate is within fuel range — always',
+          'Calculate fuel-time available at current burn rate. Compare to weather forecast time. If wait-budget is shorter than weather, divert. Make the invisible cost (fuel) visible by writing the math before circling',
+          'Call the destination for a visual conditions report before deciding'
+        ],
+        response: 'The decision to circle is a decision to spend fuel — and that cost is invisible while you are doing it. The decision to divert is a decision to spend time and inconvenience — those costs are visible. The bias is structural: circle. The corrective practice is to make the fuel cost visible by calculating it explicitly: at 13 GPH and 8 gallons remaining, I have 36 minutes. The METAR trend says weather may not clear for 45 minutes. The math is the answer. Diverting is the answer. Without that calculation, "I will just wait" is the default — and it is wrong here.'
+      }
+    ],
+    quiz:[
+      {id:'qcs18_1',question:'A pilot is approaching destination with 30 minutes of fuel on board. Weather at the destination requires a hold. The METAR trend suggests weather may improve in 15-30 minutes. The pilot should:',options:['Hold for 30 minutes — fuel will be at zero but weather should clear','Hold for 15 minutes, then divert if weather has not improved','Divert immediately to an alternate that is in current VMC and within fuel range','Land VFR-direct on the runway despite the IMC weather'],correct:2,explanation:'A 30-minute fuel buffer with a 15-30 minute weather window is the worst-case match — the weather may resolve before fuel is exhausted, or it may not. Holding commits the fuel to a process whose termination is outside the pilot\'s control. Diverting commits the fuel to a process whose termination is in the pilot\'s control (you arrive at the alternate). Always prefer a process you control over one you do not, especially when fuel is the resource at risk.'},
+      {id:'qcs18_2',question:'The "I will just wait it out" psychology when weather appears at destination is dangerous because:',options:['Waiting is illegal under 14 CFR Part 91','The cost of waiting (fuel consumption) is invisible during the wait, while the cost of diverting (time, inconvenience) is visible — creating structural bias toward the more dangerous option','Waiting always produces worse outcomes than diverting','Diverting requires a new clearance that takes too long to obtain'],correct:1,explanation:'The decision is structurally biased: while you are circling, fuel consumption is silent — you do not feel it tick down. While you are considering diverting, the inconvenience is loud — extra time, ground transport, family delay. The corrective practice is to make the fuel cost visible by writing the math before circling: minutes of fuel at current burn vs. minutes of weather expected. When the math is on paper, the decision is obvious. When the math stays in your head, the bias wins.'},
+      {id:'qcs18_3',question:'A planned 70-minute cross-country with 90 minutes of fuel represents:',options:['A safe operational plan with a 20-minute reserve','A plan below the 14 CFR 91.151 day-VFR 30-minute reserve and well below the operationally sound "flight time + 30 min reserve + 30 min weather contingency" pattern. Cross-country flights regularly require 20-30 minutes of unplanned holding for weather; the plan must absorb that at minimum','A reasonable plan if weather is forecast to be VMC','A plan that exceeds the FAA recommended fuel margin of 1.2x flight time'],correct:1,explanation:'A 20-minute buffer over flight time is below the standard 30-minute day-VFR reserve and well below the operationally sound flight-time + reserve + weather-contingency + diversion pattern. The cs18 plan was technically close to legal but had no operational margin for the contingency that actually occurred. Build flight plans against the contingency that actually happens, not the contingency you would prefer.'}
+    ]
   }
 ];
