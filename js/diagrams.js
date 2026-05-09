@@ -1088,12 +1088,11 @@ const Diagrams = {
     return `<div style="background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08);margin:16px 0">
       <div class="diagram-header"><span style="color:white;font-family:var(--font-display);font-weight:700;font-size:14px">📋 METAR Practice — ${lib.length} annotated examples</span></div>
       <div style="padding:16px">
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
-          <label style="font-size:11px;color:#64748B;font-family:var(--font-display);font-weight:700">Example</label>
-          <select onchange="Diagrams._setMetarIdx(this.value)" style="flex:1;min-width:180px;border:2px solid #E2E8F0;border-radius:10px;padding:8px 10px;font-family:var(--font-display);font-weight:700;font-size:13px;color:var(--navy);background:white">${pickerOpts}</select>
-          <div style="display:flex;gap:6px">
-            <button onclick="Diagrams._setMetarIdx(${(idx - 1 + lib.length) % lib.length})" aria-label="Previous example" style="background:#F1F5F9;color:#475569;border:none;border-radius:10px;padding:8px 12px;font-family:var(--font-display);font-weight:800;cursor:pointer">‹</button>
-            <button onclick="Diagrams._setMetarIdx(${(idx + 1) % lib.length})" aria-label="Next example" style="background:#F1F5F9;color:#475569;border:none;border-radius:10px;padding:8px 12px;font-family:var(--font-display);font-weight:800;cursor:pointer">›</button>
+        <div class="metar-picker-controls">
+          <select class="metar-picker-select" onchange="Diagrams._setMetarIdx(this.value)" aria-label="Choose METAR example">${pickerOpts}</select>
+          <div class="metar-nav-row">
+            <button class="metar-nav metar-nav-prev" onclick="Diagrams._setMetarIdx(${(idx - 1 + lib.length) % lib.length})" aria-label="Previous example"><span class="metar-nav-glyph" aria-hidden="true">‹</span><span class="metar-nav-text">← Prev</span></button>
+            <button class="metar-nav metar-nav-next" onclick="Diagrams._setMetarIdx(${(idx + 1) % lib.length})" aria-label="Next example"><span class="metar-nav-glyph" aria-hidden="true">›</span><span class="metar-nav-text">Next →</span></button>
           </div>
         </div>
         <div style="font-size:12px;color:#475569;font-family:var(--font-body);margin:0 0 10px 2px;line-height:1.5">${m.summary || ''}</div>
