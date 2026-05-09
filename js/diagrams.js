@@ -1131,53 +1131,89 @@ const Diagrams = {
       <p style="font-size:14px;color:#334155;line-height:1.6;margin:0">${t.detail}</p>`;
   },
 
+  // TAF Practice — token-tap exploration of an 8-example annotated library
+  // (no parser; each TAF is broken into rows of {kind, groupType, tokens}).
+  // _tafIdx tracks which library entry is currently shown.
+  // Token clicks use event delegation off the picker container — see
+  // _onTafTokenClick — so nested rows + change groups don't need brittle
+  // two-index escaping in inline onclick attributes.
+  _tafIdx: 0,
+
   renderTafDecoder(){
-    const groups=[
-      {code:'KDFW',color:'#7C3AED',bg:'#F5F3FF',label:'Station',detail:'Dallas-Fort Worth International. Same ICAO format as METAR.'},
-      {code:'061737Z',color:'#64748B',bg:'#F8FAFC',label:'Issued',detail:'Day 06 at 1737Z — TAF issued 20-40 min before valid period starts.'},
-      {code:'0618/0718',color:'#0284C7',bg:'#E0F2FE',label:'Valid Period',detail:'Day 06 at 1800Z through Day 07 at 1800Z = 24-hour TAF.'},
-      {code:'23010KT',color:'#DC2626',bg:'#FEF2F2',label:'Wind',detail:'Same format as METAR: 230° true at 10 knots.'},
-      {code:'P6SM',color:'#059669',bg:'#ECFDF5',label:'Visibility',detail:'Prevailing visibility greater than 6 statute miles.'},
-      {code:'SKC',color:'#1D4ED8',bg:'#EFF6FF',label:'Sky',detail:'Sky clear — no clouds. NSW = no significant weather.'},
-      {code:'FM061900',color:'#7C3AED',bg:'#F5F3FF',label:'FROM Group',detail:'FROM day 06 at 1900Z: ALL conditions change abruptly to those that follow. Complete replacement of previous forecast.'},
-      {code:'TEMPO 0621/0702',color:'#EC4899',bg:'#FDF2F8',label:'TEMPO',detail:'Temporary fluctuations between 2100Z day 06 and 0200Z day 07. Each occurrence <1 hr. Does not replace base forecast.'},
-      {code:'PROB30',color:'#8B5CF6',bg:'#F5F3FF',label:'Probability',detail:'30% chance of a thunderstorm or precipitation event (and its associated wind/visibility/sky conditions). Less likely than not, but significant enough to plan for. PROB30 is the only PROB group used by NWS in U.S. domestic TAFs.'},
-    ];
-    return `<div style="background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08);margin:20px 0">
-      <div class="diagram-header"><span style="color:white;font-family:var(--font-display);font-weight:700;font-size:14px">📅 TAF Element Reference — Tap Each Group</span></div>
+    const lib = (typeof TAF_LIBRARY !== 'undefined' && TAF_LIBRARY.length) ? TAF_LIBRARY : [];
+    if (!lib.length) return '';
+    const idx = Math.min(Math.max(this._tafIdx | 0, 0), lib.length - 1);
+    const t = lib[idx];
+    const pickerOpts = lib.map((entry, i) =>
+      `<option value="${i}"${i === idx ? ' selected' : ''}>Example ${i + 1}: ${entry.title}</option>`
+    ).join('');
+    const rowsHtml = t.rows.map((row, ri) => {
+      const isHeader = row.kind === 'header';
+      const groupType = row.groupType || '';
+      const cls = isHeader ? 'taf-row taf-row-header' : `taf-row taf-row-change taf-row-${groupType.toLowerCase()}`;
+      const marker = isHeader ? '' : `<span class="taf-row-marker" data-group="${groupType}">${groupType}</span>`;
+      const tokens = row.tokens.map((tk, ti) => {
+        const isKeyword = !isHeader && ti === 0; // first token in a change row is the keyword
+        const tokenCls = isKeyword ? 'taf-token taf-token-keyword' : 'taf-token';
+        return `<span class="${tokenCls}" data-row="${ri}" data-token="${ti}" style="background:${tk.bg};color:${tk.color}">${tk.token}</span>`;
+      }).join(' ');
+      return `<div class="${cls}">${marker}<div class="taf-row-tokens">${tokens}</div></div>`;
+    }).join('');
+    return `<div class="taf-card" style="background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08);margin:16px 0">
+      <div class="diagram-header"><span style="color:white;font-family:var(--font-display);font-weight:700;font-size:14px">📅 TAF Practice — ${lib.length} annotated examples</span></div>
       <div style="padding:16px">
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
-          ${groups.map((g,i)=>`<span class="metar-token" style="background:${g.bg};color:${g.color}" onclick="Diagrams.showTafToken(${i})">${g.code}</span>`).join('')}
+        <div class="taf-picker-controls">
+          <select class="taf-picker-select" onchange="Diagrams._setTafIdx(this.value)" aria-label="Choose TAF example">${pickerOpts}</select>
+          <div class="taf-nav-row">
+            <button class="taf-nav taf-nav-prev" onclick="Diagrams._setTafIdx(${(idx - 1 + lib.length) % lib.length})" aria-label="Previous example"><span class="taf-nav-glyph" aria-hidden="true">‹</span><span class="taf-nav-text">← Prev</span></button>
+            <button class="taf-nav taf-nav-next" onclick="Diagrams._setTafIdx(${(idx + 1) % lib.length})" aria-label="Next example"><span class="taf-nav-glyph" aria-hidden="true">›</span><span class="taf-nav-text">Next →</span></button>
+          </div>
         </div>
-        <div id="taf-detail" style="background:#F8FAFC;border-radius:14px;padding:14px;min-height:70px">
-          <div style="color:#94A3B8;font-family:var(--font-display);font-size:14px;text-align:center;padding:16px 0">↑ Tap any TAF group above</div>
+        <div style="font-size:12px;color:#475569;font-family:var(--font-body);margin:0 0 10px 2px;line-height:1.5">${t.summary || ''}</div>
+        <div class="taf-rows" onclick="Diagrams._onTafTokenClick(event)">
+          ${rowsHtml}
+        </div>
+        <div id="taf-detail" style="background:#F8FAFC;border-radius:14px;padding:16px;min-height:80px;transition:all .2s">
+          <div style="color:#94A3B8;font-family:var(--font-display);font-weight:700;font-size:14px;text-align:center;padding:20px 0">↑ Tap any group above to decode it</div>
         </div>
       </div>
     </div>`;
   },
 
-  showTafToken(i){
-    const groups=[
-      {code:'KDFW',color:'#7C3AED',bg:'#F5F3FF',label:'Station',detail:'Dallas-Fort Worth International. Same ICAO format as METAR.'},
-      {code:'061737Z',color:'#64748B',bg:'#F8FAFC',label:'Issued',detail:'Day 06 at 1737Z — TAF issued 20-40 min before valid period starts.'},
-      {code:'0618/0718',color:'#0284C7',bg:'#E0F2FE',label:'Valid Period',detail:'Day 06 at 1800Z through Day 07 at 1800Z = 24-hour TAF. Format: DDHH/DDHH.'},
-      {code:'23010KT',color:'#DC2626',bg:'#FEF2F2',label:'Wind',detail:'Same format as METAR: 230° true at 10 knots. Always true north.'},
-      {code:'P6SM',color:'#059669',bg:'#ECFDF5',label:'Visibility',detail:'Prevailing visibility greater than 6 statute miles. P6SM = "Plus 6 SM."'},
-      {code:'SKC',color:'#1D4ED8',bg:'#EFF6FF',label:'Sky',detail:'Sky clear — no clouds. NSW = No Significant Weather clears previous wx group.'},
-      {code:'FM061900',color:'#7C3AED',bg:'#F5F3FF',label:'FROM Group',detail:'FROM day 06 at 1900Z: ALL conditions change abruptly. Complete replacement — wind, vis, wx, sky all change to the values that follow FM.'},
-      {code:'TEMPO 0621/0702',color:'#EC4899',bg:'#FDF2F8',label:'TEMPO',detail:'Temporary fluctuations between 2100Z day 06 and 0200Z day 07. Each occurrence <1 hr total. Does NOT replace base forecast — base conditions continue between occurrences.'},
-      {code:'PROB30',color:'#8B5CF6',bg:'#F5F3FF',label:'Probability',detail:'30% chance of a thunderstorm or precipitation event in the following group (and its associated wind/visibility/sky conditions). PROB30 is the only PROB group used by NWS in U.S. domestic TAFs. PROB40 (40%) appears only in U.S. military and international TAFs.'},
-    ];
-    const g=groups[i];
-    document.querySelectorAll('.metar-token').forEach(el=>el.classList.remove('selected'));
-    const tokens=document.querySelectorAll('.metar-token');
-    tokens[i]?.classList.add('selected');
-    document.getElementById('taf-detail').innerHTML=`
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-        <code style="background:${g.bg};color:${g.color};padding:5px 12px;border-radius:8px;font-family:var(--font-mono);font-size:13px;font-weight:700">${g.code}</code>
-        <strong style="font-family:var(--font-display);font-size:15px;color:${g.color}">${g.label}</strong>
+  _setTafIdx(i){
+    const lib = (typeof TAF_LIBRARY !== 'undefined' && TAF_LIBRARY.length) ? TAF_LIBRARY : [];
+    if (!lib.length) return;
+    this._tafIdx = Math.min(Math.max(parseInt(i, 10) || 0, 0), lib.length - 1);
+    // Re-render in place. Find the closest .taf-card and replace it.
+    const detail = document.getElementById('taf-detail');
+    const card = detail ? detail.closest('.taf-card') : null;
+    if (card) card.outerHTML = this.renderTafDecoder();
+  },
+
+  // Event-delegated token-tap handler. Reads data-row/data-token from the
+  // clicked .taf-token, looks up the entry in TAF_LIBRARY[_tafIdx].rows,
+  // and renders its annotation in #taf-detail. Avoids inline two-index
+  // onclick escaping.
+  _onTafTokenClick(ev){
+    const el = ev.target.closest('.taf-token');
+    if (!el) return;
+    const rowIdx = parseInt(el.getAttribute('data-row'), 10);
+    const tokIdx = parseInt(el.getAttribute('data-token'), 10);
+    if (!Number.isInteger(rowIdx) || !Number.isInteger(tokIdx)) return;
+    const lib = (typeof TAF_LIBRARY !== 'undefined' && TAF_LIBRARY.length) ? TAF_LIBRARY : [];
+    if (!lib.length) return;
+    const t = lib[Math.min(Math.max(this._tafIdx | 0, 0), lib.length - 1)];
+    const row = t.rows[rowIdx];
+    const tk = row && row.tokens[tokIdx];
+    if (!tk) return;
+    document.querySelectorAll('.taf-token').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('taf-detail').innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+        <code style="background:${tk.bg};color:${tk.color};padding:6px 14px;border-radius:10px;font-family:var(--font-mono);font-size:14px;font-weight:700">${tk.token}</code>
+        <strong style="font-family:var(--font-display);font-size:16px;color:${tk.color}">${tk.label}</strong>
       </div>
-      <p style="font-size:13px;color:#334155;line-height:1.6;margin:0">${g.detail}</p>`;
+      <p style="font-size:14px;color:#334155;line-height:1.6;margin:0">${tk.detail}</p>`;
   },
 
   renderPirepDecoder(){
