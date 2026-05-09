@@ -1658,5 +1658,308 @@ const CASE_STUDIES = [
       {id:'qcs23_2',question:'The most predictable forecast input for mountain wave activity in a pre-flight briefing is:',options:['SIGMET text specifically calling out "mountain wave"','Winds aloft data — strong winds (typically >25-30 kt) perpendicular to a ridge at the ridge\'s altitude predict wave activity','Cloud-cover percentage in the destination METAR','TAF wind forecasts at the destination airport'],correct:1,explanation:'Mountain waves are produced by wind flowing across terrain. The forecast inputs are wind speed/direction at altitude and ridge orientation. Pilots examining winds-aloft data can predict wave activity from the wind data directly — well before specific SIGMETs are issued. In winter, when jet-stream-level winds frequently produce strong cross-ridge flow, the winds-aloft section becomes primary forecast information for any mountain transit.'},
       {id:'qcs23_3',question:'When transiting mountainous terrain in known wave conditions, the appropriate technique is:',options:['Cross the ridge perpendicular at minimum altitude to clear the highest point','Cross the ridge at a 45° angle (allowing easier escape if a downdraft is encountered), maintain altitude well above ridge height (2,000+ ft above), avoid the lee side of any peak, and consider an alternate route in strong wave conditions','Fly directly over the summit at maximum altitude','Reduce airspeed to minimum maneuvering speed during the transit'],correct:1,explanation:'Crossing at 45° preserves the option to escape laterally without committing to a perpendicular reversal. Maintaining altitude well above ridge height puts the aircraft above the most intense lee-side wave activity. Avoiding the lee side of peaks means staying on the windward (updraft) side until past the obstacle. In strong wave conditions, an alternate non-mountainous route is the conservative answer — the cost is time, the alternative is the WPR19FA077 outcome.'}
     ]
+  },
+  {
+    id:'cs24',
+    caseType: 'verified',
+    verified: true,
+    title:'Airborne but Not Climbing',
+    subtitle:'Cessna 172N high-DA departure from Big Bear City, unable to clear ground effect',
+    category:'Density Altitude',
+    hazard:'High DA Failure to Climb on Departure',
+    severity:'fatal',
+    faaRef:'Ch. 4, 21',
+    icon:'🌡️',
+    color:'#EA580C',
+    aircraft:'Cessna 172N (N5381J, 1980)',
+    pilot:'Commercial pilot (PIC), single passenger — both fatal',
+    date:'July 29, 2017, ~1420 PDT, departure from Big Bear City Airport (L35), San Bernardino County, California',
+    ntsbAccidentNumber:'WPR17FA171',
+    ntsbSourceType:'carol',
+    ntsbTitle:'Aviation Investigation Final Report — Cessna 172N, N5381J, Big Bear City CA, 29 July 2017',
+    ntsbUrl:'https://data.ntsb.gov/carol-main-public/basic-search/aviation?searchTerm=WPR17FA171',
+    brief:`
+      <p>The aircraft departed Big Bear City Airport (L35) — a single-runway mountain airport at 6,752 ft msl in the San Bernardino mountains — on a hot summer afternoon. The aircraft was a 1980 Cessna 172N. The pilot held a commercial certificate.</p>
+      <p>At time of takeoff, the NTSB weather study computed a density altitude of approximately 9,138 ft msl. The pressure altitude was approximately 6,362 ft. The combination of field elevation, summer temperature, and the small Cessna 172\'s power-to-weight ratio left a thin performance margin.</p>
+    `,
+    weather:`
+      <div style="background:#0C1B33;border-radius:12px;padding:14px;margin:12px 0;font-family:var(--font-mono);font-size:11px;color:white">
+        <div style="color:#94A3B8;margin-bottom:8px;font-family:var(--font-display);font-size:10px;font-weight:700">DENSITY ALTITUDE ENVIRONMENT</div>
+        <div style="color:#38BDF8">Field elevation (L35): 6,752 ft msl</div>
+        <div style="color:#38BDF8">Pressure altitude at time of accident: ~6,362 ft</div>
+        <div style="color:#EF4444">Density altitude at time of accident: ~9,138 ft msl</div>
+        <div style="color:#F59E0B">Aircraft: Cessna 172N — modest power, summer-day performance heavily reduced</div>
+        <div style="color:#94A3B8">Runway: 08/26 asphalt, single-runway airport surrounded by rising terrain</div>
+        <div style="color:#94A3B8">Reference: FAA AFH on high-DA departures</div>
+      </div>
+    `,
+    narrative:`
+      <p>The Cessna lifted off the runway but was unable to establish a climb out of ground effect. The aircraft impacted mountainous terrain shortly after departure. Both occupants were fatally injured.</p>
+      <p>The NTSB weather and performance study placed the density altitude at approximately 9,138 ft msl — a value at which the Cessna 172N\'s climb performance is dramatically reduced from the sea-level standard. The FAA Airplane Flying Handbook describes this exact failure mode: "under conditions of high-density altitude, the airplane may be able to become airborne at an insufficient airspeed, but unable to climb out of ground effect. Consequently, the airplane may not be able to clear obstructions."</p>
+      <p>The case is a textbook example of the high-DA performance trap. The aircraft can leave the runway — that part of the takeoff feels normal. The performance shortfall manifests in the climb, when the wing is no longer in ground effect and the engine is producing far less thrust than the sea-level performance chart implies. By the time the pilot recognizes the climb is not establishing, the runway behind is gone and the rising terrain ahead is unavoidable.</p>
+    `,
+    probableCause:`The pilot's failure to maintain adequate climb performance after takeoff at a high-density-altitude airport, which resulted in collision with mountainous terrain. Contributing to the accident was the pilot's inadequate consideration of density altitude and aircraft performance in the planning of the departure.`,
+    lessons:[
+      'Density altitude is the variable; field elevation is the input. A 6,752 ft mountain airport on a hot summer afternoon can produce a density altitude over 9,000 ft msl. Performance charts must be read against DA, not field elevation.',
+      'The Cessna 172 at 9,000 ft DA has dramatically reduced takeoff and climb performance compared to the sea-level numbers most pilots have memorized. Consult the POH performance chart for the actual conditions — every time, even on familiar aircraft.',
+      'High-DA takeoffs can produce the lift-off-but-no-climb failure mode. The aircraft becomes airborne in ground effect at an airspeed insufficient for sustained climb out of ground effect. The pilot feels a successful liftoff but the aircraft cannot establish a climb.',
+      'Mountain airport go/no-go discipline: compute density altitude, consult POH for takeoff distance and climb performance at that DA, compare to runway available + obstacle clearance margin. If the math is tight, delay until cooler conditions (early morning), reduce weight (offload passengers/fuel), or do not depart.',
+      'For mountain operations: the conservative practice is to accept a substantial margin over the POH numbers. The POH is a new-aircraft demonstration; real-world performance varies with engine condition, propeller condition, and pilot technique. Treating the chart number as a hard floor (with 25-50% margin built in) is the operationally sound habit.'
+    ],
+    discoveryQuestions: [
+      {
+        q: 'The aircraft became airborne but was unable to climb out of ground effect. What does this failure mode tell you about the high-DA takeoff sequence?',
+        opts: [
+          'The engine had failed during the climb',
+          'Liftoff is possible at airspeeds below the airspeed required for sustained climb out of ground effect. The aircraft "feels" successful at rotation but cannot establish a climb when it leaves the cushion of ground effect — and by then there is no remaining runway',
+          'The pilot retracted flaps too early',
+          'The crosswind exceeded aircraft limits'
+        ],
+        response: 'High DA produces a specific trap: ground effect (the lift bonus from wing-runway proximity) artificially reduces drag and induced AOA. The aircraft can lift off the runway in this regime at an airspeed that, once out of ground effect, is insufficient to sustain climb. The pilot feels normal liftoff. Then the climb does not establish. By that point the runway is behind and the terrain is ahead. The corrective discipline is computing required takeoff distance and required climb gradient at the actual DA before commitment to the takeoff — and accepting the no-go decision when the margin is inadequate.'
+      },
+      {
+        q: 'The pilot held a commercial certificate. Why is "experienced pilot" not protective against this category of accident?',
+        opts: [
+          'The pilot must have been impaired or fatigued — experience always protects against performance miscalculation',
+          'Density altitude is a math problem, not a skill problem. An experienced pilot who does not compute the actual DA and does not consult the POH for performance at that DA has the same outcome as an inexperienced pilot. The discipline is the math, not the airmanship',
+          'Commercial pilots are not required to demonstrate high-DA proficiency',
+          'The Cessna 172 is not approved for commercial operations at high DA'
+        ],
+        response: 'High-DA accidents are mathematics-of-physics accidents, not stick-and-rudder accidents. The aircraft\'s climb performance at a given DA is a number. The pilot either consulted that number (and made a go/no-go decision against it) or did not. Experience is not protective against not running the calculation. The consistent finding across mountain-DA accidents is that pilots — at all experience levels — depart at conditions whose POH numbers, if consulted, would have indicated no-go. The corrective practice is the cockpit habit of running the DA → performance → margin check before every mountain takeoff.'
+      }
+    ],
+    quiz:[
+      {id:'qcs24_1',question:'A Cessna 172 departing a 6,500-ft mountain airport on a 30°C afternoon experiences which of the following?',options:['Density altitude approximately equal to field elevation, ~6,500 ft','Density altitude well above field elevation — likely 8,500-9,500 ft msl, dramatically reducing takeoff and climb performance from sea-level numbers','Standard performance per the POH at field elevation','Performance independent of temperature at this elevation'],correct:1,explanation:'Density altitude is field elevation corrected for non-standard temperature and pressure. A 6,500-ft field on a 30°C day with standard pressure produces a DA of approximately 9,000 ft msl. The Cessna 172\'s takeoff distance and climb rate at 9,000 ft DA are dramatically reduced from the sea-level POH numbers. Pilots who plan against field elevation rather than DA underestimate the required margin substantially.'},
+      {id:'qcs24_2',question:'The "lift off but cannot climb out of ground effect" failure mode in a high-DA takeoff occurs because:',options:['The wing has structural icing despite warm temperatures','Ground effect provides a temporary lift/drag bonus that allows liftoff at an airspeed insufficient for sustained climb out of ground effect — once the aircraft leaves the runway cushion, the airspeed is below what is needed to climb','The engine vapor-locks at high DA','The propeller cavitates above 6,000 ft DA'],correct:1,explanation:'Ground effect (the wing-runway proximity bonus) reduces induced drag and effective AOA. The aircraft can lift off in this regime at airspeeds that, once clear of the ground-effect zone, are insufficient for sustained climb. The pilot perceives a normal liftoff; the climb then does not establish. This is a specific and documented high-DA failure mode (FAA Airplane Flying Handbook references it explicitly), and it is the failure mode of WPR17FA171.'},
+      {id:'qcs24_3',question:'For mountain-airport takeoff planning, the operationally sound practice is:',options:['Use the POH performance chart values directly with no margin','Compute density altitude, consult POH for the actual DA, then build in a 25-50% margin to account for engine condition, prop condition, and technique variation. If margin is inadequate, delay (cooler temps), reduce weight, or do not depart','Use field elevation and assume standard temperature','Add 10% to the runway-available figure regardless of DA'],correct:1,explanation:'POH performance charts are new-aircraft demonstration values. Real-world performance varies with engine condition, prop condition, density altitude, surface conditions, and pilot technique. The conservative mountain-flying practice is to compute DA, consult the POH for the actual DA, and add a substantial margin (25-50%) before commitment to takeoff. If the margin is inadequate: delay until cooler air, reduce weight, or do not depart.'}
+    ]
+  },
+  {
+    id:'cs25',
+    caseType: 'verified',
+    verified: true,
+    title:'Through the Cloud Deck Anyway',
+    subtitle:'Mooney M20C VFR-into-IMC over Wyoming mountains, intentional cloud entry',
+    category:'Mountain CFIT',
+    hazard:'Intentional VFR-into-IMC over Mountainous Terrain',
+    severity:'fatal',
+    faaRef:'Ch. 13, 21',
+    icon:'🏔️',
+    color:'#7C3AED',
+    aircraft:'Mooney M20C Ranger (N6704U)',
+    pilot:'Two pilots aboard, both private; neither instrument-rated. PIC could not be determined post-accident.',
+    date:'May 6, 2014, near Cody, Wyoming, on a multi-leg cross-country',
+    ntsbAccidentNumber:'WPR14FA188',
+    ntsbSourceType:'carol',
+    ntsbTitle:'Aviation Investigation Final Report — Mooney M20C, N6704U, Cody WY, 6 May 2014',
+    ntsbUrl:'https://data.ntsb.gov/carol-main-public/basic-search/aviation?searchTerm=WPR14FA188',
+    brief:`
+      <p>The two pilots were on a multi-leg cross-country trip to visit friends and relatives. Neither held an instrument rating. The route required transit through mountainous terrain in Wyoming. At the time of the accident, an automated observation at Cody (KCOD) reported few clouds at 1,300 ft AGL, broken at 1,900 ft, and overcast at 3,100 ft. The forecast called for marginal VFR with rain showers and lowering ceilings.</p>
+      <p>A full set of AIRMETs covered the region: mountain obscuration, turbulence, and icing.</p>
+    `,
+    weather:`
+      <div style="background:#0C1B33;border-radius:12px;padding:14px;margin:12px 0;font-family:var(--font-mono);font-size:11px;color:white">
+        <div style="color:#94A3B8;margin-bottom:8px;font-family:var(--font-display);font-size:10px;font-weight:700">MOUNTAIN MARGINAL-VFR CONDITIONS</div>
+        <div style="color:#38BDF8">KCOD METAR: FEW013 BKN019 OVC031</div>
+        <div style="color:#F59E0B">Forecast: marginal VFR with rain showers, lowering ceilings</div>
+        <div style="color:#EF4444">AIRMETs active: mountain obscuration, turbulence, icing</div>
+        <div style="color:#EF4444">Sectional MEF: 12,500 ft msl</div>
+        <div style="color:#94A3B8">Aircraft IFR equipment: Mooney M20C — IFR-equipped, but neither pilot instrument-rated</div>
+      </div>
+    `,
+    narrative:`
+      <p>The aircraft entered clouds almost immediately on departure. The flight track stayed generally on course toward the destination. Throughout the flight the aircraft transited mountainous terrain in IMC, consistently flying about 2,500 ft below the maximum elevation figure (MEF) of 12,500 ft msl shown on the relevant sectional chart.</p>
+      <p>The consistency of the flight track — straight-line course-keeping while in IMC over rising terrain — indicates that the pilots intentionally elected to enter and remain in the clouds in an effort to fly over the mountains and into clearer weather beyond. They were not lost. They had chosen to fly an IFR profile without IFR clearance, IFR competency, or terrain margin.</p>
+      <p>The aircraft impacted mountainous terrain. Both pilots were fatally injured. The NTSB found no evidence of mechanical malfunction.</p>
+      <p>The case is distinct from the unintentional VFR-into-IMC pattern (where a VFR pilot enters clouds inadvertently and panics). Here the pilots made a deliberate decision to fly through IMC over mountains — bringing all three known fatal categories into convergence: VFR pilots in IMC, mountain terrain below MEF, with full AIRMET-flagged hazards active in the region.</p>
+    `,
+    probableCause:`The non-instrument-rated pilots' decision to intentionally fly into instrument meteorological conditions over mountainous terrain at altitudes below the maximum elevation figure, which resulted in collision with terrain.`,
+    lessons:[
+      'A full-AIRMET-coverage briefing (mountain obscuration + turbulence + icing) for a mountain transit is an unconditional no-go signal for non-instrument-rated pilots in non-FIKI aircraft. Each AIRMET alone is a major flag; three together is the system telling you "not today."',
+      'Maximum Elevation Figure (MEF) on the sectional chart is the highest ground elevation in the quadrangle plus a safety buffer. Flying in IMC at 2,500 ft below MEF is flying into known terrain by the chart\'s own definition. The chart provides the answer; the pilots ignored it.',
+      'The intentional VFR-into-IMC pattern is distinct from inadvertent IMC entry — it is a planning decision, not a panic decision. The corrective discipline operates at the planning stage: when conditions and terrain combine to require IFR competency and equipment, the no-go is at preflight, not in the air.',
+      '"Fly over the weather" is not a strategy for non-instrument-rated pilots in mountain terrain. The clear air "beyond the clouds" the pilots are imagining requires either a confirmed IFR descent path on the other side (which requires IR + clearance + currency) or a safe VFR descent through known clear air (which requires actual visual confirmation before departure). Neither was available.',
+      'Two pilots aboard does not equal one instrument-rated pilot. Without an IR, the aircraft is in a VFR-only operating envelope regardless of who is flying. Crew resource management cannot manufacture an instrument rating.'
+    ],
+    discoveryQuestions: [
+      {
+        q: 'The flight track shows the aircraft consistently 2,500 ft below MEF while in IMC. What is MEF, and what does this altitude position mean?',
+        opts: [
+          'MEF is the minimum en route altitude — flying below it is a regulatory violation but not necessarily a terrain risk',
+          'MEF (Maximum Elevation Figure) is the highest known terrain or obstacle in a sectional quadrangle plus a safety buffer. Flying in IMC at 2,500 ft below MEF is flying at altitudes where terrain or obstacles are known by the chart\'s own definition to potentially exist',
+          'MEF is an advisory altitude only and has no terrain significance',
+          'MEF applies only to night operations'
+        ],
+        response: 'MEF is the highest natural or manmade feature in the sectional quadrangle, plus a safety buffer (typically 100-300 ft). It is the chart\'s direct statement of "terrain reaches this altitude in this box." Flying in IMC at 2,500 ft below MEF means the aircraft is at altitudes where the chart explicitly says terrain may exist. Without visual reference and without IFR procedures (which provide minimum altitudes that guarantee terrain clearance), this is flying into a known-unknown — terrain that is somewhere within the box at that altitude.'
+      },
+      {
+        q: 'A briefing showing AIRMET Sierra (mountain obscuration), AIRMET Tango (turbulence), and AIRMET Zulu (icing) all active for a mountain transit by non-instrument-rated pilots is:',
+        opts: [
+          'Manageable with caution and reduced airspeed',
+          'An unconditional no-go signal. Each AIRMET alone is a substantial hazard; three concurrent AIRMETs in the same airspace is the briefing system telling you "the conditions today exceed your category\'s safe operating envelope"',
+          'Standard winter weather that can be flown through with proper preparation',
+          'Only relevant for IFR flights, not VFR pilots'
+        ],
+        response: 'AIRMETs are airspace-scale advisories of significant weather hazards for aircraft operations. AIRMET Sierra (mountain obscuration) means the mountains are in the clouds — a non-IR pilot has no path through. AIRMET Tango (turbulence) means severe motion conditions. AIRMET Zulu (icing) means structural icing in the airmass. Three concurrent for a mountain transit is the rare combination that calls for immediate cancellation — the conditions are explicitly outside the safe operating envelope of non-FIKI, non-IR aircraft. The decision is preflight, not in-flight.'
+      }
+    ],
+    quiz:[
+      {id:'qcs25_1',question:'The Maximum Elevation Figure (MEF) on a sectional chart represents:',options:['The minimum allowed altitude for VFR flight in the quadrangle','The highest natural or manmade feature in the sectional quadrangle plus a safety buffer (typically 100-300 ft) — a direct statement that terrain may reach this altitude','The standard altitude for winds-aloft forecasts','An advisory only with no terrain significance'],correct:1,explanation:'MEF is a chart-published terrain-clearance figure. It is the highest known ground elevation or obstacle in a sectional quadrangle plus a safety buffer. Flying below MEF in IMC means flying at altitudes where the chart explicitly says terrain may exist — without visual reference. The chart provides the terrain-clearance information; pilots who fly below MEF in IMC are operating against the chart\'s own warnings.'},
+      {id:'qcs25_2',question:'The intentional VFR-into-IMC pattern (deliberate cloud entry by a non-instrument-rated pilot) is distinct from inadvertent VFR-into-IMC because:',options:['Intentional entries are legal in some jurisdictions','Intentional entry is a planning decision, not a panic decision. The corrective discipline operates at preflight — when conditions and terrain combine to require IFR competency and equipment, the no-go decision is made before departure, not in the air','Intentional VFR-into-IMC has higher survival rates than inadvertent','The two patterns are functionally identical'],correct:1,explanation:'Inadvertent VFR-into-IMC happens when a VFR pilot enters clouds without intending to, then has to manage the resulting emergency. The corrective discipline is in-flight: 180° turn, contact ATC, declare. Intentional VFR-into-IMC — like WPR14FA188 — is a planning decision: the pilot decides at preflight to depart into conditions that require IFR. The corrective discipline is at preflight: do not depart. Two different failure modes; two different prevention strategies.'},
+      {id:'qcs25_3',question:'For a non-instrument-rated pilot facing a mountain transit with AIRMETs Sierra, Tango, and Zulu all active, the appropriate decision is:',options:['Depart and assess in-flight','No-go. Three concurrent AIRMETs (mountain obscuration + turbulence + icing) for a mountain transit by non-IR pilots in non-FIKI aircraft is an unconditional cancellation criterion','Depart at low altitude under the cloud bases','File IFR with the second pilot acting as PIC'],correct:1,explanation:'Three concurrent AIRMETs for a mountain transit explicitly identify the conditions as exceeding the safe operating envelope of non-IR / non-FIKI operations. Mountain obscuration + turbulence + icing in the same airspace is the rare combination that must produce a no-go regardless of urgency. There is no "manage with caution" path through this combination for the aircraft category in question.'}
+    ]
+  },
+  {
+    id:'cs26',
+    caseType: 'verified',
+    verified: true,
+    title:'After the Rain Passes',
+    subtitle:'Cherokee VFR-into-night-IMC after FBO declined fuel due to weather',
+    category:'Decision Making',
+    hazard:'Schedule Pressure / Get-There-Itis Driving VFR into Night IMC',
+    severity:'fatal',
+    faaRef:'Ch. 13',
+    icon:'⏰',
+    color:'#DC2626',
+    aircraft:'Piper PA-28-180 Cherokee',
+    pilot:'Private pilot, no instrument rating, flying solo on the fatal leg of a multi-day business trip',
+    date:'January 8, 2023, evening departure from Cherokee County Regional Airport (KCNI), Georgia',
+    ntsbAccidentNumber:'CEN23FA075',
+    ntsbSourceType:'carol',
+    ntsbTitle:'Aviation Investigation Final Report — Piper PA-28-180 Cherokee, KCNI departure, 8 January 2023',
+    ntsbUrl:'https://data.ntsb.gov/carol-main-public/basic-search/aviation?searchTerm=CEN23FA075',
+    brief:`
+      <p>The pilot was on the return leg of a multi-day business trip: home airport → Stafford Regional VA (KRMN) → Concord-Padgett NC (KJQF) → Cherokee County Regional GA (KCNI) → home. The fatal flight was the final leg, departing KCNI on the evening of January 8, 2023.</p>
+      <p>The pilot arrived at the airport via rental car around 16:00 and requested fueling. FBO personnel declined to fuel the aircraft due to heavy rain and lightning in the immediate area. The pilot discussed his plan to take off in the poor weather and fly at night anyway, telling FBO personnel: "after the rain passes it should be fine right?"</p>
+    `,
+    weather:`
+      <div style="background:#0C1B33;border-radius:12px;padding:14px;margin:12px 0;font-family:var(--font-mono);font-size:11px;color:white">
+        <div style="color:#94A3B8;margin-bottom:8px;font-family:var(--font-display);font-size:10px;font-weight:700">DEPARTURE ENVIRONMENT</div>
+        <div style="color:#38BDF8">Time: late afternoon → night transition</div>
+        <div style="color:#F59E0B">Active heavy rain and lightning at the airport at arrival</div>
+        <div style="color:#EF4444">Forecast: night IMC conditions on the route home</div>
+        <div style="color:#EF4444">Pilot rating: private, no instrument rating</div>
+        <div style="color:#94A3B8">FBO declined to fuel during active weather</div>
+        <div style="color:#94A3B8">Pilot stated intent to depart after the rain passed</div>
+      </div>
+    `,
+    narrative:`
+      <p>The FBO\'s refusal to fuel during active lightning was a procedural safety measure — fueling during electrical activity is a recognized hazard. But the conversation that surrounded the fueling delay revealed the pilot\'s decision-making frame: he intended to depart as soon as conditions allowed any departure at all. The "fine" he was looking for was a brief gap in the surface conditions, not a stable VFR weather system on the route home.</p>
+      <p>The pilot ultimately departed into night conditions. En route, he encountered IMC. He was not instrument-rated and had no qualifying experience for night IFR. Spatial disorientation produced loss of control. The aircraft impacted terrain, fatally.</p>
+      <p>The NTSB cited the pilot\'s decision to initiate VFR flight into night instrument meteorological conditions as the probable cause. Contributing factors named were the pilot\'s lack of qualifications and experience in night IMC.</p>
+      <p>The case is the textbook schedule-pressure / get-there-itis archetype with a specific external signal that should have re-anchored the decision: the FBO\'s refusal to fuel during weather was a third-party indicator that conditions were beyond routine. The pilot interpreted it as a fueling-procedure inconvenience to wait out, not as the operational signal it actually was.</p>
+    `,
+    probableCause:`The pilot's decision to initiate a visual flight rules flight into night instrument meteorological conditions, resulting in a loss of control in-flight due to spatial disorientation. Contributing to the accident was the pilot's lack of qualifications and experience in night instrument meteorological conditions.`,
+    lessons:[
+      'External signals from third parties (FBO personnel, line crew, ATC, other pilots) declining to perform routine actions due to weather are operational warnings, not fueling-procedure inconveniences. The disciplined response is to re-examine your own go/no-go, not to wait the inconvenience out.',
+      'The "after the rain passes" frame is the classic schedule-pressure cognitive trap: the pilot is looking for the minimum threshold of "departable" rather than the operational threshold of "safe arrival." The two are different. Heavy rain at the departure airport is one variable; a 200-mile night VFR route home in deteriorating conditions is the actual decision.',
+      'Night IMC for non-instrument-rated pilots is the highest-fatality decision class in GA. The combination of darkness (no horizon for spatial reference) + IMC (no horizon at all) + lack of IR training + spatial disorientation produces an outcome that the literature has documented for decades. The decision to depart is the pivot point.',
+      'Schedule pressure is a real human factor with real cognitive load. Counter it with structural commitments: a personal minimums document signed in advance, a "no-go" buddy who has authority to ground you, or a non-flying transportation backup (rental car, ride-share, hotel) pre-planned for any leg where weather is marginal. Make the no-go option the path of least friction at the decision point.',
+      'For pilots reading this case: the FBO is the second-most-likely source of an unsolicited honest weather opinion you will receive. The most likely is your own internal "this seems sketchy" sense. Both deserve to be heard.'
+    ],
+    discoveryQuestions: [
+      {
+        q: 'The FBO declined to fuel the aircraft during active lightning. The pilot waited the lightning out and then departed. What was wrong with the way the pilot interpreted the FBO\'s refusal?',
+        opts: [
+          'The pilot should have refueled at a different airport',
+          'The FBO\'s refusal was a third-party operational signal that conditions exceeded routine. The disciplined response is to re-examine your own go/no-go, not to wait out the fueling delay and depart as soon as the surface conditions allow any departure',
+          'The FBO violated FAA regulations by refusing to fuel',
+          'The pilot should have demanded the fueling be done immediately'
+        ],
+        response: 'External signals from operational personnel — FBO line crew, controllers, other pilots — declining to perform routine actions due to weather are valuable third-party calibration on what "normal" looks like. They are not procedural inconveniences. The pilot interpreted the lightning-fueling refusal as a 30-minute wait; the FBO was telling him the larger conditions were beyond routine. The disciplined response is to ask "what is the FBO seeing that I should be weighting more heavily?" not "when will this pause end so I can depart?"'
+      },
+      {
+        q: 'The pilot was a private pilot with no instrument rating. He elected to depart into night conditions with IMC en route. What is the recurring pattern this case illustrates?',
+        opts: [
+          'A skill failure — the pilot needed more night training',
+          'The schedule-pressure / get-there-itis archetype: the pilot looked for the minimum threshold of "departable" rather than the operational threshold of "safe arrival home." A multi-day business trip ending with an end-of-day return-home leg is one of the highest-loaded combinations for this cognitive trap',
+          'A weather-briefing failure — the pilot did not know the conditions',
+          'A mechanical failure that the pilot could not have anticipated'
+        ],
+        response: 'Schedule pressure is a documented cognitive trap in aviation human factors literature. The pilot\'s decision frame was "can I depart?" rather than "will I arrive safely?" — and the threshold for "can I depart?" is much lower than "will I arrive safely?" The end-of-business-trip return-home leg is among the highest-loaded scenarios because of converging pressures: family expectations, work-week reset, sunk cost of the trip, accumulated fatigue. Effective countermeasures are structural (pre-committed personal minimums, no-go buddy, pre-planned non-flying backup) — they reduce the cognitive load at the decision point by making the no-go option the default path.'
+      }
+    ],
+    quiz:[
+      {id:'qcs26_1',question:'A pilot arrives at the FBO and the line crew declines to fuel the aircraft due to lightning in the immediate area. The disciplined interpretation of this third-party action is:',options:['A 20-30 minute fueling delay to be waited out','An external operational signal that conditions are beyond routine — the disciplined response is to re-examine your own go/no-go, treating the FBO\'s assessment as third-party calibration on the larger weather environment, not as a procedural inconvenience','A reason to switch to self-service fueling','A violation of FBO service obligations'],correct:1,explanation:'External signals from operational personnel are valuable third-party calibration. They are not procedural inconveniences. The disciplined pilot asks: "What is the FBO seeing that I should weight more heavily in my own decision?" The fueling refusal was the surface manifestation of weather conditions that the FBO assessed as beyond routine — and the larger weather decision (depart vs. delay vs. cancel) deserves the same level of caution.'},
+      {id:'qcs26_2',question:'The "after the rain passes it should be fine right?" cognitive frame is dangerous because:',options:['It is illegal to discuss weather decisions with FBO personnel','It seeks the minimum threshold of "departable" rather than the operational threshold of "safe arrival home." A brief gap in surface conditions is not a stable VFR weather system, and the en route weather may be substantially different from the departure-airport weather','It violates FAA Part 91 weather minimums','It is only valid during day VFR conditions'],correct:1,explanation:'The cognitive trap of schedule pressure is structural: the pilot looks for the minimum threshold of "departable" rather than the operational threshold of "safe arrival." Heavy rain at the departure airport is one variable; the en route weather and destination conditions are the actual decision. The "fine" the pilot was looking for was a brief surface gap, not a stable VFR system on the route home — and the brief gap was nowhere near sufficient.'},
+      {id:'qcs26_3',question:'The most effective countermeasures against schedule-pressure decision-making in aviation are:',options:['Stronger weather forecasting software','Structural commitments made in advance: pre-committed personal minimums, a no-go buddy with grounding authority, pre-planned non-flying transportation backup (rental car, ride-share, hotel) for legs where weather is marginal — making the no-go option the path of least friction','More frequent recurrent training','Operating only during day VFR'],correct:1,explanation:'Schedule pressure is a documented cognitive load that operates at the decision point. In-the-moment willpower is unreliable because the same pressures that produce the bad decision also reduce the cognitive bandwidth available for resisting it. Structural countermeasures — pre-committed personal minimums, a no-go buddy, pre-planned ground transportation — reduce the cognitive load at the decision point by making the no-go option the default. The decision is made in advance, when the conditions are not yet present.'}
+    ]
+  },
+  {
+    id:'cs27',
+    caseType: 'verified',
+    verified: true,
+    title:'Thirty-Eight Hours and a Cloud Layer',
+    subtitle:'Student pilot departs into night IMC despite incomplete instrument-flight training',
+    category:'VFR into IMC',
+    hazard:'Student Pilot — Inadvertent Departure into Night IMC',
+    severity:'fatal',
+    faaRef:'Ch. 13, 22',
+    icon:'🌫️',
+    color:'#7C3AED',
+    aircraft:'Cessna 172',
+    pilot:'Student pilot, ~38 hours total time, all in C172. ~4 hours night experience toward private pilot certificate. Solo requirements completed. Required instrument-only training (the "hood" hours toward private cert) not yet complete.',
+    date:'2022, evening departure into night IMC, fatal',
+    ntsbAccidentNumber:'ERA22FA019',
+    ntsbSourceType:'carol',
+    ntsbTitle:'Aviation Investigation Final Report — Cessna 172 student-pilot night IMC departure, 2022',
+    ntsbUrl:'https://data.ntsb.gov/carol-main-public/basic-search/aviation?searchTerm=ERA22FA019',
+    brief:`
+      <p>The pilot was a student pilot with approximately 38 hours total flight time, all in a Cessna 172, accumulated over about a year of training. He had completed the solo requirements toward his private pilot certificate and had logged approximately 4 hours of night flight experience. The required minimum hours of instrument-only flight (training to maintain control by reference to instruments alone — the "hood" hours toward the private cert) had not yet been completed.</p>
+      <p>The pilot elected to depart at night. Weather in the area at departure showed prevailing IMC conditions: ceilings near 500 ft AGL with cloud tops near 2,000 ft msl, visibility restricted in mist.</p>
+    `,
+    weather:`
+      <div style="background:#0C1B33;border-radius:12px;padding:14px;margin:12px 0;font-family:var(--font-mono);font-size:11px;color:white">
+        <div style="color:#94A3B8;margin-bottom:8px;font-family:var(--font-display);font-size:10px;font-weight:700">NIGHT IMC ENVIRONMENT</div>
+        <div style="color:#38BDF8">Time: night</div>
+        <div style="color:#EF4444">Ceilings: ~500 ft AGL</div>
+        <div style="color:#EF4444">Cloud tops: ~2,000 ft msl</div>
+        <div style="color:#F59E0B">Visibility restricted in mist</div>
+        <div style="color:#94A3B8">Pilot status: student pilot, 38 hr total, 4 hr night</div>
+        <div style="color:#94A3B8">Required private-cert instrument-only training: NOT yet complete</div>
+        <div style="color:#94A3B8">Toxicology: cannabis (THC + carboxy-THC) detected</div>
+      </div>
+    `,
+    narrative:`
+      <p>The pilot departed into night conditions with a 500 ft AGL ceiling. Within minutes of departure, the aircraft was in IMC — there is no usable visual horizon at night with a 500 ft ceiling and surface mist. The pilot had not yet been trained to maintain control by reference to instruments alone.</p>
+      <p>The aircraft entered the predictable sequence: vestibular adaptation in cloud (the inner ear loses its sense of orientation after ~20 seconds without visual reference), gradual unrecognized roll, increasing bank, increasing descent rate, increasing G-load that feels like level flight at high speed. Spatial disorientation produced loss of control. The aircraft impacted terrain.</p>
+      <p>Postaccident toxicology found cannabis use (THC and the carboxy-THC metabolite) in the pilot\'s system — a contributing factor in the NTSB findings, though the primary chain of failure was the decision to depart into night IMC without the required training.</p>
+      <p>The case is doubly anchored to the curriculum: it is the inadvertent VFR-into-IMC pattern (cs1, cs11 archetype) at the lowest experience level, and it is the structural failure of "I have a pilot certificate" privilege thinking — the student had solo privileges but was operating well outside the conditions those privileges authorize. Solo privileges are explicitly limited to VFR conditions in good weather; night IMC is not in the envelope at any pilot certificate level without an instrument rating.</p>
+    `,
+    probableCause:`The student pilot's decision to depart into night instrument meteorological conditions, which resulted in spatial disorientation and a subsequent loss of airplane control. Contributing to the accident was the pilot's recent use of cannabis.`,
+    lessons:[
+      'Student pilot solo privileges (FAR 61.87 / 61.93) explicitly authorize VFR-only flight in approved conditions with the CFI\'s endorsement. They do not authorize night IMC operations at any level. The student pilot operating outside this envelope had no regulatory cover and no training base for the conditions encountered.',
+      'A 500 ft ceiling at night with mist provides no visual horizon. There is no "VFR scud-running" version of this — at night with a low ceiling and reduced visibility, the cockpit is in IMC even if the technical visibility/ceiling values nominally meet some VFR threshold.',
+      'The required private-pilot instrument-only training (FAR 61.109 — currently 3 hours instrument flight) is the minimum exposure to instrument-only control most VFR pilots receive. It is a survival floor, not a competency target. A student pilot who has not yet completed it has zero documented capability in IMC — and the actual capability without training is the 90-180 second loss-of-control window the FAA literature describes.',
+      'Cannabis use prior to flight is documented as impairing for hours after acute effects subside. Even when "no longer feeling high," the cognitive load and reaction-time effects persist and degrade decision-making. The student-pilot decision to depart into IMC was already a high-risk decision; the impairment narrowed any margin further.',
+      'For instructors and pilot supervisors: the structural protection against this class of accident is the supervision relationship itself. CFIs review solo authorizations, conditions, and pilot judgment. The supervision structure exists because student pilots\' own judgment is, by certification design, still being developed. The CFI who knew this pilot did not authorize this flight; the pilot operated outside the supervision envelope.'
+    ],
+    discoveryQuestions: [
+      {
+        q: 'The pilot was a student pilot operating under solo privileges. How do those privileges define the operating envelope, and how did this flight exceed it?',
+        opts: [
+          'Student pilot solo privileges authorize VFR-only flight in conditions specified by the CFI endorsement, with no provision for IMC at any level. Departing into night IMC was outside those privileges entirely',
+          'Student pilots may operate in any conditions if they hold a recent endorsement',
+          'Solo privileges include night IMC if the pilot has logged any night experience',
+          'Solo privileges are unlimited as long as the aircraft is mechanically airworthy'
+        ],
+        response: 'FAR 61.87 / 61.93 define student pilot solo privileges narrowly: VFR-only operations in conditions specified by the CFI endorsement, with explicit limits on cross-country distance, weather, and operating environment. Night IMC is not authorized at any student pilot level. The CFI endorsement is the primary supervisory check; this flight occurred outside the endorsement envelope and outside the regulatory privilege.'
+      },
+      {
+        q: 'The required minimum instrument-only training for a private pilot certificate (FAR 61.109) is 3 hours. The pilot in this case had not yet completed it. What does this hour count actually represent?',
+        opts: [
+          'A competency standard for IMC operations',
+          'A survival floor — the minimum exposure to instrument-only control to give a VFR pilot a chance of recovery during inadvertent IMC entry. It is not an IMC competency target; full IMC competency requires the instrument rating (FAR 61.65, ~40 hours instrument time)',
+          'A regulatory minimum that has no practical training value',
+          'A maximum allowed instrument time without supervision'
+        ],
+        response: 'The 3 hours of FAR 61.109 instrument-only training is a survival floor. It teaches the absolute minimum — wings-level by attitude indicator, standard-rate turn, recognize-and-recover from upset attitudes — to give a VFR pilot a chance during the 180-second window described in the FAA / AOPA spatial-disorientation literature. It is not IMC competency. Real IMC competency requires the instrument rating (FAR 61.65), with substantially more hours of instrument-only flight, instrument approaches, and complex IFR operations. A student pilot who has not yet completed even the 3-hour survival floor has no documented exposure at all.'
+      }
+    ],
+    quiz:[
+      {id:'qcs27_1',question:'Student pilot solo privileges (FAR 61.87 / 61.93) authorize:',options:['Any flight the pilot feels capable of executing','VFR-only operations in conditions specified by the CFI endorsement, with explicit limits on cross-country distance, weather, and operating environment. Night IMC is not authorized at any student pilot level','IFR operations under direct CFI supervision','Solo flight in any meteorological conditions'],correct:1,explanation:'Student pilot solo privileges are defined narrowly by FAR 61.87 (initial solo) and 61.93 (cross-country solo). The CFI endorsement specifies the conditions, distance, and environment. The privileges are VFR-only and do not authorize IMC at any level. Operating outside the endorsement envelope is operating outside the regulatory privilege — and outside the training base that the endorsement was given against.'},
+      {id:'qcs27_2',question:'The 3 hours of instrument-only training required for the private pilot certificate (FAR 61.109) represents:',options:['Full IMC operating competency','A survival floor — the minimum exposure to instrument-only control to give a VFR pilot a chance during inadvertent IMC entry. Real IMC competency requires the instrument rating (~40 hours of instrument time and instrument approaches)','A maximum allowed solo instrument time','An optional training requirement'],correct:1,explanation:'The 3-hour requirement is a survival floor, not an IMC competency target. It teaches wings-level attitude flying, standard-rate turn, and basic upset recognition — the absolute minimum to give a VFR pilot a chance during inadvertent IMC entry. Full IMC operating competency requires the instrument rating: substantially more hours of instrument-only flight, instrument approach procedures, and complex IFR operations. Conflating the 3-hour floor with IMC capability is a recurring conceptual error.'},
+      {id:'qcs27_3',question:'A 500 ft ceiling at night with surface mist provides:',options:['Adequate visual reference for VFR flight','Effectively no usable visual horizon — even if the technical visibility/ceiling values nominally meet some VFR threshold, the cockpit at night with a 500 ft ceiling and mist is in IMC for spatial-orientation purposes. There is no "VFR scud-running" version of this','Standard night VFR conditions','Marginal but legal VFR conditions for solo student flight'],correct:1,explanation:'Spatial orientation requires visual reference to a horizon or to a stable visual cue. At night, with a 500 ft ceiling and surface mist, the available visual cues are scattered ground lights at low altitude — and as soon as the aircraft enters cloud or pitches up to climb out of the visual ground-light layer, those references are gone. For spatial-orientation purposes, the cockpit is in IMC. The technical VFR weather threshold is irrelevant to the actual orientation environment.'}
+    ]
   }
 ];
