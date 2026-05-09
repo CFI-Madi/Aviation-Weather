@@ -1749,8 +1749,8 @@ const Screens = {
       else if(i===optIdx&&!ok){ btn.style.background='#7F1D1D'; btn.style.borderColor='#EF4444'; btn.style.color='white'; }
     }
     // Show explanation
-    const qDiv = document.getElementById('csq_'+caseId+'_'+qIdx+'_0')?.closest('.grid')?.parentElement;
-    if(qDiv){
+    const quizContainer = document.getElementById('cs-quiz-' + caseId);
+    if(quizContainer){
       const expDiv = document.createElement('div');
       expDiv.style.cssText = 'margin-top:12px;background:rgba(255,255,255,.08);border-radius:10px;padding:12px;border-left:3px solid '+(ok?'#10B981':'#EF4444');
       const nextLabel = qIdx+1 < cs.quiz.length ? 'Next Question' : 'Finish';
@@ -1759,13 +1759,14 @@ const Screens = {
       expDiv.innerHTML = '<div style="font-size:11px;font-weight:800;color:' + resultColor + ';margin-bottom:4px">' + resultLabel + '</div>' +
         '<div style="font-size:12px;color:#CBD5E1;line-height:1.6">' + q.explanation + '</div>' +
         '<button data-cid="' + caseId + '" data-qi="' + (qIdx+1) + '" class="cs-next-btn" style="margin-top:10px;background:#38BDF8;color:#0C1B33;border:none;border-radius:10px;padding:8px 18px;font-family:var(--font-display);font-weight:800;font-size:13px;cursor:pointer">' + nextLabel + '</button>';
-      qDiv.parentElement.appendChild(expDiv);
+      quizContainer.appendChild(expDiv);
 
       expDiv.querySelector('.cs-next-btn').addEventListener('click', function() {
         const cid = this.dataset.cid;
         const qi = parseInt(this.dataset.qi);
         document.getElementById('cs-quiz-' + cid).innerHTML = Screens._renderCaseQuiz(CASE_STUDIES.find(c=>c.id===cid), qi);
-      });    }
+      });
+    }
   },
 
   _renderDiscovery(caseId, qIdx) {

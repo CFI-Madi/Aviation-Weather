@@ -1276,10 +1276,10 @@ const CASE_STUDIES = [
     aircraft:'Cessna 210A (N6579X, built 1960)',
     pilot:'Albert Scott Crossfield Jr. — research test pilot, X-15 program, IFR-rated, single occupant',
     date:'April 19, 2006, en route Prattville AL → Manassas VA, IFR cruise',
-    ntsbAccidentNumber:'ATL06FA071',
+    ntsbAccidentNumber:'CHI06MA115',
     ntsbSourceType:'carol',
     ntsbTitle:'Aviation Investigation Final Report — Cessna 210A, N6579X, Ludville GA, 19 April 2006',
-    ntsbUrl:'https://data.ntsb.gov/carol-main-public/basic-search/aviation?searchTerm=ATL06FA071',
+    ntsbUrl:'https://data.ntsb.gov/carol-main-public/basic-search/aviation?searchTerm=CHI06MA115',
     brief:`
       <p>The pilot — a celebrated research test pilot from the X-15 program — departed Prattville, Alabama for Manassas, Virginia on an IFR flight plan. The aircraft was a 1960 Cessna 210A. Onboard weather equipment was a Stormscope (lightning detection only) — no airborne radar, no datalink NEXRAD.</p>
       <p>The National Weather Service Storm Prediction Center had identified an organizing mesoscale convective system (MCS) — a forward-propagating cluster of strong-to-severe thunderstorms — moving into northern Georgia. The pilot did not request an updated en route weather briefing. ATC did not provide adverse weather avoidance assistance.</p>
