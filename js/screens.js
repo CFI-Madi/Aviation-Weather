@@ -181,6 +181,16 @@ const Screens = {
   },
 
   _renderTraceabilityBlock(mod, sec) {
+    // FAA Source card hidden — Phase 7. The card (label, source title,
+    // edition, chapter reference, validation pill, attribute tags, and
+    // descriptive notes) is no longer rendered under sections. Data is
+    // preserved in js/data/faa_validation.js for future revival; the
+    // function body below is dead-but-preserved per Option A. The small
+    // chapter reference under the section title (mod.faaRef rendered at
+    // line ~520) and the 'needs_review' Study Note banner
+    // (_renderValidationBanner) are on independent render paths and are
+    // unaffected.
+    return '';
     if (!window.FAAValidation) return '';
     const trace = FAAValidation.getSectionRecord(mod.id, sec);
     if (!trace) return '';
