@@ -6,7 +6,7 @@ A study tool for Part 61 private pilot students, built around the **FAA Aviation
 
 - **20+ study modules** organized into three acts — atmospheric foundations, hazardous weather, and operational products (METAR, TAF, PIREP, radar, advisories, charts, space weather).
 - **NTSB case studies** with weather-decision walkthroughs, including verified links to the official NTSB docket or final report where applicable.
-- **Interactive decoders** for METAR, TAF, and PIREP formats.
+- **METAR Practice** with a 10-example annotated library covering clean VFR, marginal mist, fog, thunderstorms, freezing rain, gusty winds, ceiling-only IFR, CAVOK, peak-wind remarks, and AUTO-with-maintenance reports. Plus tap-to-decode TAF and PIREP reference cards.
 - **Live Weather screen** — flight-category reference and METAR study guide. (Live airport pulls are paused while the weather feed is being cleaned up; the study reference remains available.)
 - **Calculators** for density altitude, fog formation risk, icing severity, and flight category.
 - **Checkride prep mode** — full-length practice exam with a per-module weak-areas readout.

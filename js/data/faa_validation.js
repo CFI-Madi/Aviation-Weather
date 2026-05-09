@@ -5,7 +5,7 @@
 const FAA_VALIDATION_SCHEMA = {
   sourceTypes: ['AWH', 'PHAK', 'AIM'],
   validationStatuses: ['validated_exact', 'validated_paraphrase', 'training_simplification', 'needs_review'],
-  learnerLevels: ['student', 'private', 'instrument', 'commercial', 'cfi', 'atp_refresher'],
+  learnerLevels: ['student', 'private', 'instrument', 'commercial'],
   contentContexts: ['beginner_foundation', 'checkride_core', 'operational_refresh', 'advanced_weather_awareness'],
   relevanceLevels: ['low', 'medium', 'high']
 };
@@ -31,9 +31,11 @@ const FAA_VALIDATION_SOURCES = {
   }
 };
 
-const ALL_LEVELS = ['student', 'private', 'instrument', 'commercial', 'cfi', 'atp_refresher'];
-const ADV_LEVELS = ['private', 'instrument', 'commercial', 'cfi', 'atp_refresher'];
-const PRO_LEVELS = ['instrument', 'commercial', 'cfi', 'atp_refresher'];
+// Level-target presets mirror the four-level taxonomy from config.js LEVELS.
+// CFI / ATP Refresher use cases now sit under 'commercial' for filtering purposes.
+const ALL_LEVELS = ['student', 'private', 'instrument', 'commercial'];
+const ADV_LEVELS = ['private', 'instrument', 'commercial'];
+const PRO_LEVELS = ['instrument', 'commercial'];
 const FOUNDATION = ['beginner_foundation', 'checkride_core'];
 const CORE_OPS = ['checkride_core', 'operational_refresh'];
 const OPS_ADV = ['operational_refresh', 'advanced_weather_awareness'];
@@ -71,7 +73,7 @@ const FAA_MODULE_VALIDATION = {
   m8: recordFrom('AWH', { topicId: 'm8', moduleId: 'm8', topicTitle: 'Turbulence', sourceChapter: 'Chapter 19', validationStatus: 'validated_paraphrase', learnerLevel: ALL_LEVELS, contentContext: CORE_OPS.concat(['advanced_weather_awareness']), checkrideRelevance: 'high', operationalRelevance: 'high', notes: 'Weather-driven turbulence content is handbook-aligned. Some examples extend into general flight-operations guidance.' }),
   m9: recordFrom('AWH', { topicId: 'm9', moduleId: 'm9', topicTitle: 'Fog & Low IFR', sourceChapter: 'Chapter 18', validationStatus: 'validated_paraphrase', learnerLevel: ALL_LEVELS, contentContext: CORE_OPS, checkrideRelevance: 'high', operationalRelevance: 'high', notes: 'Fog-formation and low-visibility material is FAA-grounded. Some decision-making copy uses strong cautionary wording and non-FAA anecdotes.' }),
   m10: recordFrom('AWH', { topicId: 'm10', moduleId: 'm10', topicTitle: 'Mountain Weather', sourceChapter: 'Chapter 16', validationStatus: 'validated_paraphrase', learnerLevel: ADV_LEVELS, contentContext: CORE_OPS.concat(['advanced_weather_awareness']), checkrideRelevance: 'medium', operationalRelevance: 'high', notes: 'Mountain-wave, rotor, and downslope concepts are traceable to FAA mountain-weather coverage.' }),
-  m11: recordFrom('AWH', { topicId: 'm11', moduleId: 'm11', topicTitle: 'METAR Decoder', sourceChapter: 'Chapter 24', validationStatus: 'validated_paraphrase', learnerLevel: ALL_LEVELS, contentContext: ['beginner_foundation', 'checkride_core', 'operational_refresh'], checkrideRelevance: 'high', operationalRelevance: 'high', notes: 'Report structure and decode order are FAA-grounded; instructional wording is paraphrased for usability.' }),
+  m11: recordFrom('AWH', { topicId: 'm11', moduleId: 'm11', topicTitle: 'METAR Practice', sourceChapter: 'Chapter 24', validationStatus: 'validated_paraphrase', learnerLevel: ALL_LEVELS, contentContext: ['beginner_foundation', 'checkride_core', 'operational_refresh'], checkrideRelevance: 'high', operationalRelevance: 'high', notes: 'Report structure and decode order are FAA-grounded. The 10-example library covers the decoding situations a Part-61 student actually encounters; instructional wording is paraphrased for usability.' }),
   m12: recordFrom('AWH', { topicId: 'm12', moduleId: 'm12', topicTitle: 'TAF - Terminal Forecasts', sourceChapter: 'Chapter 27', validationStatus: 'validated_paraphrase', learnerLevel: ALL_LEVELS, contentContext: CORE_OPS, checkrideRelevance: 'high', operationalRelevance: 'high', notes: 'TAF coding and operational reading are handbook-aligned. Change-group nuance should continue to be treated as paraphrase.' }),
   m13: recordFrom('AWH', { topicId: 'm13', moduleId: 'm13', topicTitle: 'PIREPs - Pilot Reports', sourceChapter: 'Chapter 24', validationStatus: 'validated_paraphrase', learnerLevel: ALL_LEVELS, contentContext: CORE_OPS, checkrideRelevance: 'medium', operationalRelevance: 'high', notes: 'Format and interpretation are FAA-grounded. Some duty-language around filing reports needs tighter operational sourcing.' }),
   m14: recordFrom('AWH', { topicId: 'm14', moduleId: 'm14', topicTitle: 'Weather Radar', sourceChapter: 'Chapters 15, 24', validationStatus: 'validated_paraphrase', learnerLevel: ADV_LEVELS, contentContext: ['checkride_core', 'operational_refresh', 'advanced_weather_awareness'], checkrideRelevance: 'medium', operationalRelevance: 'high', notes: 'Radar fundamentals and limitations align with FAA weather-radar instruction. Some provider-specific color and buffer guidance is training shorthand.' }),

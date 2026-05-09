@@ -2,14 +2,17 @@
 // Aviation Weather Academy — Achievements & Daily Challenges
 // ============================================================
 
+// Helper: ids of modules at a given learner level. Pure derive — never hardcode.
+const _modIdsAtLevel = lvl => (typeof MODULES !== 'undefined' ? MODULES.filter(m => m.level === lvl).map(m => m.id) : []);
+
 const ACHIEVEMENTS=[
-  // Act 1
+  // Student-level milestones
   { id: 'first_flight', title: 'First Flight', desc: 'Complete your first lesson section', emoji: '✈️', color: '#38BDF8', bg: '#E0F2FE', condition: s => s.totalSectionsRead >= 1 },
   { id: 'sky_student', title: 'Sky Student', desc: 'Complete Module 1: The Atmosphere', emoji: '🌍', color: '#10B981', bg: '#D1FAE5', condition: s => s.modulesPassed.includes('m1') },
   { id: 'pressure_test', title: 'Under Pressure', desc: 'Pass the Pressure & Altimetry quiz', emoji: '🌡️', color: '#6366F1', bg: '#EEF2FF', condition: s => s.modulesPassed.includes('m2') },
   { id: 'wind_reader', title: 'Wind Reader', desc: 'Complete Wind & Circulation', emoji: '💨', color: '#10B981', bg: '#D1FAE5', condition: s => s.modulesPassed.includes('m3') },
   { id: 'cloud_spotter', title: 'Cloud Spotter', desc: 'Complete Clouds & Stability', emoji: '☁️', color: '#8B5CF6', bg: '#F5F3FF', condition: s => s.modulesPassed.includes('m4') },
-  { id: 'act1_complete', title: 'Act 1 Complete', desc: 'Complete all Act 1 modules', emoji: '🌤️', color: '#F59E0B', bg: '#FEF3C7', condition: s => ['m1','m2','m3','m4','m5'].every(id => s.modulesPassed.includes(id)) },
+  { id: 'level_student_complete', title: 'Student Pilot Ready', desc: 'Pass every Student Pilot–level module', emoji: '🎓', color: '#F59E0B', bg: '#FEF3C7', condition: s => _modIdsAtLevel('student').every(id => s.modulesPassed.includes(id)) },
   { id: 'perfect_quiz', title: 'Checkride Ready', desc: 'Score 100% on any module quiz', emoji: '💯', color: '#EF4444', bg: '#FFE4E6', condition: s => Object.values(s.quizScores || {}).some(v => v === 100) },
   { id: 'streak_3', title: '3-Day Streak', desc: 'Study 3 days in a row', emoji: '🔥', color: '#F97316', bg: '#FFF7ED', condition: s => s.streakDays >= 3 },
   { id: 'streak_7', title: 'Week Warrior', desc: 'Study 7 days in a row', emoji: '⚡', color: '#F59E0B', bg: '#FEF3C7', condition: s => s.streakDays >= 7 },
@@ -23,28 +26,30 @@ const ACHIEVEMENTS=[
   { id: 'full_brief', title: 'Complete Briefing', desc: 'Read all 24 lesson sections', emoji: '📖', color: '#0284C7', bg: '#E0F2FE', condition: s => s.totalSectionsRead >= 24 },
   { id: 'rank_commercial', title: 'Commercial Rated', desc: 'Reach 3,500 XP', emoji: '🌤️', color: '#F59E0B', bg: '#FEF3C7', condition: s => s.totalXP >= 3500 },
   { id: 'timed_ace', title: 'Quick Study', desc: 'Answer 5 timed questions correctly', emoji: '⏱️', color: '#EC4899', bg: '#FDF2F8', condition: s => (s.timedCorrect || 0) >= 5 },
-  // Act 2
+  // Private-level milestones
   {id:'storm_tracker',title:'Storm Tracker',desc:'Complete Thunderstorms module',emoji:'⛈️',color:'#DC2626',bg:'#FEF2F2',condition:s=>s.modulesPassed.includes('m6')},
   {id:'ice_pilot',title:'Ice Pilot',desc:'Complete Structural Icing module',emoji:'🧊',color:'#0EA5E9',bg:'#F0F9FF',condition:s=>s.modulesPassed.includes('m7')},
   {id:'smooth_air',title:'Smooth Air Ahead',desc:'Complete Turbulence module',emoji:'💥',color:'#7C3AED',bg:'#F5F3FF',condition:s=>s.modulesPassed.includes('m8')},
   {id:'fog_buster',title:'Fog Buster',desc:'Complete Fog & Low IFR module',emoji:'🌫️',color:'#64748B',bg:'#F8FAFC',condition:s=>s.modulesPassed.includes('m9')},
   {id:'mountain_pilot',title:'Mountain Pilot',desc:'Complete Mountain Weather module',emoji:'⛰️',color:'#059669',bg:'#ECFDF5',condition:s=>s.modulesPassed.includes('m10')},
-  {id:'act2_complete',title:'Hazard Zone Cleared',desc:'Complete all Act 2 modules',emoji:'🛡️',color:'#F59E0B',bg:'#FEF3C7',condition:s=>['m6','m7','m8','m9','m10'].every(id=>s.modulesPassed.includes(id))},
-  {id:'perfect_hazard',title:'Hazard Expert',desc:'Score 100% on an Act 2 module quiz',emoji:'💯',color:'#EF4444',bg:'#FFE4E6',condition:s=>['m6','m7','m8','m9','m10'].some(id=>(s.quizScores||{})[id]===100)},
-  // Act 3
-  {id:'metar_master',title:'METAR Master',desc:'Pass the METAR Decoder module',emoji:'📋',color:'#7C3AED',bg:'#F5F3FF',condition:s=>s.modulesPassed.includes('m11')},
+  {id:'level_private_complete',title:'Private Pilot Ready',desc:'Pass every Private Pilot–level module',emoji:'🛩️',color:'#10B981',bg:'#D1FAE5',condition:s=>_modIdsAtLevel('private').every(id=>s.modulesPassed.includes(id))},
+  {id:'perfect_hazard',title:'Hazard Expert',desc:'Score 100% on an Instrument-level module quiz',emoji:'💯',color:'#EF4444',bg:'#FFE4E6',condition:s=>_modIdsAtLevel('instrument').some(id=>(s.quizScores||{})[id]===100)},
+  // Operational products
+  {id:'metar_master',title:'METAR Master',desc:'Pass the METAR Practice module',emoji:'📋',color:'#7C3AED',bg:'#F5F3FF',condition:s=>s.modulesPassed.includes('m11')},
   {id:'taf_forecaster',title:'TAF Forecaster',desc:'Pass the TAF module',emoji:'📅',color:'#0284C7',bg:'#E0F2FE',condition:s=>s.modulesPassed.includes('m12')},
   {id:'pirep_reporter',title:'PIREP Reporter',desc:'Pass the PIREPs module',emoji:'📻',color:'#059669',bg:'#ECFDF5',condition:s=>s.modulesPassed.includes('m13')},
   {id:'radar_reader',title:'Radar Reader',desc:'Pass the Weather Radar module',emoji:'📡',color:'#DC2626',bg:'#FEF2F2',condition:s=>s.modulesPassed.includes('m14')},
   {id:'advisory_aware',title:'Advisory Aware',desc:'Pass the Advisories module',emoji:'⚠️',color:'#EA580C',bg:'#FFF7ED',condition:s=>s.modulesPassed.includes('m15')},
-  {id:'act3_complete',title:'Products Decoded',desc:'Complete all Act 3 modules',emoji:'🛡️',color:'#F59E0B',bg:'#FEF3C7',condition:s=>['m11','m12','m13','m14','m15'].every(id=>s.modulesPassed.includes(id))},
-  {id:'perfect_score',title:'Perfect Briefer',desc:'Score 100% on an Act 3 module quiz',emoji:'💯',color:'#EF4444',bg:'#FFE4E6',condition:s=>['m11','m12','m13','m14','m15','m16','m17','m18','m19','m20'].some(id=>(s.quizScores||{})[id]===100)},
+  {id:'level_instrument_complete',title:'Instrument Ready',desc:'Pass every Instrument-level module',emoji:'🌧️',color:'#6366F1',bg:'#EEF2FF',condition:s=>_modIdsAtLevel('instrument').every(id=>s.modulesPassed.includes(id))},
+  {id:'perfect_score',title:'Perfect Briefer',desc:'Score 100% on any operational-products module quiz',emoji:'💯',color:'#EF4444',bg:'#FFE4E6',condition:s=>['m11','m12','m13','m14','m15','m16','m17','m18','m19','m20'].some(id=>(s.quizScores||{})[id]===100)},
   {id:'briefer',title:'Cleared for Briefing',desc:'Complete Weather Service & Briefings',emoji:'📞',color:'#0369A1',bg:'#E0F2FE',condition:s=>s.modulesPassed.includes('m16')},
   {id:'water_cycle',title:'Moisture Expert',desc:'Complete Heat, Water Vapor & Precipitation',emoji:'💧',color:'#0EA5E9',bg:'#F0F9FF',condition:s=>s.modulesPassed.includes('m17')},
   {id:'global_pilot',title:'Global Pilot',desc:'Complete Tropical & Arctic Weather',emoji:'🌏',color:'#0891B2',bg:'#ECFEFF',condition:s=>s.modulesPassed.includes('m18')},
   {id:'space_wx',title:'Space Cadet',desc:'Complete Space Weather & Analysis Charts',emoji:'🛰️',color:'#7C3AED',bg:'#F5F3FF',condition:s=>s.modulesPassed.includes('m19')},
   {id:'advanced_wx',title:'Advanced Products',desc:'Complete Advanced Weather Products',emoji:'🗺️',color:'#059669',bg:'#ECFDF5',condition:s=>s.modulesPassed.includes('m20')},
-  {id:'wx_master',title:'Weather Master',desc:'Complete all 20 modules',emoji:'🌐',color:'#F59E0B',bg:'#FEF3C7',condition:s=>['m1','m2','m3','m4','m5','m6','m7','m8','m9','m10','m11','m12','m13','m14','m15','m16','m17','m18','m19','m20'].every(id=>s.modulesPassed.includes(id))},
+  {id:'level_commercial_complete',title:'Commercial+ Ready',desc:'Pass every Commercial+ module',emoji:'🌤️',color:'#F59E0B',bg:'#FEF3C7',condition:s=>_modIdsAtLevel('commercial').every(id=>s.modulesPassed.includes(id))},
+  // derived — don't hardcode the 20: this checks against MODULES.length to keep working as content grows
+  {id:'wx_master',title:'Weather Master',desc:'Complete every module in the curriculum',emoji:'🌐',color:'#F59E0B',bg:'#FEF3C7',condition:s=>typeof MODULES!=='undefined'&&MODULES.every(m=>s.modulesPassed.includes(m.id))},
   // Comprehension achievements
   {id:'perfect_flight',title:'Perfect Flight',desc:'Score 100% on any module quiz',emoji:'🎯',color:'#10B981',bg:'#D1FAE5',condition:s=>Object.values(s.quizScores||{}).some(v=>v===100)},
   {id:'on_the_gauges',title:'On the Gauges',desc:'Pass 3 quizzes in a row with 90%+',emoji:'🛫',color:'#6366F1',bg:'#EEF2FF',condition:s=>{const h=s.quizHistory||[];return h.length>=3&&h.slice(-3).every(e=>e.score>=90);}},

@@ -1,6 +1,9 @@
 // ============================================================
 // Aviation Weather Academy — Modules Data
-// 15 modules across 3 acts, FAA-H-8083-28B (2026)
+// Each module has a `level:` tag — 'student' | 'private' | 'instrument' | 'commercial'
+// (see config.js LEVELS / LEVEL_META). Module count and per-level breakdowns
+// are derived at runtime via MODULES.length and MODULES.filter(m=>m.level===...).
+// FAA-H-8083-28B (April 2026).
 // ============================================================
 
 const MODULES = [
@@ -10,7 +13,7 @@ const MODULES = [
   // MODULE 1: THE ATMOSPHERE
   // ================================================
   {
-    id: 'm1', act: 1, title: 'The Atmosphere', subtitle: 'Layers, composition & temperature',
+    id: 'm1', level: 'student', title: 'The Atmosphere', subtitle: 'Layers, composition & temperature',
     icon: '🌍', color: '#38BDF8', bgColor: '#E0F2FE', prerequisites: [],
     xpReward: 150, estimatedMin: 12,
     faaRef: 'FAA-H-8083-28B Chapters 4, 5, 6, 7',
@@ -260,7 +263,7 @@ const MODULES = [
   // MODULE 2: PRESSURE & ALTIMETRY
   // ================================================
   {
-    id: 'm2', act: 1, title: 'Pressure & Altimetry', subtitle: 'Density altitude & altimeter errors',
+    id: 'm2', level: 'student', title: 'Pressure & Altimetry', subtitle: 'Density altitude & altimeter errors',
     icon: '🌡️', color: '#6366F1', bgColor: '#EEF2FF', prerequisites:['m1'],
     xpReward: 175, estimatedMin: 14,
     faaRef: 'FAA-H-8083-28B Chapter 8',
@@ -453,7 +456,7 @@ const MODULES = [
   // MODULE 3: WIND & CIRCULATION
   // ================================================
   {
-    id: 'm3', act: 1, title: 'Wind & Circulation', subtitle: 'Forces, jet streams & local winds',
+    id: 'm3', level: 'student', title: 'Wind & Circulation', subtitle: 'Forces, jet streams & local winds',
     icon: '💨', color: '#10B981', bgColor: '#D1FAE5', prerequisites:['m1','m2'],
     xpReward: 175, estimatedMin: 15,
     faaRef: 'FAA-H-8083-28B Chapters 9, 10',
@@ -727,7 +730,7 @@ const MODULES = [
   // MODULE 4: CLOUDS & STABILITY
   // ================================================
   {
-    id: 'm4', act: 1, title: 'Clouds & Stability', subtitle: 'Lapse rates, inversions & cloud types',
+    id: 'm4', level: 'student', title: 'Clouds & Stability', subtitle: 'Lapse rates, inversions & cloud types',
     icon: '☁️', color: '#8B5CF6', bgColor: '#F5F3FF', prerequisites:['m1','m2'],
     xpReward: 200, estimatedMin: 16,
     faaRef: 'FAA-H-8083-28B Chapters 12, 13, 14',
@@ -1015,7 +1018,7 @@ const MODULES = [
   // MODULE 5: THE WEATHER MACHINE
   // ================================================
   {
-    id: 'm5', act: 1, title: 'The Weather Machine', subtitle: 'Air masses, fronts & wave cyclones',
+    id: 'm5', level: 'private', title: 'The Weather Machine', subtitle: 'Air masses, fronts & wave cyclones',
     icon: '🌪️', color: '#F59E0B', bgColor: '#FEF3C7', prerequisites:['m1','m3','m4'],
     xpReward: 225, estimatedMin: 18,
     faaRef: 'FAA-H-8083-28B Chapter 11',
@@ -1250,7 +1253,7 @@ const MODULES = [
   // M6: THUNDERSTORMS
   // ============================================================
   {
-    id:'m6',act:2,title:'Thunderstorms',subtitle:'Lifecycle, types & avoidance rules',
+    id:'m6',level:'private',title:'Thunderstorms',subtitle:'Lifecycle, types & avoidance rules',
     icon:'⛈️',color:'#DC2626',bgColor:'#FEF2F2',prerequisites:['m4','m5'],
     xpReward:200,estimatedMin:18,faaRef:'FAA-H-8083-28B Chapter 22',
     sections:[
@@ -1546,7 +1549,7 @@ const MODULES = [
   // M7: STRUCTURAL ICING
   // ============================================================
   {
-    id:'m7',act:2,title:'Structural Icing',subtitle:'Types, effects & escape strategies',
+    id:'m7',level:'instrument',title:'Structural Icing',subtitle:'Types, effects & escape strategies',
     icon:'🧊',color:'#0EA5E9',bgColor:'#F0F9FF',prerequisites:['m4'],
     xpReward:200,estimatedMin:16,faaRef:'FAA-H-8083-28B Chapter 20',
     sections:[
@@ -1749,7 +1752,7 @@ const MODULES = [
   // M8: TURBULENCE
   // ============================================================
   {
-    id:'m8',act:2,title:'Turbulence',subtitle:'Types, intensities & wind shear',
+    id:'m8',level:'instrument',title:'Turbulence',subtitle:'Types, intensities & wind shear',
     icon:'💥',color:'#7C3AED',bgColor:'#F5F3FF',prerequisites:['m3','m4'],
     xpReward:175,estimatedMin:14,faaRef:'FAA-H-8083-28B Chapter 19',
     sections:[
@@ -1936,14 +1939,23 @@ const MODULES = [
   // M9: FOG & LOW IFR
   // ============================================================
   {
-    id:'m9',act:2,title:'Fog & Low IFR',subtitle:'Fog types, formation & visibility hazards',
+    id:'m9',level:'private',title:'Fog & Low IFR',subtitle:'Fog types, formation & visibility hazards',
     icon:'🌫️',color:'#64748B',bgColor:'#F8FAFC',prerequisites:['m4','m5'],
     xpReward:175,estimatedMin:14,faaRef:'FAA-H-8083-28B Chapter 18',
     sections:[
       {
         id:'s9_1',title:'What Is Fog?',
         content:`
-          <p>Fog is a cloud with its base at the Earth's surface, reducing horizontal visibility to <span class="data-tag">less than 5/8 SM (1 km)</span>. When visibility is 5/8 SM or less, it is reported as FG in a METAR; between 5/8 and 6 SM, it is reported as BR (mist). HZ (haze) is reported when reduced visibility is from suspended dry particles rather than water droplets.</p>
+          <p>Fog is a cloud with its base at the Earth's surface, reducing horizontal visibility to <span class="data-tag">less than 5/8 SM (1 km)</span>. The codes you see in METARs and TAFs follow these FAA-H-8083-28B §3.4.2.6 rules:</p>
+          <div style="background:#F8FAFC;border-radius:14px;padding:14px 16px;margin:10px 0;font-size:13px;color:#334155;line-height:1.7">
+            <strong style="font-family:var(--font-display);color:var(--navy)">In a METAR/SPECI</strong><br>
+            • Visibility &lt; 5/8 SM → <span class="data-tag">FG</span> (FZFG if T &lt; 0 °C)<br>
+            • Visibility 5/8 SM to less than 7 SM → <span class="data-tag">BR</span> if T−Td ≤ ~20 °C (~40 °F); <span class="data-tag">HZ</span> otherwise<br>
+            • Visibility ≥ 7 SM → no obscuration code reported
+          </div>
+          <div style="background:#FEF3C7;border-left:4px solid #F59E0B;border-radius:0 12px 12px 0;padding:12px 14px;margin:10px 0;font-size:13px;color:#92400E;line-height:1.65">
+            <strong>In a TAF</strong>, BR is included only when forecast visibility is 5/8 to 6 SM. This is narrower than what you'll actually see reported in METARs — the same conditions that show up as BR in a METAR up to less than 7 SM are only forecast in a TAF up to 6 SM. Don't be surprised when a METAR reports BR at 6.5 SM even though the active TAF wouldn't have included BR there.
+          </div>
           <div class="fact-box">
             <span style="font-size:28px">💧</span>
             <div><strong>The fog trigger:</strong> Fog forms when temperature and dewpoint converge — either by <em>cooling the air to its dewpoint</em> (radiation, advection, upslope fog) OR by <em>adding moisture to raise the dewpoint</em> (frontal fog, steam fog). Fog rarely forms when the temperature-dewpoint spread exceeds <span class="data-tag">2°C (4°F)</span>.</div>
@@ -1977,7 +1989,7 @@ const MODULES = [
           <p>Beyond fog, several other phenomena can restrict visibility to IFR levels:</p>
           <div style="display:grid;gap:10px;margin:16px 0">
             ${[
-              ['Mist (BR)','Visibility 5/8 – 6 SM. Temperature at or very near dewpoint. Precursor to fog — watch the T/Td spread closely.'],
+              ['Mist (BR)','In METARs: visibility 5/8 SM to less than 7 SM with a small T-Td spread (≤ ~20 °C). In TAFs: included only at 5/8 to 6 SM. Precursor to fog — watch the spread closely.'],
               ['Haze (HZ)','Fine particles (smoke, dust, salt) suspended in the air. No temperature-dewpoint requirement. Visibility decreases. Not reported as fog but can reach IFR levels. Obscures distant terrain.'],
               ['Blowing Snow (BLSN)','Wind drives snow horizontally. Can reduce visibility to near zero in minutes. Common in Plains states with strong cP outbreaks. Blowing snow can fill instrument bores and pitot tubes.'],
               ['Dust/Sandstorm (DS/SS)','Strong winds lift dust/sand. Common in desert SW. Can arrive as a wall (haboob) with almost no warning. Severe abrasive damage to airframe and engine if flown through.'],
@@ -2092,7 +2104,7 @@ const MODULES = [
         question:'Fog is officially reported in a METAR when horizontal visibility is:',
         options:['Less than 1 SM','Less than 5/8 SM (1 km)','Less than 3 SM','Less than 1/4 SM only'],
         correct:1,xp:15,
-        explanation:'FG (fog) is reported in a METAR when horizontal visibility is less than 5/8 SM (approximately 1 km). Between 5/8 SM and 6 SM with near-dewpoint temperature, BR (mist) is reported. HZ (haze) is used when the obstruction is aerosols without temperature-dewpoint convergence.',
+        explanation:'FG (fog) is reported in a METAR when horizontal visibility is less than 5/8 SM (~1 km). At visibilities from 5/8 SM up to less than 7 SM, the report uses BR (mist) when T-Td is small (≤ ~20 °C / 40 °F) and HZ (haze) when it is larger. The narrower 5/8–6 SM range you may have seen is the TAF inclusion rule, not the METAR reporting rule. (FAA-H-8083-28B §3.4.2.6, Table 3-9)',
         faaRef:'Ch. 18',concept:'fog_types'
       },
       {
@@ -2208,7 +2220,7 @@ const MODULES = [
   // M10: MOUNTAIN WEATHER
   // ============================================================
   {
-    id:'m10',act:2,title:'Mountain Weather',subtitle:'Waves, rotors & downslope winds',
+    id:'m10',level:'private',title:'Mountain Weather',subtitle:'Waves, rotors & downslope winds',
     icon:'⛰️',color:'#059669',bgColor:'#ECFDF5',prerequisites:['m3','m8'],
     xpReward:225,estimatedMin:18,faaRef:'FAA-H-8083-28B Chapter 16',
     sections:[
@@ -2421,7 +2433,7 @@ const MODULES = [
   // M11: METAR DECODER
   // ============================================================
   {
-    id:'m11',act:3,title:'METAR Decoder',subtitle:'Read any aviation weather observation',
+    id:'m11',level:'student',title:'METAR Practice',subtitle:'Read any aviation weather observation — 10 annotated examples',
     icon:'📋',color:'#7C3AED',bgColor:'#F5F3FF',prerequisites:['m1','m2'],
     xpReward:200,estimatedMin:20,faaRef:'FAA-H-8083-28B Chapter 24',
     sections:[
@@ -2439,9 +2451,9 @@ const MODULES = [
         `
       },
       {
-        id:'s11_2',title:'Interactive METAR Decoder',
-        content:`<p>Tap any highlighted group in the METAR below to see a full explanation. Work through each element from left to right — this is how a dispatcher or examiner will expect you to read it.</p>`,
-        diagram:{type:'process',key:'metar_syntax'}
+        id:'s11_2',title:'METAR Practice — 10 Annotated Examples',
+        content:`<p>Use the picker to step through 10 real-world METARs covering decoding situations you actually meet on a flight: clean VFR, marginal VFR with mist, fog, thunderstorms, freezing rain, gusty winds, ceiling-only IFR, the international CAVOK shorthand, substantive remarks, and an automated station reporting a sensor maintenance flag. Tap any highlighted group to decode it.</p><p>Work each METAR left to right — that is how a dispatcher or examiner will expect you to read them.</p>`,
+        diagram:{type:'metar_decoder'}
       },
       {
         id:'s11_3',title:'Wind, Visibility & Sky Condition',
@@ -2521,12 +2533,12 @@ const MODULES = [
       }
     ],
     quiz:[
-      {id:'q_m11_1',type:'mc',question:'In the METAR group "22015G25KT", what does "G25" indicate?',options:['The wind is gusting to 25 kt','The wind direction varies 25 degrees','The gust lasts 25 seconds','The wind speed is 25 kt at 2,200 ft'],correct:0,xp:10,explanation:'G = gust. 22015G25KT = wind from 220° at 15 kt, gusting to 25 kt. Gusts are reported when the variation between peak and lull wind speeds is 10 kt or more.',faaRef:'Ch. 24',concept:'metar_decode'},
-      {id:'q_m11_2',type:'mc',question:'Sky condition "OVC010CB" means:',options:['Overcast at 1,000 ft AGL with cumulonimbus','Occasional clouds at 10,000 ft with CB','Overcast at 10 ft — zero ceiling','Obscured visibility at 1,000 ft'],correct:0,xp:10,explanation:'OVC = overcast (ceiling). 010 = 1,000 ft AGL. CB = cumulonimbus — active thunderstorm. Serious IFR conditions.',faaRef:'Ch. 24',concept:'metar_decode'},
-      {id:'q_m11_3',type:'mc',question:'A METAR showing "M1/4SM FG" describes:',options:['MVFR conditions','VFR — fog is minimal','LIFR — less than 1/4 SM in fog','IFR — between 1 and 3 SM'],correct:2,xp:10,explanation:'M1/4SM = less than 1/4 statute mile = LIFR. FG = fog (visibility < 5/8 SM). Zero-zero conditions.',faaRef:'Ch. 24',concept:'metar_decode'},
-      {id:'q_m11_4',type:'timed',timeLimit:10,question:'The METAR timestamp "181350Z" means:',options:['1350 local time on the 18th','Day 18 at 13:50 UTC','18 knots at 1350 ft','1350 hours on runway 18'],correct:1,xp:15,explanation:'METAR timestamps: DDHHMM Z. Day = 18, Hour = 13, Minute = 50, Z = UTC. Always in UTC — never local time.',faaRef:'Ch. 24',concept:'metar_decode'},
-      {id:'q_m11_5',type:'scenario',scenario:'Destination METAR: KXXX 151455Z 28012KT 5SM -RA BKN025 OVC050 12/10 A2985 RMK AO2',question:'What is the flight category and primary concern?',options:['VFR — well above minimums','MVFR — 5 SM and 2,500 ft ceiling; light rain and near-saturation T/Td spread suggest worsening','IFR — any rain creates IFR','LIFR — low altimeter'],correct:1,xp:20,explanation:'MVFR: ceiling 1,000-3,000 ft OR vis 3-5 SM. BKN025 = 2,500 ft ceiling; vis 5 SM. T/Td spread = 2°C — near saturation. Monitor trends.',faaRef:'Ch. 24'},
-      {id:'q_m11_6',type:'mc',question:'"AO2" in METAR remarks means:',options:['Automated station WITH precipitation discriminator','Aircraft observation 2','Altimeter offset 2 inHg','ATC observation 2'],correct:0,xp:10,explanation:'AO2 = automated station WITH precipitation discriminator (can distinguish rain from snow). AO1 = without — precipitation type unreliable.',faaRef:'Ch. 24',concept:'metar_decode'},
+      {id:'q_m11_1',type:'scenario',scenario:'METAR Practice Example 4 (KCLT thunderstorm): KCLT 232055Z 28017G31KT 2SM +TSRA BR BKN015CB OVC025 26/22 A3001 RMK AO2 LTG DSNT NW TSB45 SLP163',question:'Which group tells you the storm has been active for at least 10 minutes by report time, and where the lightning is right now?',options:['"+TSRA" tells you both — heavy thunderstorm intensity implies long-running and lightning is at the station','"TSB45" gives the start time (:45 past the hour); "LTG DSNT NW" places lightning distant northwest (10–30 NM)','"BKN015CB" — the CB suffix dates the cell','"OVC025" with 2SM visibility is the storm-duration marker'],correct:1,xp:15,explanation:'TSB = thunderstorm began. TSB45 = began at :45 past the hour. By 2055Z that is 10 minutes of active TS. Lightning location qualifiers in remarks: no qualifier = at the station, VC = vicinity (5–10 NM), DSNT = distant (10–30 NM). LTG DSNT NW puts the active lightning 10–30 NM northwest of KCLT.',faaRef:'Ch. 24',concept:'metar_decode'},
+      {id:'q_m11_2',type:'scenario',scenario:'METAR Practice Example 7 (KAVL ceiling-only IFR): KAVL 011854Z 14005KT 10SM OVC006 16/14 A3022 RMK AO2 SLP232',question:'The visibility group reads "10SM" — full unrestricted vis. Why is this still IFR?',options:['It is not IFR — 10 SM is well above any IFR threshold','OVC006 = 600 ft ceiling, which is below 1,000 ft. IFR is defined as ceiling < 1,000 ft OR visibility < 3 SM. Either condition is sufficient','The "M" prefix on M1/4SM elsewhere flips the report to IFR','The remarks group is the deciding factor'],correct:1,xp:15,explanation:'Flight categorization is OR-logic: IFR requires ceiling < 1,000 ft OR visibility < 3 SM. Either alone qualifies. KAVL\'s 600 ft ceiling drives the IFR classification despite the unrestricted 10 SM under the layer. This is why an "ceiling-only IFR" METAR can look deceptively benign at first glance.',faaRef:'Ch. 24',concept:'metar_decode'},
+      {id:'q_m11_3',type:'scenario',scenario:'METAR Practice Example 2 (KAVL marginal with BR): KAVL 121355Z 04003KT 5SM BR SCT004 OVC012 18/17 A3018 RMK AO2 SLP223',question:'Per FAA-H-8083-28B §3.4.2.6 (Table 3-9), in a METAR/SPECI the BR (mist) group is reported when:',options:['Visibility is between 5/8 SM and 6 SM, full stop','Visibility is between 5/8 SM and less than 7 SM AND temperature/dewpoint spread is small (≤ ~20 °C / 40 °F); HZ is reported instead when the spread is larger','Visibility is exactly 5 SM','Any time fog is forecast in the next hour'],correct:1,xp:15,explanation:'In METARs, BR is used when visibility is 5/8 SM up to less than 7 SM AND T-Td is small (≤ ~20 °C). The 5/8 to 6 SM range you may have seen is the narrower TAF inclusion rule (TAFs are stricter about when forecasters use BR). Here T-Td is 1 °C — well within the small-spread regime, so BR is reported despite vis being 5 SM. With a larger spread the same vis would be HZ.',faaRef:'Ch. 24, §3.4.2.6',concept:'metar_decode'},
+      {id:'q_m11_4',type:'timed',timeLimit:12,question:'METAR Practice Example 3 (KGSO fog): "VV001" in the sky-condition slot means:',options:['Visibility variable 1 SM','Vertical visibility 100 ft — sky is obscured (e.g. by fog) and ceiling height cannot be determined; treat the VV value as the ceiling','Volcanic vapor at 100 ft','Wind speed 1 kt vertical component'],correct:1,xp:15,explanation:'VV is used when the observer cannot see cloud bases because the sky is obscured (most often by fog). The number after VV is vertical visibility in hundreds of feet. VV001 = 100 ft. For IFR/MVFR classification, treat VV as the ceiling. Fog reducing vertical visibility to 100 ft is solid LIFR.',faaRef:'Ch. 24',concept:'metar_decode'},
+      {id:'q_m11_5',type:'scenario',scenario:'METAR Practice Example 5 (KORD freezing rain): KORD 081453Z 09010KT 3SM -FZRA BR BKN008 OVC020 M01/M02 A3015 RMK AO2 SLP207',question:'What does the "-FZRA" group plus the M01/M02 surface temperatures tell you about the vertical temperature profile, and what is the icing concern?',options:['Surface and aloft are both well below freezing; rime ice is the main risk','There is a warm layer aloft (above freezing) on top of a sub-freezing surface layer; supercooled large drops (SLD) are possible — clear-ice risk forming aft of de-ice equipment','Wind is the only relevant factor','-FZRA is just light rain at any temperature'],correct:1,xp:20,explanation:'Freezing rain forms when liquid drops fall through a sub-freezing layer near the surface; the drops can only have started as liquid by passing through a warm-aloft layer. That warm layer is a fingerprint for SLD (supercooled large drops, > 50 microns per FAA-H-8083-28B §20.3.2.1) — drops large enough to flow back along the airfoil and freeze beyond de-ice protection. The standard escape is to descend below the warm-nose if a safe altitude exists, or to climb above it if conditions support.',faaRef:'Ch. 20, §20.3.2.1',concept:'structural_icing'},
+      {id:'q_m11_6',type:'scenario',scenario:'METAR Practice Example 9 (KSFO peak wind): RMK group includes "PK WND 25033/1745"',question:'What does "PK WND 25033/1745" mean, and why does it matter even though the body already shows "G28KT"?',options:['Peak wind 250° at 33 kt at 17:45 UTC. The 33-kt peak is 5 kt above the body\'s 28 kt gust, so gusts are still topping the body group — useful trend data','Average wind for the past 24 hours','Wind at 25,033 ft','A barometric reading'],correct:0,xp:15,explanation:'PK WND ddd ff/(hh)mm reports the peak wind speed since the last hourly METAR with the time it occurred. The hour digits are dropped if it is in the same hour as the report. Cross-referencing the PK WND against the body gust is a trend tool: a higher PK WND than the body gust suggests gust intensity is still peaking; a lower PK WND suggests it has subsided.',faaRef:'Ch. 24',concept:'metar_decode'},
       {id:'q_m11_7',type:'drag_drop',question:'Match each METAR group to what it reports:',items:['22015G25KT','3/4SM','OVC010CB','18/16'],targets:['Wind direction/speed/gusts','Prevailing visibility','Ceiling height & cloud type','Temperature & dewpoint'],answers:{'22015G25KT':'Wind direction/speed/gusts','3/4SM':'Prevailing visibility','OVC010CB':'Ceiling height & cloud type','18/16':'Temperature & dewpoint'},xp:20,explanation:'METAR sequence: Wind DDD/FF[G]KT → Visibility [number]SM → Sky COVHHH[type] → Temp/Dew TT/DD. Always in this order.',faaRef:'Ch. 24',concept:'metar_decode'},
       {id:'q_m11_8',type:'timed',timeLimit:10,question:'Flight category for: OVC008, 1 1/2SM -RA?',options:['VFR','MVFR','IFR — ceiling 500-1,000 ft OR vis 1-3 SM','LIFR'],correct:2,xp:15,explanation:'IFR: ceiling 500-1,000 ft OR visibility 1-3 SM. OVC008 = 800 ft (IFR). 1.5 SM vis (IFR). Both qualify.',faaRef:'Ch. 24',concept:'metar_decode'},
       {id:'q_m11_9',type:'mc',question:'"180V250" after a wind group means:',options:['Wind at 180 kt varying to 250 kt','Wind direction varying between 180° and 250°','Visibility varying 1.8 to 2.5 SM','Cross-runway wind component'],correct:1,xp:10,explanation:'Variable wind direction (DDDVddd): direction varies ≥60° and speed >6 kt. "180V250" = varying from 180° to 250°.',faaRef:'Ch. 24',concept:'metar_decode'}
@@ -2541,7 +2553,7 @@ const MODULES = [
   // M12: TAF DECODER
   // ============================================================
   {
-    id:'m12',act:3,title:'TAF — Terminal Forecasts',subtitle:'Read and decode aerodrome forecasts',
+    id:'m12',level:'private',title:'TAF — Terminal Forecasts',subtitle:'Read and decode aerodrome forecasts',
     icon:'📅',color:'#0284C7',bgColor:'#E0F2FE',prerequisites:['m11'],
     xpReward:200,estimatedMin:18,faaRef:'FAA-H-8083-28B Chapter 27',
     sections:[
@@ -2652,7 +2664,7 @@ const MODULES = [
   // M13: PIREPs
   // ============================================================
   {
-    id:'m13',act:3,title:'PIREPs — Pilot Reports',subtitle:'Read, interpret and file pilot weather reports',
+    id:'m13',level:'private',title:'PIREPs — Pilot Reports',subtitle:'Read, interpret and file pilot weather reports',
     icon:'📻',color:'#059669',bgColor:'#ECFDF5',prerequisites:['m11'],
     xpReward:175,estimatedMin:14,faaRef:'FAA-H-8083-28B Chapter 24',
     sections:[
@@ -2776,7 +2788,7 @@ const MODULES = [
   // M14: RADAR
   // ============================================================
   {
-    id:'m14',act:3,title:'Weather Radar',subtitle:'Reading NEXRAD, dBZ & radar products',
+    id:'m14',level:'instrument',title:'Weather Radar',subtitle:'Reading NEXRAD, dBZ & radar products',
     icon:'📡',color:'#DC2626',bgColor:'#FEF2F2',prerequisites:['m6'],
     xpReward:175,estimatedMin:14,faaRef:'FAA-H-8083-28B Chapters 15, 24',
     sections:[
@@ -3081,7 +3093,7 @@ const MODULES = [
   // M15: ADVISORIES (SIGMETs, AIRMETs, CWAs)
   // ============================================================
   {
-    id:'m15',act:3,title:'Advisories',subtitle:'SIGMETs, AIRMETs, CWAs & convective products',
+    id:'m15',level:'instrument',title:'Advisories',subtitle:'SIGMETs, AIRMETs, CWAs & convective products',
     icon:'⚠️',color:'#EA580C',bgColor:'#FFF7ED',prerequisites:['m6','m7','m8'],
     xpReward:225,estimatedMin:18,faaRef:'FAA-H-8083-28B Chapter 26',
     sections:[
@@ -3274,7 +3286,7 @@ const MODULES = [
   // M1A: THE WEATHER SERVICE SYSTEM (Ch. 1, 2, 3)
   // ============================================================
   {
-    id:'m1a',act:1,title:'The Weather Service System',subtitle:'NOAA, NWS, AWC, FSS & how a briefing is built',
+    id:'m1a',level:'student',title:'The Weather Service System',subtitle:'NOAA, NWS, AWC, FSS & how a briefing is built',
     icon:'🏛️',color:'#0284C7',bgColor:'#E0F2FE',prerequisites:['m1'],
     xpReward:100,estimatedMin:10,faaRef:'FAA-H-8083-28B Chapters 1, 2, 3',
     sections:[
@@ -3456,7 +3468,7 @@ const MODULES = [
   // M16: WEATHER SERVICE & BRIEFINGS (Ch. 2, 3)
   // ============================================================
   {
-    id:'m16',act:1,title:'Weather Service & Briefings',subtitle:'NWS, FAA, FSS & the self-briefing process',
+    id:'m16',level:'student',title:'Weather Service & Briefings',subtitle:'NWS, FAA, FSS & the self-briefing process',
     icon:'📞',color:'#0369A1',bgColor:'#E0F2FE',prerequisites:['m11','m12','m15'],
     xpReward:175,estimatedMin:16,faaRef:'FAA-H-8083-28B Chapters 2, 3',
     sections:[
@@ -3694,7 +3706,7 @@ const MODULES = [
   // M17: HEAT, WATER VAPOR & PRECIPITATION (Ch. 5, 6, 14)
   // ============================================================
   {
-    id:'m17',act:1,title:'Heat, Water Vapor & Precipitation',subtitle:'Heat transfer, dewpoint, latent heat & precip types',
+    id:'m17',level:'private',title:'Heat, Water Vapor & Precipitation',subtitle:'Heat transfer, dewpoint, latent heat & precip types',
     icon:'💧',color:'#0EA5E9',bgColor:'#F0F9FF',prerequisites:['m1','m4'],
     xpReward:200,estimatedMin:18,faaRef:'FAA-H-8083-28B Chapters 5, 6, 14',
     sections:[
@@ -3874,7 +3886,7 @@ const MODULES = [
   // M18: TROPICAL & ARCTIC WEATHER (Ch. 17, 21)
   // ============================================================
   {
-    id:'m18',act:2,title:'Tropical & Arctic Weather',subtitle:'ITCZ, tropical cyclones, Arctic hazards & whiteout',
+    id:'m18',level:'instrument',title:'Tropical & Arctic Weather',subtitle:'ITCZ, tropical cyclones, Arctic hazards & whiteout',
     icon:'🌏',color:'#0891B2',bgColor:'#ECFEFF',prerequisites:['m1','m5','m6'],
     xpReward:200,estimatedMin:16,faaRef:'FAA-H-8083-28B Chapters 17, 21',
     sections:[
@@ -3974,7 +3986,7 @@ const MODULES = [
   // M19: SPACE WEATHER & ANALYSIS CHARTS (Ch. 23, 25)
   // ============================================================
   {
-    id:'m19',act:3,title:'Space Weather & Analysis Charts',subtitle:'Solar events, GPS disruption, surface analysis & skew-T',
+    id:'m19',level:'commercial',title:'Space Weather & Analysis Charts',subtitle:'Solar events, GPS disruption, surface analysis & skew-T',
     icon:'🛰️',color:'#7C3AED',bgColor:'#F5F3FF',prerequisites:['m1','m3'],
     xpReward:200,estimatedMin:18,faaRef:'FAA-H-8083-28B Chapters 23, 25',
     sections:[
@@ -4225,7 +4237,7 @@ const MODULES = [
   // M20: ADVANCED PRODUCTS (Ch. 7, 27 gaps, 26 gaps)
   // ============================================================
   {
-    id:'m20',act:3,title:'Advanced Weather Products',subtitle:'Winds aloft, SIGWX charts, energy balance & full advisory suite',
+    id:'m20',level:'commercial',title:'Advanced Weather Products',subtitle:'Winds aloft, SIGWX charts, energy balance & full advisory suite',
     icon:'🗺️',color:'#059669',bgColor:'#ECFDF5',prerequisites:['m11','m12','m13','m14','m15'],
     xpReward:225,estimatedMin:20,faaRef:'FAA-H-8083-28B Chapters 7, 26, 27',
     sections:[
