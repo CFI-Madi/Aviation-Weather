@@ -1072,13 +1072,31 @@ const Diagrams = {
     document.getElementById('fg-action').textContent=action;
   },
 
-  // ===== ACT 3 DIAGRAMS =====
+  // ===== OPERATIONAL PRODUCTS — DECODERS =====
+  // METAR Practice — token-tap exploration of a 10-example annotated library
+  // (no parser; the library covers the situations a Part-61 student needs to
+  // recognize). _metarIdx tracks which library entry is currently shown.
+  _metarIdx: 0,
+
   renderMetarDecoder(){
-    const m=SAMPLE_METAR;
-    const colors=m.tokens.map(t=>t.color);
+    const lib = (typeof METAR_LIBRARY !== 'undefined' && METAR_LIBRARY.length) ? METAR_LIBRARY : [SAMPLE_METAR];
+    const idx = Math.min(Math.max(this._metarIdx | 0, 0), lib.length - 1);
+    const m = lib[idx];
+    const pickerOpts = lib.map((entry, i) =>
+      `<option value="${i}"${i === idx ? ' selected' : ''}>Example ${i + 1}: ${entry.title}</option>`
+    ).join('');
     return `<div style="background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08);margin:16px 0">
-      <div class="diagram-header"><span style="color:white;font-family:var(--font-display);font-weight:700;font-size:14px">📋 Interactive METAR — Tap Any Group</span></div>
+      <div class="diagram-header"><span style="color:white;font-family:var(--font-display);font-weight:700;font-size:14px">📋 METAR Practice — ${lib.length} annotated examples</span></div>
       <div style="padding:16px">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+          <label style="font-size:11px;color:#64748B;font-family:var(--font-display);font-weight:700">Example</label>
+          <select onchange="Diagrams._setMetarIdx(this.value)" style="flex:1;min-width:180px;border:2px solid #E2E8F0;border-radius:10px;padding:8px 10px;font-family:var(--font-display);font-weight:700;font-size:13px;color:var(--navy);background:white">${pickerOpts}</select>
+          <div style="display:flex;gap:6px">
+            <button onclick="Diagrams._setMetarIdx(${(idx - 1 + lib.length) % lib.length})" aria-label="Previous example" style="background:#F1F5F9;color:#475569;border:none;border-radius:10px;padding:8px 12px;font-family:var(--font-display);font-weight:800;cursor:pointer">‹</button>
+            <button onclick="Diagrams._setMetarIdx(${(idx + 1) % lib.length})" aria-label="Next example" style="background:#F1F5F9;color:#475569;border:none;border-radius:10px;padding:8px 12px;font-family:var(--font-display);font-weight:800;cursor:pointer">›</button>
+          </div>
+        </div>
+        <div style="font-size:12px;color:#475569;font-family:var(--font-body);margin:0 0 10px 2px;line-height:1.5">${m.summary || ''}</div>
         <div style="background:#0C1B33;border-radius:14px;padding:16px;margin-bottom:14px;font-family:var(--font-mono);font-size:13px;line-height:2;word-break:break-all">
           ${m.tokens.map((t,i)=>`<span class="metar-token" style="background:${t.bg};color:${t.color}" onclick="Diagrams.showMetarToken(${i})">${t.token}</span>`).join(' ')}
         </div>
@@ -1089,12 +1107,25 @@ const Diagrams = {
     </div>`;
   },
 
+  _setMetarIdx(i){
+    const lib = (typeof METAR_LIBRARY !== 'undefined' && METAR_LIBRARY.length) ? METAR_LIBRARY : [SAMPLE_METAR];
+    this._metarIdx = Math.min(Math.max(parseInt(i, 10) || 0, 0), lib.length - 1);
+    // Re-render in place. The diagram is rendered inside the lesson section's
+    // diagram container; find the closest section card and refresh.
+    const detail = document.getElementById('metar-detail');
+    const card = detail ? detail.closest('div[style*="border-radius:20px"]') : null;
+    if (card) card.outerHTML = this.renderMetarDecoder();
+  },
+
   showMetarToken(i){
-    const t=SAMPLE_METAR.tokens[i];
+    const lib = (typeof METAR_LIBRARY !== 'undefined' && METAR_LIBRARY.length) ? METAR_LIBRARY : [SAMPLE_METAR];
+    const m = lib[Math.min(Math.max(this._metarIdx | 0, 0), lib.length - 1)];
+    const t = m.tokens[i];
+    if (!t) return;
     document.querySelectorAll('.metar-token').forEach(el=>el.classList.remove('selected'));
     document.querySelectorAll('.metar-token')[i]?.classList.add('selected');
     document.getElementById('metar-detail').innerHTML=`
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
         <code style="background:${t.bg};color:${t.color};padding:6px 14px;border-radius:10px;font-family:var(--font-mono);font-size:14px;font-weight:700">${t.token}</code>
         <strong style="font-family:var(--font-display);font-size:16px;color:${t.color}">${t.label}</strong>
       </div>

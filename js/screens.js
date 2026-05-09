@@ -1252,7 +1252,7 @@ const Screens = {
         <div class="card" style="padding:18px;margin-bottom:16px">
           <div style="font-family:var(--font-display);font-weight:900;font-size:16px;color:var(--navy);margin-bottom:8px">Live weather temporarily unavailable</div>
           <div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:14px">We have paused live airport pulls while the weather feed is being cleaned up. You can still review METAR categories and jump into the decoder lesson below.</div>
-          <button onclick="Router.navigate('lesson',{moduleId:'m11'})" style="background:var(--navy);color:white;border:none;border-radius:12px;padding:10px 16px;font-family:var(--font-display);font-weight:800;font-size:14px;cursor:pointer">Open M11 METAR Decoder</button>
+          <button onclick="Router.navigate('lesson',{moduleId:'m11'})" style="background:var(--navy);color:white;border:none;border-radius:12px;padding:10px 16px;font-family:var(--font-display);font-weight:800;font-size:14px;cursor:pointer">Open M11 METAR Practice</button>
         </div>
         <div class="card" style="padding:18px;margin-bottom:16px">
           <div style="font-size:11px;color:#94A3B8;font-weight:800;text-transform:uppercase;margin-bottom:8px">Flight Categories</div>

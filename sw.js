@@ -3,7 +3,7 @@
 // Cache name: bump version string to force cache refresh on deploy
 // ============================================================
 
-const CACHE_NAME = 'wx-academy-v6';
+const CACHE_NAME = 'wx-academy-v7';
 
 const APP_SHELL = [
   './',
