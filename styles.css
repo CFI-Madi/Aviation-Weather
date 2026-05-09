@@ -135,6 +135,54 @@ h1,h2,h3{font-family:var(--font-display)}
   .metar-nav-glyph{display:none}
   .metar-nav-text{display:inline}
 }
+/* TAF Practice picker — parallel to METAR but kept separate so we can
+   evolve them independently. Same desktop-default-inline / <600px-stacked
+   pattern; same 44x44 minimum tap targets. */
+.taf-picker-controls{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.taf-picker-select{flex:1;min-width:0;border:2px solid #E2E8F0;border-radius:10px;padding:10px 12px;font-family:var(--font-display);font-weight:700;font-size:13px;color:var(--navy);background:white;min-height:44px}
+.taf-nav-row{display:flex;gap:6px;flex-shrink:0}
+.taf-nav{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:0 12px;background:#F1F5F9;color:#475569;border:none;border-radius:10px;font-family:var(--font-display);font-weight:800;font-size:18px;cursor:pointer;transition:background .15s}
+.taf-nav:hover{background:#E2E8F0}
+.taf-nav-glyph{display:inline}
+.taf-nav-text{display:none;font-size:14px}
+@media (max-width:599px){
+  .taf-picker-controls{flex-direction:column;align-items:stretch}
+  .taf-picker-select{width:100%}
+  .taf-nav-row{width:100%}
+  .taf-nav{flex:1;font-size:14px}
+  .taf-nav-glyph{display:none}
+  .taf-nav-text{display:inline}
+}
+/* TAF rows — header line, then change groups (FM/TEMPO/BECMG/PROB/WS).
+   Each change row gets a colored left gutter that matches the group-type
+   keyword color. Tokens within a row wrap on small screens. */
+.taf-rows{background:#0C1B33;border-radius:14px;padding:12px;margin-bottom:14px;display:flex;flex-direction:column;gap:8px}
+.taf-row{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.03)}
+.taf-row-header{background:rgba(255,255,255,.06)}
+.taf-row-change{padding-left:6px;border-left:4px solid transparent}
+.taf-row-fm{border-left-color:#0284C7}
+.taf-row-tempo{border-left-color:#EC4899}
+.taf-row-becmg{border-left-color:#10B981}
+.taf-row-prob{border-left-color:#8B5CF6}
+.taf-row-ws{border-left-color:#F59E0B}
+.taf-row-marker{display:inline-flex;align-items:center;justify-content:center;min-width:44px;height:22px;padding:0 6px;border-radius:6px;font-family:var(--font-display);font-size:10px;font-weight:800;letter-spacing:.06em;color:white;flex-shrink:0;margin-top:3px}
+.taf-row-fm .taf-row-marker{background:#0284C7}
+.taf-row-tempo .taf-row-marker{background:#EC4899}
+.taf-row-becmg .taf-row-marker{background:#10B981}
+.taf-row-prob .taf-row-marker{background:#8B5CF6}
+.taf-row-ws .taf-row-marker{background:#F59E0B}
+.taf-row-tokens{display:flex;flex-wrap:wrap;gap:4px;font-family:var(--font-mono);font-size:13px;line-height:1.8;flex:1;min-width:0}
+.taf-token{display:inline-block;padding:3px 8px;border-radius:7px;font-family:var(--font-mono);font-size:12.5px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;border:2px solid transparent;word-break:break-all}
+.taf-token:hover{transform:translateY(-1px)}
+.taf-token.selected{border-color:#FBBF24;box-shadow:0 0 0 2px rgba(251,191,36,.25)}
+.taf-token-keyword{font-weight:800;letter-spacing:.02em}
+@media (max-width:599px){
+  .taf-rows{padding:10px}
+  .taf-row{padding:6px 8px;gap:6px}
+  .taf-row-marker{min-width:40px;font-size:9.5px}
+  .taf-row-tokens{font-size:12px}
+  .taf-token{font-size:11.5px;padding:2px 6px}
+}
 .daily-pulse{animation:daily-glow 2s ease-in-out infinite}
 @keyframes daily-glow{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.3)}50%{box-shadow:0 0 0 10px rgba(245,158,11,0)}}
 .act-tab{padding:8px 16px;border-radius:20px;font-family:var(--font-display);font-size:13px;font-weight:800;cursor:pointer;border:2px solid #E2E8F0;background:white;color:#94A3B8;transition:all .2s;white-space:nowrap}
