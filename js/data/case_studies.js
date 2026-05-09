@@ -1279,5 +1279,384 @@ const CASE_STUDIES = [
       {id:'qcs18_2',question:'The "I will just wait it out" psychology when weather appears at destination is dangerous because:',options:['Waiting is illegal under 14 CFR Part 91','The cost of waiting (fuel consumption) is invisible during the wait, while the cost of diverting (time, inconvenience) is visible — creating structural bias toward the more dangerous option','Waiting always produces worse outcomes than diverting','Diverting requires a new clearance that takes too long to obtain'],correct:1,explanation:'The decision is structurally biased: while you are circling, fuel consumption is silent — you do not feel it tick down. While you are considering diverting, the inconvenience is loud — extra time, ground transport, family delay. The corrective practice is to make the fuel cost visible by writing the math before circling: minutes of fuel at current burn vs. minutes of weather expected. When the math is on paper, the decision is obvious. When the math stays in your head, the bias wins.'},
       {id:'qcs18_3',question:'A planned 70-minute cross-country with 90 minutes of fuel represents:',options:['A safe operational plan with a 20-minute reserve','A plan below the 14 CFR 91.151 day-VFR 30-minute reserve and well below the operationally sound "flight time + 30 min reserve + 30 min weather contingency" pattern. Cross-country flights regularly require 20-30 minutes of unplanned holding for weather; the plan must absorb that at minimum','A reasonable plan if weather is forecast to be VMC','A plan that exceeds the FAA recommended fuel margin of 1.2x flight time'],correct:1,explanation:'A 20-minute buffer over flight time is below the standard 30-minute day-VFR reserve and well below the operationally sound flight-time + reserve + weather-contingency + diversion pattern. The cs18 plan was technically close to legal but had no operational margin for the contingency that actually occurred. Build flight plans against the contingency that actually happens, not the contingency you would prefer.'}
     ]
+  },
+  {
+    id:'cs19',
+    caseType: 'verified',
+    verified: true,
+    title:'The Test Pilot in the Squall Line',
+    subtitle:'Cessna 210A IFR cruise into severe MCS, Stormscope-only equipment',
+    category:'Embedded TS in IMC',
+    hazard:'No-Radar Convective Penetration + Lost Weather-Update Discipline',
+    severity:'fatal',
+    faaRef:'Ch. 16, 25',
+    icon:'⚡',
+    color:'#7C3AED',
+    aircraft:'Cessna 210A (N6579X, built 1960)',
+    pilot:'Albert Scott Crossfield Jr. — research test pilot, X-15 program, IFR-rated, single occupant',
+    date:'April 19, 2006, en route Prattville AL → Manassas VA, IFR cruise',
+    ntsbAccidentNumber:'ATL06FA071',
+    ntsbSourceType:'carol',
+    ntsbTitle:'Aviation Investigation Final Report — Cessna 210A, N6579X, Ludville GA, 19 April 2006',
+    ntsbUrl:'https://data.ntsb.gov/carol-main-public/basic-search/aviation?searchTerm=ATL06FA071',
+    brief:`
+      <p>The pilot — a celebrated research test pilot from the X-15 program — departed Prattville, Alabama for Manassas, Virginia on an IFR flight plan. The aircraft was a 1960 Cessna 210A. Onboard weather equipment was a Stormscope (lightning detection only) — no airborne radar, no datalink NEXRAD.</p>
+      <p>The National Weather Service Storm Prediction Center had identified an organizing mesoscale convective system (MCS) — a forward-propagating cluster of strong-to-severe thunderstorms — moving into northern Georgia. The pilot did not request an updated en route weather briefing. ATC did not provide adverse weather avoidance assistance.</p>
+    `,
+    weather:`
+      <div style="background:#0C1B33;border-radius:12px;padding:14px;margin:12px 0;font-family:var(--font-mono);font-size:11px;color:white">
+        <div style="color:#94A3B8;margin-bottom:8px;font-family:var(--font-display);font-size:10px;font-weight:700">CONVECTIVE ENVIRONMENT</div>
+        <div style="color:#38BDF8">SPC: organized MCS / squall line over northern GA</div>
+        <div style="color:#F59E0B">Forecast: severe thunderstorms intensifying mid-day</div>
+        <div style="color:#EF4444">Cell at impact: Level 6 (≥55 dBZ — extreme)</div>
+        <div style="color:#94A3B8">Onboard equipment: Stormscope only — no radar, no datalink NEXRAD</div>
+        <div style="color:#94A3B8">Pilot did not request updated en route briefing</div>
+        <div style="color:#94A3B8">ATC did not provide adverse weather avoidance assistance</div>
+      </div>
+    `,
+    narrative:`
+      <p>The flight proceeded into the active convective environment without route adjustment. The Cessna entered a Level 6 thunderstorm — the highest reflectivity category, associated with the most intense cells. Roughly 30 seconds after the pilot initiated a turn, the aircraft disappeared from radar.</p>
+      <p>The wreckage was found in remote mountainous terrain near Ludville, Georgia. Examination found no preimpact mechanical anomalies. The breakup pattern was consistent with structural failure inside the cell.</p>
+      <p>The NTSB cited two parallel failures: the pilot's failure to obtain updated en route weather information, and the controller's failure to provide adverse weather avoidance assistance. Either alone might have prevented the encounter; together they produced an unrecoverable trajectory into a Level 6 cell with only a Stormscope for guidance — equipment fundamentally inadequate for the threat.</p>
+    `,
+    probableCause:`The pilot's failure to obtain updated en route weather information, which resulted in his continued instrument flight into a widespread area of severe convective activity, and the controller's failure to provide adverse weather avoidance assistance as required by FAA directives, both of which led to the airplane's encounter with a severe thunderstorm and subsequent loss of control.`,
+    lessons:[
+      'En route weather briefings must be updated, not assumed. Pre-flight briefings for IFR cross-country flights age out — convective conditions can develop or intensify over a multi-hour leg. Request en route weather updates from FSS / Flight Watch when convection is in the forecast.',
+      'A Stormscope alone is not a tactical convective avoidance tool. It detects lightning, not precipitation or turbulence — and a Level 6 cell can produce severe turbulence and updrafts even between lightning discharges. For real-time tactical avoidance, onboard radar is the standard; without it, deviation around the entire region is the only safe approach.',
+      'ATC weather avoidance assistance is a backup, not a primary defense. FAA directives require controllers to advise IFR pilots of significant weather, but controllers are working many aircraft and may not see what an attentive pilot would see. Pilots must remain primary on weather decisions.',
+      'Experience and reputation do not protect against unrecognized convective hazards. Crossfield was one of the most experienced test pilots in U.S. aviation history. The accident chain was equipment limitation + en route information lapse + controller assistance gap — not skill.',
+      'On a multi-hour IFR cross-country in convective season, the discipline is hourly weather updates: METARs, SIGMETs/Convective SIGMETs, and PIREPs along the route. The cost is 5 minutes of radio work per hour. The benefit is the option to deviate before the cell becomes the only option.'
+    ],
+    discoveryQuestions: [
+      {
+        q: 'Crossfield received a pre-flight weather briefing but did not request updated en route briefings during the flight. Why is the en route update separately critical to a pre-flight briefing?',
+        opts: [
+          'Pre-flight briefings are issued in a different format and are inherently less accurate',
+          'Convective conditions develop on a 1-2 hour timescale; a pre-flight briefing several hours old can miss organized MCS development that began after departure. The en route update is the only way to integrate post-departure intelligence into a flight already in progress',
+          'Pre-flight briefings cover only departure-area conditions, not en route',
+          'Pilots are required to update en route to maintain IFR currency'
+        ],
+        response: 'Convective weather organizes on the 1-2 hour timescale that perfectly matches a multi-leg cross-country. A briefing taken at 0900 for an 1100 departure to a 1500 arrival cannot anticipate an MCS that begins organizing at 1200. The en route update is the discipline that closes that information gap. The cost is small (a radio call); the benefit is the option to deviate while options exist. Crossfield had options at 1200 that he no longer had at 1500.'
+      },
+      {
+        q: 'A Stormscope shows lightning activity but no contiguous "wall" of returns — gaps appear between strikes. What does this NOT tell you about the convective environment?',
+        opts: [
+          'Whether the lightning detection equipment is functioning correctly',
+          'Whether the gaps contain heavy precipitation, severe turbulence, or strong updrafts — Stormscope measures lightning, not precipitation or turbulence intensity',
+          'Whether lightning is occurring in the area at all',
+          'Whether your aircraft is in an IFR or VFR area'
+        ],
+        response: 'Stormscope/strikefinder is a one-trick instrument: it tells you where lightning is happening, not where weather is intense. A cell can produce heavy precipitation (Level 5-6 reflectivity) with relatively few cloud-to-ground discharges. A "gap" in lightning is not a safe corridor. For tactical avoidance you need precipitation/intensity data — onboard radar — or you need to deviate around the entire region rather than thread perceived gaps. Crossfield had only a Stormscope and treated the environment as navigable; the cell he entered had Level 6 reflectivity that the Stormscope could not show him.'
+      }
+    ],
+    quiz:[
+      {id:'qcs19_1',question:'A pilot on an IFR flight plan flying through a region with convective activity has access to: ATC, a Stormscope, and pre-flight weather briefing data. Which of these is LEAST suited to tactical (within-line) cell avoidance?',options:['ATC providing adverse weather avoidance vectors','The Stormscope showing real-time lightning','The pre-flight briefing — convective conditions can have evolved past briefing data within 1-2 hours of departure','All three are equally useful for tactical avoidance'],correct:2,explanation:'Pre-flight briefings age out fast in convective conditions. ATC vectors are a useful backup but ATC is working many aircraft and may not see what the pilot can see. Stormscope shows lightning but not precipitation or turbulence intensity. None of these is a complete substitute for real-time onboard radar — but the pre-flight briefing is the one most likely to be wrong by the time you need it. En route briefing updates close that gap.'},
+      {id:'qcs19_2',question:'A Mesoscale Convective System (MCS) is:',options:['An isolated thunderstorm cell that builds and dissipates within 30-60 minutes','An organized cluster of thunderstorms that can persist for many hours and propagate forward as a coherent system, often producing severe weather along an extended line','A weak frontal boundary with stratiform precipitation','A type of mountain wave turbulence'],correct:1,explanation:'An MCS is a coherent multi-cell or squall-line organization that can cover hundreds of miles and persist 6-12 hours, producing severe weather (heavy rain, hail, damaging winds, tornadoes) along its leading edge. It is fundamentally different from an isolated thunderstorm in scale and persistence — and it is what was active during the ATL06FA071 flight. MCSs are forecast by SPC outlooks and are visible in pre-flight briefings, but their position and intensity must be tracked en route because they propagate.'},
+      {id:'qcs19_3',question:'You are 2 hours into a 4-hour IFR cross-country. Pre-flight weather showed widely scattered convective activity en route; SIGMET activity has not been mentioned to you since departure. The disciplined action is:',options:['Continue the flight — no SIGMET means no significant weather','Request an en route weather update from FSS or Flight Watch every 60-90 minutes when convective conditions are in the forecast — actively pull the data, do not wait for it to be pushed','Climb above the freezing level to avoid icing','Reduce airspeed to extend the briefing\'s validity'],correct:1,explanation:'Updates do not arrive automatically. SIGMETs are not always relayed to every aircraft. ATC may not see what you would see. The pilot is the primary on weather decisions and must actively pull updated data, especially when convective conditions are in the forecast. The cost is minimal (a radio call). The benefit is preserving the option to deviate while options still exist.'}
+    ]
+  },
+  {
+    id:'cs20',
+    caseType: 'verified',
+    verified: true,
+    title:'The 156-Knot Departure',
+    subtitle:'Comair 3272 EMB-120 icing-induced upset during slow vector to KDTW',
+    category:'Structural Icing',
+    hazard:'Glaze Ice + Slow-Vector Airspeed Margin',
+    severity:'fatal',
+    faaRef:'Ch. 20',
+    icon:'🌨️',
+    color:'#0284C7',
+    aircraft:'Embraer EMB-120RT Brasilia (N265CA)',
+    pilot:'Captain and First Officer (transport-category, regional carrier)',
+    date:'January 9, 1997, descending and vectoring for approach to Runway 3R, Detroit Metropolitan Wayne County Airport (KDTW), near Monroe, Michigan',
+    ntsbAccidentNumber:'DCA97MA017',
+    ntsbSourceType:'final_report',
+    ntsbTitle:'In-Flight Icing Encounter and Uncontrolled Collision with Terrain — Comair Flight 3272, Embraer EMB-120RT, N265CA',
+    ntsbUrl:'https://www.ntsb.gov/investigations/Pages/DCA97MA017.aspx',
+    brief:`
+      <p>Comair Flight 3272, an Embraer EMB-120RT regional turboprop, was being vectored for an instrument approach to Runway 3R at Detroit Metro. The aircraft descended from 7,000 ft msl to 4,000 ft msl through a layer that contained icing conditions. ATC instructed the crew to slow to 150 knots for sequencing.</p>
+      <p>The aircraft carried 26 passengers and 3 crew. As airspeed decelerated through 155-156 knots in the flaps-up configuration, control was lost. There were no survivors.</p>
+    `,
+    weather:`
+      <div style="background:#0C1B33;border-radius:12px;padding:14px;margin:12px 0;font-family:var(--font-mono);font-size:11px;color:white">
+        <div style="color:#94A3B8;margin-bottom:8px;font-family:var(--font-display);font-size:10px;font-weight:700">ICING + SLOW-VECTOR ENVIRONMENT</div>
+        <div style="color:#38BDF8">Descent: 7,000 ft msl → 4,000 ft msl through icing layer</div>
+        <div style="color:#38BDF8">ATC vector airspeed: slow to 150 kt</div>
+        <div style="color:#F59E0B">Ice accumulation: thin, rough glaze/mixed coverage on leading-edge boots</div>
+        <div style="color:#EF4444">Possible ice ridge formation behind/above boot leading edge</div>
+        <div style="color:#EF4444">Upset began at 155-156 kt, flaps-up — within normal sequencing speed range</div>
+        <div style="color:#94A3B8">Operator did not implement manufacturer's April 1996 procedure: activate boots at first sign of ice</div>
+      </div>
+    `,
+    narrative:`
+      <p>During the descent through the icing layer, the aircraft accumulated a thin, rough glaze or mixed-ice coverage on the leading-edge deicing boot surfaces — possibly with ridge formation just above the protected zone. The accumulation was likely imperceptible to the pilots from the flight deck.</p>
+      <p>As the aircraft decelerated to comply with the ATC slow-vector instruction, its angle of attack increased and the icing-degraded wing approached aerodynamic stall margin earlier than the clean-wing curve would predict. At 155-156 knots in flaps-up, departure from controlled flight began. The autopilot disconnected. Recovery was not achieved before terrain impact.</p>
+      <p>The NTSB investigation revealed a chain of certification, operator, and manufacturer issues. The aircraft manufacturer had issued an April 1996 revision to the approved flight manual instructing crews to activate the leading-edge deicing boots at the first sign of ice formation — superseding the older practice of waiting for ice accretion to build before activating boots (the "ice bridging" theory had been progressively discredited). Comair had not incorporated the procedure, citing concern that the change would create unsafe operation.</p>
+      <p>The investigation drove substantive changes to icing certification standards, operator procedures, and minimum-airspeed-in-icing requirements across U.S. regional carriers.</p>
+    `,
+    probableCause:`The FAA's failure to establish adequate aircraft certification standards for flight in icing conditions, the FAA's failure to ensure that a Centro Tecnico Aeroespacial/FAA-approved procedure for the accident airplane's deice system operation was implemented by U.S.-based air carriers, and the FAA's failure to require the establishment of adequate minimum airspeeds for icing conditions, which led to the loss of control when the airplane accumulated a thin, rough, accretion of ice on its lifting surfaces.`,
+    lessons:[
+      'Even thin, rough ice on leading-edge surfaces fundamentally degrades the wing\'s lift curve — particularly at higher angles of attack. The icing-degraded wing stalls earlier than the clean-wing schedule predicts, and the difference may be invisible from the flight deck.',
+      'Slow-vector instructions in icing conditions are dangerous. Reducing airspeed increases angle of attack, moving the wing closer to the (now degraded) stall margin. In icing, ATC slow-vectors should be questioned: pilots can request a higher airspeed citing icing-conditions performance.',
+      '"Activate boots at first sign of ice" — the ice-bridging concern that justified delayed activation has been progressively discredited. Modern guidance is to activate pneumatic boots immediately upon ice accretion. Operators that retained the older delayed-activation practice took on a risk the certification basis did not support.',
+      'Pneumatic boot systems do not protect surfaces behind/above the boot leading edge. Glaze ice that runs back during descent through the icing layer can form ridges in the unprotected zone, and the boot system has no effect on those ridges. This is the same protected-zone limitation as cs12 (American Eagle 4184 / SLD) — different droplet regime, same physics.',
+      'For GA pilots: the lesson scales down. Even non-FIKI aircraft accumulating "minor" ice should add airspeed (to lower AOA), avoid abrupt configuration changes, and exit the icing environment immediately. Slow-vectoring an iced airplane is the failure mode in any aircraft category.'
+    ],
+    discoveryQuestions: [
+      {
+        q: 'The crew was instructed by ATC to slow to 150 kt for sequencing while descending through an icing layer. What was wrong with complying without question?',
+        opts: [
+          'The 150-kt instruction violated the EMB-120 minimum operating airspeed in any condition',
+          'In icing conditions, an icing-degraded wing stalls earlier than the clean-wing curve. Reducing airspeed (which raises AOA) closes the margin to the now-degraded stall — the "normal sequencing speed" can become an upset speed when the wing is iced',
+          'The ATC instruction violated separation requirements with following aircraft',
+          'The aircraft\'s deicing boots cannot operate below 160 kt'
+        ],
+        response: 'Slow-vectoring in icing is a category of trap. The clean-wing flight envelope assumes a clean wing; an iced wing has a different stall curve that can be invisible from the cockpit. Reducing airspeed raises angle of attack — and an angle of attack that would be safe with a clean wing can be at or beyond stall on an iced wing. The professional response in icing: request to maintain a higher airspeed for icing conditions, even if it adds vectoring complexity. ATC will accommodate. The 1996 EMB-120 manual revision specifically addressed this margin by requiring boot activation at first ice sign and increasing minimum icing airspeeds.'
+      },
+      {
+        q: 'The aircraft manufacturer issued an April 1996 procedure: activate leading-edge deicing boots at the first sign of ice. The operator did not adopt this procedure, retaining the older "wait for ice accretion to build before activating boots" practice. What was the basis for the older practice, and what was wrong with it?',
+        opts: [
+          'The older practice prevented mechanical fatigue of the boot mechanism — the manufacturer overruled it for liability reasons',
+          'The "ice bridging" concern (that early activation might create a non-shedding ice cap on the boots) had been progressively discredited by research. The modern guidance is to activate at first sign of ice — but operators that had trained the older practice did not all adopt the change',
+          'The older practice was specific to anti-ice fluid systems, not pneumatic boots',
+          'The older practice was approved only for cruise flight, not approach'
+        ],
+        response: 'The "ice bridging" theory held that activating boots before sufficient ice had accreted could create an ice cap that the boots could not shed — leaving more total ice on the wing than the delayed-activation approach. Research had progressively discredited this theory by the early 1990s, and manufacturers had begun updating procedures. The Comair 3272 investigation found that the operator had not incorporated the manufacturer\'s 1996 procedure update, citing concerns about deviating from established trained practice. The accident drove industry-wide adoption of "activate at first sign" as the standard.'
+      }
+    ],
+    quiz:[
+      {id:'qcs20_1',question:'In icing conditions, what is the primary risk of complying with an ATC slow-vector instruction without question?',options:['ATC vectors are not certified for use in icing conditions','Reducing airspeed in icing raises angle of attack, closing the margin to the icing-degraded stall — what is a safe sequencing speed on a clean wing can be a stall speed on an iced wing','Slow vectors increase the rate of ice accumulation on the deicing boots','ATC cannot see icing conditions and may vector you into more severe conditions'],correct:1,explanation:'The icing-degraded wing has an earlier stall margin than the clean-wing curve predicts. Reducing airspeed (lowering forward velocity, raising angle of attack to maintain altitude) moves the wing closer to that earlier stall point. The clean-wing safe-sequencing speed can be the iced-wing upset speed. The professional response in icing: request to maintain higher airspeed citing icing conditions; ATC will accommodate the request.'},
+      {id:'qcs20_2',question:'Modern guidance for activating pneumatic deicing boots is:',options:['Wait for substantial ice accretion before activating, to prevent ice bridging','Activate at the first sign of ice formation. The "ice bridging" concern that justified the older delayed-activation practice has been progressively discredited by research','Activate only after completing the descent through the icing layer','Activate only if the aircraft has accumulated 1/2 inch or more of leading-edge ice'],correct:1,explanation:'The "ice bridging" theory — that early activation could create a non-shedding ice cap — was progressively discredited through the 1980s and early 1990s. Manufacturer guidance shifted to "activate at first sign of ice" as the standard, and the Comair 3272 accident drove industry-wide adoption. Operators that retained the older practice took on a risk the certification basis did not support.'},
+      {id:'qcs20_3',question:'For pilots flying any aircraft (transport, regional, or GA) in icing conditions, the most generalizable lesson from Comair 3272 is:',options:['Always file IFR for any flight in icing conditions','Maintain higher airspeed than the clean-wing schedule prescribes, avoid abrupt configuration changes that raise AOA, and exit the icing environment immediately — slow-vectoring an iced wing is the failure mode in any category','Reduce airspeed below the icing certification threshold','Disable the autopilot in icing conditions'],correct:1,explanation:'The icing-airspeed-margin issue scales across categories. Even non-FIKI GA aircraft accumulating minor ice should: maintain extra airspeed margin to keep AOA low, avoid abrupt configuration changes (flap deployment, deceleration) that raise AOA quickly, and treat the icing environment as something to exit, not something to operate within. The Comair 3272 lesson is universal: do not slow-vector an iced wing.'}
+    ]
+  },
+  {
+    id:'cs21',
+    caseType: 'verified',
+    verified: true,
+    title:'Six and Two',
+    subtitle:'Cessna 177B Cardinal cruise carb ice → engine power loss → stall on forced landing',
+    category:'Engine Icing',
+    hazard:'Carburetor Icing at Cruise Power',
+    severity:'fatal',
+    faaRef:'Ch. 20',
+    icon:'🔴',
+    color:'#DC2626',
+    aircraft:'Cessna 177B Cardinal (1973)',
+    pilot:'Private pilot (78 yo) with flight instructor (25 yo) acting as PIC for the flight',
+    date:'November 11, 2020, ~1144 PST, near Whidbey Air Park (W10), Langley, Washington',
+    ntsbAccidentNumber:'WPR21FA049',
+    ntsbSourceType:'carol',
+    ntsbTitle:'Aviation Investigation Final Report — Cessna 177B Cardinal, Langley WA, 11 Nov 2020',
+    ntsbUrl:'https://data.ntsb.gov/carol-main-public/basic-search/aviation?searchTerm=WPR21FA049',
+    brief:`
+      <p>The aircraft departed at approximately 1110 PST and climbed to 6,500 ft MSL, where it cruised for about 16 minutes. The reporting station\'s temperature was 6°C with a dewpoint of 2°C — a temperature/dewpoint spread that, on the FAA carburetor-icing chart, falls within the "serious icing at cruise power" envelope.</p>
+      <p>The pilot was a 78-year-old private pilot. The right seat was occupied by a 25-year-old flight instructor who, per NTSB findings, was acting as PIC.</p>
+    `,
+    weather:`
+      <div style="background:#0C1B33;border-radius:12px;padding:14px;margin:12px 0;font-family:var(--font-mono);font-size:11px;color:white">
+        <div style="color:#94A3B8;margin-bottom:8px;font-family:var(--font-display);font-size:10px;font-weight:700">CARBURETOR ICING ENVIRONMENT</div>
+        <div style="color:#38BDF8">OAT: 6°C — well within the carb-ice probability band</div>
+        <div style="color:#38BDF8">Dewpoint: 2°C — T-Td spread of 4°C</div>
+        <div style="color:#EF4444">FAA carb-ice chart: 6°C/2°C falls in "serious icing at cruise power"</div>
+        <div style="color:#F59E0B">Cruise altitude: 6,500 ft MSL</div>
+        <div style="color:#94A3B8">Cruise duration before symptoms: ~16 minutes</div>
+        <div style="color:#94A3B8">Carburetor heat application during cruise: not used</div>
+      </div>
+    `,
+    narrative:`
+      <p>After roughly 16 minutes of cruise, groundspeed began to decrease. A descent followed. The flight instructor declared an engine-related emergency to ATC and the transponder code was changed to 7700.</p>
+      <p>The aircraft turned toward Whidbey Air Park, attempting an engine-out forced landing. During the approach, airspeed was not adequately maintained. The aircraft entered an aerodynamic stall, departed controlled flight, and impacted terrain in a stall/spin sequence near the airport.</p>
+      <p>Both occupants were fatally injured. Examination found no preimpact mechanical anomalies that would explain the engine power loss other than the carburetor-icing environment. The NTSB attributed the power loss to carb ice that built progressively during cruise without carb-heat application — and the fatal outcome to airspeed not being maintained during the forced-landing approach.</p>
+    `,
+    probableCause:`The flight instructor's failure to maintain airspeed, which resulted in an aerodynamic stall and subsequent loss of control while attempting to conduct an emergency landing. Contributing to the accident was a total loss of engine power as a result of carburetor icing.`,
+    lessons:[
+      'Carburetor icing is a temperature/humidity phenomenon, not a "cold day" phenomenon. The FAA carb-ice chart shows that 6°C OAT with a 2°C dewpoint produces serious icing at cruise power — well above freezing. Pilots who think of carb ice as a winter problem miss the larger envelope.',
+      'Cruise power is the most ice-prone power setting in many fixed-wing aircraft. Throttle is partially closed, intake-area pressure drops, latent heat absorbed during fuel evaporation cools the carburetor venturi below freezing — and ice forms even with OAT well above freezing.',
+      'The single intervention is carb-heat application. On any flight in T-Td conditions that put the carb-ice chart in the "icing at cruise power" zone, periodic full carb-heat application clears any accumulating ice. Some POHs recommend continuous partial heat in known icing-prone conditions.',
+      'Once power loss occurs, the pilot has two failure modes to manage: the engine emergency itself, and the energy-management discipline of the forced landing. WPR21FA049 shows both: power was lost (manageable) and airspeed was not maintained during the forced-landing approach (unrecoverable).',
+      'During an engine-out forced landing, airspeed discipline matters more than the touchdown point. Hitting the runway slow is an upset; missing the runway with airspeed and energy is survivable. "Fly the airplane" — speed, attitude, configuration — until ground contact. Configuration changes that raise AOA during the approach can cause the stall that the actual ground impact would not.'
+    ],
+    discoveryQuestions: [
+      {
+        q: 'The OAT was 6°C — well above freezing. Why was the aircraft at risk of carburetor icing in this seemingly warm environment?',
+        opts: [
+          'Carburetor ice can occur only at OAT below freezing — the 6°C reading must have been instrument error',
+          'Carb ice is a venturi-cooling phenomenon: throttle position partially closes the intake, fuel vaporization absorbs latent heat, and the carburetor venturi cools well below the OAT — to below freezing even when OAT is +20°C in some humid conditions. The FAA carb-ice chart maps this as "serious icing at cruise power" for many T-Td combinations including 6°C/2°C',
+          'Carb ice requires snow or freezing precipitation in the airmass',
+          'Carb ice occurs only during descent at low power'
+        ],
+        response: 'Carburetor ice is a venturi-and-evaporation-cooling phenomenon, not a function of OAT alone. The throttle position and fuel-vaporization cooling can drop the venturi temperature 30-40°C below the ambient — putting the carburetor below freezing even on a 20°C day in humid air. The FAA carb-ice probability chart explicitly shows the cruise-power envelope including warm-temperature combinations. 6°C/2°C is squarely in the "serious icing at cruise" zone. Pilots who assume "warm day = no carb ice" are reading the wrong variable.'
+      },
+      {
+        q: 'After power was lost and the pilots declared emergency, the actual fatal sequence was a stall/spin during the forced-landing approach — not the engine failure itself. What does this teach about the discipline of an engine-out forced landing?',
+        opts: [
+          'The pilots should not have declared emergency, since ATC cannot help with an engine failure',
+          'Two failure modes need management: the engine emergency and the energy-management of the forced-landing approach. Airspeed discipline during the approach matters more than hitting the touchdown point — a stall short of the runway is unrecoverable; a long touchdown with airspeed in hand is survivable',
+          'A forced landing should be executed at minimum airspeed to reduce ground impact energy',
+          'The carb-heat should have been applied during the forced landing'
+        ],
+        response: 'An engine-out forced landing is an energy-management problem. The pilot has finite altitude/airspeed to convert into a controlled glide to a survivable surface. The discipline is: maintain best-glide speed (the speed for maximum L/D), pick a target, and protect airspeed all the way to ground contact. Pulling for the runway when short converts speed into nose-up — and a stall at low altitude is unrecoverable. The cs21 sequence shows this: the engine failure itself was manageable; the airspeed discipline during the approach was not maintained, and that is what produced the fatal outcome.'
+      }
+    ],
+    quiz:[
+      {id:'qcs21_1',question:'The FAA carburetor-icing chart shows that OAT 6°C with dewpoint 2°C falls in what risk zone for cruise power?',options:['Light icing — minimal concern','Serious icing at cruise power — full carb-heat application recommended','No icing risk above 0°C','Risk only at descent power, not cruise'],correct:1,explanation:'The FAA carb-ice chart maps temperature/dewpoint combinations to risk zones. 6°C OAT with 2°C dewpoint (a T-Td spread of 4°C) falls in the "serious icing at cruise power" zone. Carb ice is a venturi-cooling phenomenon, not a function of OAT alone — the throttle position and fuel-vaporization cooling can put the carburetor below freezing even when ambient air is well above freezing. Pilots who assume "warm day = no carb ice" miss the larger envelope.'},
+      {id:'qcs21_2',question:'During a forced landing after engine failure, the discipline that most affects survival is:',options:['Hitting the touchdown point exactly','Maintaining best-glide airspeed throughout the approach. Configuration changes that raise AOA (abrupt pitch, premature flaps) can produce a stall at low altitude — and a stall short of the runway is unrecoverable, while a long touchdown with airspeed in hand is survivable','Reducing airspeed below stall to minimize ground impact','Calling tower for emergency landing clearance'],correct:1,explanation:'An engine-out forced landing is an energy-management problem. Best-glide speed maximizes range; airspeed protects the wing\'s lift authority all the way to ground contact. Pulling for the runway when short converts speed into nose-up attitude — and a stall at low altitude with no power is unrecoverable. The professional discipline: protect airspeed, pick a target you can reach with margin, accept a long touchdown over a short stall.'},
+      {id:'qcs21_3',question:'Carburetor ice forms most readily at which power setting?',options:['Full takeoff power — high heat output protects against icing','Cruise power — partial throttle position, venturi cooling, and fuel evaporation produce the temperature drop most likely to ice','Idle power on the ground','Climb power above 8,000 ft'],correct:1,explanation:'Cruise power is the most ice-prone setting in many fixed-wing aircraft because: (1) the throttle is partially closed (more pressure drop and venturi cooling), (2) fuel vaporization absorbs latent heat, (3) the OAT/dewpoint combination at cruise altitudes (often 5,000-8,000 ft msl) is frequently in the icing-prone band. The FAA carb-ice chart shows the cruise-power "serious icing" zone covering a wide range of T/Td combinations. Periodic full carb-heat is the single intervention.'}
+    ]
+  },
+  {
+    id:'cs22',
+    caseType: 'verified',
+    verified: true,
+    title:'The Wings Were Cold',
+    subtitle:'Air Florida 90 takeoff with snow/ice on wings, engine anti-ice off',
+    category:'Ground Icing / Contamination',
+    hazard:'Frost / Snow / Ice on Takeoff',
+    severity:'fatal',
+    faaRef:'Ch. 19, 20',
+    icon:'❄️',
+    color:'#0284C7',
+    aircraft:'Boeing 737-222 (N62AF)',
+    pilot:'Captain and First Officer — limited experience in jet transport winter operations',
+    date:'January 13, 1982, after extended ground delay in active snow, Washington National Airport (DCA)',
+    ntsbAccidentNumber:'DCA82AA011',
+    ntsbSourceType:'final_report',
+    ntsbTitle:'Air Florida, Inc., Boeing 737-222, N62AF, Collision with 14th Street Bridge near Washington National Airport, Washington D.C., January 13, 1982',
+    ntsbUrl:'https://www.ntsb.gov/investigations/Pages/DCA82AA011.aspx',
+    brief:`
+      <p>Air Florida Flight 90 was scheduled to depart Washington National Airport (DCA) on a snowy afternoon. The aircraft was de-iced. After de-icing, the flight experienced an extended ground delay before receiving takeoff clearance — during which precipitation continued to fall on the aircraft. The crew did not return for re-icing.</p>
+      <p>The crew did not activate engine anti-ice during ground operation or takeoff. During the takeoff roll, the captain\'s attention was called to anomalous engine instrument readings: the engine pressure ratio (EPR) probes had iced over and were biasing the cockpit indications.</p>
+    `,
+    weather:`
+      <div style="background:#0C1B33;border-radius:12px;padding:14px;margin:12px 0;font-family:var(--font-mono);font-size:11px;color:white">
+        <div style="color:#94A3B8;margin-bottom:8px;font-family:var(--font-display);font-size:10px;font-weight:700">GROUND OPERATION & TAKEOFF</div>
+        <div style="color:#38BDF8">Active snow during de-icing and after</div>
+        <div style="color:#F59E0B">Extended ground delay between de-icing and takeoff clearance</div>
+        <div style="color:#EF4444">Snow/ice accumulation on wing leading edges between de-ice and takeoff</div>
+        <div style="color:#EF4444">Engine anti-ice: NOT activated during ground operation or takeoff</div>
+        <div style="color:#EF4444">EPR indications biased high (frozen probes) — apparent thrust higher than actual</div>
+        <div style="color:#94A3B8">Crew experience: limited in jet transport winter operations</div>
+      </div>
+    `,
+    narrative:`
+      <p>The 737 began the takeoff roll with snow/ice contamination on its wing leading edges and with engine anti-ice off. The frozen engine pressure-ratio (EPR) probes caused the cockpit instruments to display a higher EPR than the engines were actually producing — so the crew set takeoff thrust to an indicated value that was lower than they intended in actual thrust terms.</p>
+      <p>During the takeoff roll, the first officer noted the anomalous instrument readings. The captain did not reject the takeoff. The aircraft rotated, but with contaminated wings the 737 exhibited the known pitch-up tendency that occurs when the leading edge is even minimally fouled. The aircraft was unable to achieve climb performance.</p>
+      <p>Flight 90 struck the 14th Street Bridge crossing the Potomac River, hitting seven occupied vehicles and destroying 97 feet of guard rail. The aircraft then fell into the partially frozen river. Of the 79 people aboard, 74 died; 5 aboard survived. Four motorists on the bridge were also killed. Total fatalities: 78.</p>
+      <p>The accident is one of the most-studied jet transport winter operations cases. It drove changes to industry de-icing practice (clean aircraft concept, hold-over-time tables, requirement to return for re-icing if hold-over time is exceeded), engine anti-ice training, and crew resource management around the captain\'s authority to reject a takeoff when anomalous instruments are noted.</p>
+    `,
+    probableCause:`The flightcrew's failure to use engine anti-ice during ground operation and takeoff, their decision to take off with snow/ice on the airfoil surfaces of the aircraft, and the captain's failure to reject the takeoff during the early stage when his attention was called to anomalous engine instrument readings. Contributing to the accident were the prolonged ground delay between de-icing and the receipt of ATC takeoff clearance during which the airplane was exposed to continual precipitation, the known inherent pitch-up characteristics of the B-737 aircraft when the leading edge is contaminated with even small amounts of snow or ice, and the limited experience of the flightcrew in jet transport winter operations.`,
+    lessons:[
+      'The "clean aircraft concept" is the operational law of winter departures: an aircraft must be free of frost, snow, slush, and ice on the lift-producing surfaces at the moment of takeoff. Hold-over-time tables specify how long after de-icing the aircraft remains "clean" under given precipitation conditions; if the time is exceeded, return for re-icing.',
+      'Even minimal contamination on a 737 leading edge produces the characteristic pitch-up tendency — small amounts of snow/ice are not "minor". The aerodynamic effect is non-linear and well-documented.',
+      'Frozen engine sensors can bias cockpit indications. EPR over-reading on a contaminated probe is a known failure mode in cold/wet conditions. Engine anti-ice during ground operations protects both the engine and the integrity of the instruments the crew is trusting.',
+      'Captain authority to reject takeoff before V1 is unconditional. When the first officer or any crew member calls anomalous instruments during the takeoff roll, the disciplined response is reject — analyze on the runway, not in the air. The "we can probably make it" pressure that overrides reject decisions is one of the most-studied human factors in transport aviation.',
+      'For GA pilots: the same physics applies at smaller scale. Frost on a low-wing piston aircraft produces the same lift-curve degradation. The clean-aircraft discipline is universal: do not depart with contamination on the lifting surfaces, regardless of how thin the layer appears.'
+    ],
+    discoveryQuestions: [
+      {
+        q: 'The crew did not activate engine anti-ice during ground operation. Beyond engine protection, what was the operational consequence of this decision?',
+        opts: [
+          'Engine anti-ice is required only above the freezing level — not on the ground',
+          'Without engine anti-ice, the EPR probes (which sense engine pressure ratio for thrust setting) iced over and biased the cockpit indications. The crew set takeoff thrust to an indicated EPR value that the actual engine was not producing — they took off with less thrust than they thought',
+          'Engine anti-ice would have prevented carburetor ice in the 737 engines',
+          'Engine anti-ice is irrelevant to takeoff performance'
+        ],
+        response: 'EPR probes are pressure sensors at specific points in the engine. When ice forms on or in these probes, the pressure they sense diverges from the actual engine pressure ratio. The cockpit display reads what the probe reports, not what the engine is producing. In Flight 90\'s case, the frozen probes biased EPR high — so the indicated takeoff thrust was higher than the actual thrust being delivered. The aircraft rolled with less thrust than the crew believed they had set. Engine anti-ice prevents this failure mode by keeping probes ice-free.'
+      },
+      {
+        q: 'During the takeoff roll, the first officer noted the anomalous engine instrument readings. The captain did not reject the takeoff. What was the disciplined alternative response?',
+        opts: [
+          'Continue the takeoff and analyze the readings after rotation',
+          'Reject the takeoff before V1. Anomalous instrument readings during the takeoff roll are unconditional reject criteria — return to taxi and analyze on the ground, not in the air',
+          'Increase thrust setting to compensate for the anomalous readings',
+          'Transfer flying duties to the first officer for the rotation'
+        ],
+        response: 'The reject-before-V1 discipline is one of the most-studied items in transport aviation. Before V1, the crew has the option to stop on the runway. After V1, they are committed to fly. Anomalous instruments during the takeoff roll are exactly the kind of signal that the reject-before-V1 framework is designed for — the cost of a rejected takeoff is delay; the cost of continuing into an unknown failure is potentially catastrophic. Captain authority to call reject is unconditional. Flight 90 is a paradigm case for the human-factors literature on takeoff-decision making.'
+      }
+    ],
+    quiz:[
+      {id:'qcs22_1',question:'The "clean aircraft concept" requires:',options:['That the aircraft be visually clean of bugs and dirt before flight','That the aircraft be free of frost, snow, slush, and ice on lift-producing surfaces at the moment of takeoff. Hold-over-time tables specify how long de-icing remains effective under given precipitation conditions; if exceeded, return for re-icing','That the aircraft be in clean configuration (gear up, flaps retracted) at takeoff','That all anti-ice systems be activated regardless of conditions'],correct:1,explanation:'The clean aircraft concept is the operational law of winter departures. Hold-over-time tables (HOT tables) specify, for a given de-ice fluid type and a given precipitation type/intensity, how long the aircraft remains "clean" before the de-ice protection breaks down. If the time is exceeded, the aircraft must return for re-icing before takeoff. Air Florida 90 was de-iced, exceeded its hold-over time during the extended ATC delay, and did not return for re-icing.'},
+      {id:'qcs22_2',question:'The Boeing 737\'s leading-edge contamination behavior is characterized by:',options:['Linear degradation: small amounts of contamination cause small performance loss','A pitch-up tendency at rotation that occurs even with minimal contamination — the effect is non-linear and well-documented. Small amounts of snow/ice are NOT "minor" on a 737 leading edge','Loss of stall warning system function','Increased fuel burn but no performance degradation'],correct:1,explanation:'The 737 (and similar transport-category aircraft) exhibit the known pitch-up tendency when the leading edge is contaminated with even small amounts of snow/ice. The aerodynamic effect is non-linear: a 1mm layer of ice does not produce 1% performance loss — it can produce a substantially higher AOA at rotation than the clean wing would, with potential for loss-of-control as the wing operates outside its certificated envelope.'},
+      {id:'qcs22_3',question:'When a crew member calls out anomalous engine instrument readings during the takeoff roll before V1, the disciplined response is:',options:['Continue takeoff and analyze the readings after climbout — instrument anomalies are not reject criteria','Reject the takeoff. Anomalous instruments before V1 are exactly the failure mode the reject-decision framework was designed for. Stop on the runway, return to taxi, analyze on the ground','Increase thrust to compensate for any potential thrust deficit','Transfer aircraft control to the other crew member to continue the takeoff'],correct:1,explanation:'The reject-before-V1 discipline is unconditional for anomalous instrument readings. Before V1, the cost of a rejected takeoff is delay and possibly tire damage; the cost of continuing into an unrecognized failure is potentially catastrophic. Captain authority to reject is absolute. Flight 90 is the paradigm case in human-factors literature on takeoff-decision-making — the captain\'s failure to reject when anomalous EPR was called out is named in the NTSB probable cause statement.'}
+    ]
+  },
+  {
+    id:'cs23',
+    caseType: 'verified',
+    verified: true,
+    title:'The Wave Won',
+    subtitle:'Aero Commander 112 mountain wave downdrafts exceed aircraft climb performance, Mt Hood',
+    category:'Mountain Wave / Rotor',
+    hazard:'Mountain Wave Downdraft Exceeding Aircraft Climb Capability',
+    severity:'fatal',
+    faaRef:'Ch. 22',
+    icon:'⛰️',
+    color:'#7C3AED',
+    aircraft:'Rockwell International (Aero Commander) 112 (N1332J)',
+    pilot:'Single occupant pilot — toxicology positive for multiple sedating/impairing drugs (NTSB-cited contributing factor)',
+    date:'January 25, 2019, ~1459 PST, near the summit of Mt Hood, Oregon',
+    ntsbAccidentNumber:'WPR19FA077',
+    ntsbSourceType:'carol',
+    ntsbTitle:'Aviation Investigation Final Report — Rockwell International 112, N1332J, near Mt Hood OR, 25 January 2019',
+    ntsbUrl:'https://data.ntsb.gov/carol-main-public/basic-search/aviation?searchTerm=WPR19FA077',
+    brief:`
+      <p>The pilot — flying solo in an Aero Commander 112 — orbited the summit of Mt Hood, Oregon on a winter afternoon with strong winds aloft. Atmospheric reanalysis later showed moderate-to-severe mountain wave activity through the altitude band the aircraft was operating in.</p>
+      <p>The pilot did not request a pre-flight weather briefing. NTSB toxicology found multiple sedating and impairing drugs in the pilot\'s system, which the Board cited as a contributing factor.</p>
+    `,
+    weather:`
+      <div style="background:#0C1B33;border-radius:12px;padding:14px;margin:12px 0;font-family:var(--font-mono);font-size:11px;color:white">
+        <div style="color:#94A3B8;margin-bottom:8px;font-family:var(--font-display);font-size:10px;font-weight:700">MOUNTAIN WAVE ENVIRONMENT</div>
+        <div style="color:#38BDF8">Atmospheric reanalysis: moderate-to-severe mountain wave activity</div>
+        <div style="color:#F59E0B">5,500-7,000 ft band: vertical motion as high as ±2,037 fpm</div>
+        <div style="color:#F59E0B">14,000 ft msl: vertical motion as high as ±1,315 fpm</div>
+        <div style="color:#EF4444">First (higher) orbit: encountered updrafts 100-300 fpm</div>
+        <div style="color:#EF4444">Second (closer/lower) orbit: downdrafts >2,000 fpm</div>
+        <div style="color:#94A3B8">Aircraft climb capability at orbit altitude: ~200 fpm — exceeded by an order of magnitude</div>
+        <div style="color:#94A3B8">No record of pre-flight weather briefing requested</div>
+      </div>
+    `,
+    narrative:`
+      <p>The pilot orbited the summit of Mt Hood twice. During the first, higher orbit the aircraft encountered modest updrafts (100-300 fpm) — consistent with the lifting (windward) side of a mountain wave. The pilot then descended to a closer, lower orbit around the summit.</p>
+      <p>On the second orbit, the aircraft entered the descending side of the wave and encountered downdrafts greater than 2,000 fpm. The aircraft\'s ~200-fpm climb capability at that altitude was insufficient by an order of magnitude to overcome the downdraft. The aircraft impacted terrain near the summit.</p>
+      <p>The NTSB cited mountain wave activity exceeding the aircraft\'s performance capabilities as the probable cause. Contributing was the pilot\'s degraded decision-making — both from the toxicology findings and from the operational decisions (no weather briefing, low orbit close to peak, transition from updraft side to downdraft side at low altitude over rising terrain).</p>
+      <p>The case illustrates two convergent failure modes: a structural environmental hazard (mountain wave downdraft) that is well-forecast given winds-aloft data, and a decision chain that placed the aircraft in the wave at the worst altitude band with no planning awareness of the threat.</p>
+    `,
+    probableCause:`Mountain wave activity that exceeded the performance capabilities of the airplane. Contributing to the accident was the pilot's degraded decision making and performance due to his use of multiple sedating and impairing drugs.`,
+    lessons:[
+      'A mountain wave downdraft can exceed any GA aircraft\'s climb capability by an order of magnitude. >2,000 fpm downdrafts in a wave with a 200-fpm aircraft climb rate is not a maneuvering problem — it is a physics-of-the-air problem the aircraft cannot resolve. The only defense is not being there.',
+      'Mountain waves are forecastable. Strong winds aloft (typically >25-30 kt) flowing perpendicular to a ridge produce wave activity on the lee side. Pre-flight weather briefings include winds-aloft data; the wave threat is visible in this data if the pilot looks for it.',
+      'The orbit-the-summit pattern is the most dangerous mountain-flying pattern. It puts the aircraft into both the lifting (windward) and descending (leeward) sides of the wave repeatedly, and the descending side becomes terminal once the downdraft exceeds climb capability and the aircraft cannot escape laterally before terrain contact.',
+      'If you must transit mountainous terrain in known wave conditions: cross the ridge at a 45° angle (not perpendicular), maintain altitude well above ridge height (typically 2,000+ ft above), avoid the lee side of any peak, and consider routing to a non-mountainous alternative when winds aloft suggest strong wave activity.',
+      'Pilot impairment compounds environmental risk. Toxicology-positive findings indicate decision-making was already degraded before environmental hazards were encountered. The orbit-the-summit decision and the closer-second-orbit decision were the kind of decisions that an unimpaired pilot might not have made.'
+    ],
+    discoveryQuestions: [
+      {
+        q: 'During the first orbit the aircraft encountered modest updrafts (100-300 fpm). On the second orbit it encountered downdrafts >2,000 fpm. What does this asymmetry tell you about mountain wave structure?',
+        opts: [
+          'Mountain waves only have updraft sides, not downdraft sides — the second orbit must have encountered a different phenomenon',
+          'A mountain wave has alternating updraft (windward / lifting) and downdraft (leeward / descending) sides. Updraft magnitudes can be modest while downdraft magnitudes can be extreme — particularly close to terrain on the lee side. Crossing from updraft to downdraft side at low altitude over rising terrain is the trap',
+          'The downdraft was caused by aircraft icing, not mountain wave',
+          'The downdraft was caused by the engine producing less power than expected'
+        ],
+        response: 'Mountain waves are spatial structures: the air rising on the windward side has to come down on the lee side, and the descending side often has the strongest vertical motion close to terrain. The asymmetry in encountered values is a feature, not an instrument anomaly. The pilot\'s second, lower orbit moved from the manageable updraft side to the unmanageable downdraft side — at an altitude where the terrain below provided no escape margin. Once the aircraft is in a descending wave column with terrain rising into it, options collapse.'
+      },
+      {
+        q: 'The pilot did not request a pre-flight weather briefing. What information from a standard briefing would have flagged the mountain wave threat for this flight?',
+        opts: [
+          'A SIGMET specifically titled "mountain wave"',
+          'Winds aloft data — when winds aloft at the ridge\'s altitude are strong (typically >25-30 kt) and perpendicular to the ridge, mountain wave activity is the predictable result. The briefing\'s winds-aloft section is the primary forecast input for the wave threat',
+          'METARs from the destination airport',
+          'A Convective SIGMET for the area'
+        ],
+        response: 'Mountain waves are produced by the dynamic interaction of wind with terrain. The forecast inputs are: winds aloft (speed and direction), atmospheric stability, and ridge orientation. A briefer or self-briefing pilot examining winds aloft at the relevant altitude band can predict wave activity from the wind data alone — well before any specific SIGMET is issued. Pilots flying mountainous terrain in winter (when high-altitude jet-stream winds frequently produce strong cross-ridge flow) should treat the winds-aloft section as primary, not supplementary.'
+      }
+    ],
+    quiz:[
+      {id:'qcs23_1',question:'A mountain wave with downdrafts >2,000 fpm encountered by an aircraft with 200-fpm climb capability is:',options:['A maneuvering challenge that can be resolved with proper technique','A physics problem the aircraft cannot resolve — climb authority is exceeded by an order of magnitude. The only defense is avoidance, not recovery','A sign that the engine is underperforming','A condition that a steeper turn can escape'],correct:1,explanation:'When the downdraft exceeds the aircraft\'s climb capability by an order of magnitude, the aircraft cannot maintain altitude regardless of pilot input. Pulling for altitude raises AOA toward stall while the aircraft continues to descend. Lateral escape requires time and distance the descending wave column does not provide if terrain is rising below. The only defense is avoiding the wave altogether — a planning-and-routing decision, not a maneuvering-skills decision.'},
+      {id:'qcs23_2',question:'The most predictable forecast input for mountain wave activity in a pre-flight briefing is:',options:['SIGMET text specifically calling out "mountain wave"','Winds aloft data — strong winds (typically >25-30 kt) perpendicular to a ridge at the ridge\'s altitude predict wave activity','Cloud-cover percentage in the destination METAR','TAF wind forecasts at the destination airport'],correct:1,explanation:'Mountain waves are produced by wind flowing across terrain. The forecast inputs are wind speed/direction at altitude and ridge orientation. Pilots examining winds-aloft data can predict wave activity from the wind data directly — well before specific SIGMETs are issued. In winter, when jet-stream-level winds frequently produce strong cross-ridge flow, the winds-aloft section becomes primary forecast information for any mountain transit.'},
+      {id:'qcs23_3',question:'When transiting mountainous terrain in known wave conditions, the appropriate technique is:',options:['Cross the ridge perpendicular at minimum altitude to clear the highest point','Cross the ridge at a 45° angle (allowing easier escape if a downdraft is encountered), maintain altitude well above ridge height (2,000+ ft above), avoid the lee side of any peak, and consider an alternate route in strong wave conditions','Fly directly over the summit at maximum altitude','Reduce airspeed to minimum maneuvering speed during the transit'],correct:1,explanation:'Crossing at 45° preserves the option to escape laterally without committing to a perpendicular reversal. Maintaining altitude well above ridge height puts the aircraft above the most intense lee-side wave activity. Avoiding the lee side of peaks means staying on the windward (updraft) side until past the obstacle. In strong wave conditions, an alternate non-mountainous route is the conservative answer — the cost is time, the alternative is the WPR19FA077 outcome.'}
+    ]
   }
 ];
