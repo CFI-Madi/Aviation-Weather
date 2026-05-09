@@ -5,6 +5,7 @@
 const CASE_STUDIES = [
   {
     id:'cs1',
+    caseType: 'verified',
     verified: true,
     title:'Into the Haze',
     subtitle:'Night VFR, spatial disorientation over water',
@@ -77,6 +78,7 @@ const CASE_STUDIES = [
   },
   {
     id:'cs2',
+    caseType: 'simulated',
     verified: false,
     title:'The Valley Closes In',
     subtitle:'Scud running into rising terrain, mountain valleys',
@@ -144,6 +146,7 @@ const CASE_STUDIES = [
   },
   {
     id:'cs3',
+    caseType: 'simulated',
     verified: false,
     title:'The Shortcut That Wasn\'t',
     subtitle:'Convective SIGMET active, pilot attempted shortcut through storm',
@@ -212,6 +215,7 @@ const CASE_STUDIES = [
   },
   {
     id:'cs4',
+    caseType: 'verified',
     verified: true,
     title:'Wind Shear on Final',
     subtitle:'Microburst encounter during approach in convective weather',
@@ -284,6 +288,7 @@ const CASE_STUDIES = [
   },
   {
     id:'cs5',
+    caseType: 'simulated',
     verified: false,
     title:'The AIRMET They Ignored',
     subtitle:'Non-ice-certified GA aircraft into moderate icing, AIRMET Zulu active',
@@ -352,6 +357,7 @@ const CASE_STUDIES = [
   },
   {
     id:'cs6',
+    caseType: 'simulated',
     verified: false,
     title:'Silent Engine at 3,000 Feet',
     subtitle:'Carburetor ice during descent, power loss over populated area',
@@ -420,6 +426,7 @@ const CASE_STUDIES = [
   },
   {
     id:'cs7',
+    caseType: 'simulated',
     verified: false,
     title:'Density Altitude Death Trap',
     subtitle:'Hot day, high elevation, obstacle-laden departure, overloaded aircraft',
@@ -490,6 +497,7 @@ const CASE_STUDIES = [
   },
   {
     id:'cs8',
+    caseType: 'simulated',
     verified: false,
     title:'Swallowed by the Rotor',
     subtitle:'Mountain wave turbulence, unexpected downdraft over ridge',
@@ -559,6 +567,7 @@ const CASE_STUDIES = [
   },
   {
     id:'cs9',
+    caseType: 'simulated',
     verified: false,
     title:'The Weather Deviation That Ran Out of Fuel',
     subtitle:'En route weather deviation, new routing, fuel not recalculated',
@@ -628,6 +637,7 @@ const CASE_STUDIES = [
   },
   {
     id:'cs10',
+    caseType: 'simulated',
     verified: false,
     title:'Frost on the Wings',
     subtitle:'Frost not removed before takeoff, stall during initial climb',
@@ -696,6 +706,7 @@ const CASE_STUDIES = [
   },
   {
     id:'cs11',
+    caseType: 'simulated',
     verified: false,
     title:'IMC in Two Minutes',
     subtitle:'VFR pilot enters clouds, graveyard spiral, impact within 90 seconds',
@@ -762,6 +773,7 @@ const CASE_STUDIES = [
   },
   {
     id:'cs12',
+    caseType: 'verified',
     verified: true,
     title:'The Ice Boots Weren\'t Enough',
     subtitle:'SLD icing overwhelms de-icing system, stall on approach',
@@ -834,6 +846,7 @@ const CASE_STUDIES = [
   },
   {
     id:'cs13',
+    caseType: 'simulated',
     verified: false,
     title:'The Schedule Killed Him',
     subtitle:'Progressive go/no-go failures, "get-there-itis," known deteriorating conditions',
@@ -903,6 +916,7 @@ const CASE_STUDIES = [
   },
   {
     id:'cs14',
+    caseType: 'simulated',
     verified: false,
     title:'The Night the Radar Lied',
     subtitle:'IFR night flight, no airborne radar, embedded CB penetration',
@@ -971,6 +985,7 @@ const CASE_STUDIES = [
   },
   {
     id:'cs15',
+    caseType: 'simulated',
     verified: false,
     title:'Trapped on Top',
     subtitle:'VFR departure on top, destination socks in, no instrument rating',
