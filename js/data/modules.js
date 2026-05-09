@@ -1943,7 +1943,16 @@ const MODULES = [
       {
         id:'s9_1',title:'What Is Fog?',
         content:`
-          <p>Fog is a cloud with its base at the Earth's surface, reducing horizontal visibility to <span class="data-tag">less than 5/8 SM (1 km)</span>. When visibility is 5/8 SM or less, it is reported as FG in a METAR; between 5/8 and 6 SM, it is reported as BR (mist). HZ (haze) is reported when reduced visibility is from suspended dry particles rather than water droplets.</p>
+          <p>Fog is a cloud with its base at the Earth's surface, reducing horizontal visibility to <span class="data-tag">less than 5/8 SM (1 km)</span>. The codes you see in METARs and TAFs follow these FAA-H-8083-28B §3.4.2.6 rules:</p>
+          <div style="background:#F8FAFC;border-radius:14px;padding:14px 16px;margin:10px 0;font-size:13px;color:#334155;line-height:1.7">
+            <strong style="font-family:var(--font-display);color:var(--navy)">In a METAR/SPECI</strong><br>
+            • Visibility &lt; 5/8 SM → <span class="data-tag">FG</span> (FZFG if T &lt; 0 °C)<br>
+            • Visibility 5/8 SM to less than 7 SM → <span class="data-tag">BR</span> if T−Td ≤ ~20 °C (~40 °F); <span class="data-tag">HZ</span> otherwise<br>
+            • Visibility ≥ 7 SM → no obscuration code reported
+          </div>
+          <div style="background:#FEF3C7;border-left:4px solid #F59E0B;border-radius:0 12px 12px 0;padding:12px 14px;margin:10px 0;font-size:13px;color:#92400E;line-height:1.65">
+            <strong>In a TAF</strong>, BR is included only when forecast visibility is 5/8 to 6 SM. This is narrower than what you'll actually see reported in METARs — the same conditions that show up as BR in a METAR up to less than 7 SM are only forecast in a TAF up to 6 SM. Don't be surprised when a METAR reports BR at 6.5 SM even though the active TAF wouldn't have included BR there.
+          </div>
           <div class="fact-box">
             <span style="font-size:28px">💧</span>
             <div><strong>The fog trigger:</strong> Fog forms when temperature and dewpoint converge — either by <em>cooling the air to its dewpoint</em> (radiation, advection, upslope fog) OR by <em>adding moisture to raise the dewpoint</em> (frontal fog, steam fog). Fog rarely forms when the temperature-dewpoint spread exceeds <span class="data-tag">2°C (4°F)</span>.</div>
@@ -1977,7 +1986,7 @@ const MODULES = [
           <p>Beyond fog, several other phenomena can restrict visibility to IFR levels:</p>
           <div style="display:grid;gap:10px;margin:16px 0">
             ${[
-              ['Mist (BR)','Visibility 5/8 – 6 SM. Temperature at or very near dewpoint. Precursor to fog — watch the T/Td spread closely.'],
+              ['Mist (BR)','In METARs: visibility 5/8 SM to less than 7 SM with a small T-Td spread (≤ ~20 °C). In TAFs: included only at 5/8 to 6 SM. Precursor to fog — watch the spread closely.'],
               ['Haze (HZ)','Fine particles (smoke, dust, salt) suspended in the air. No temperature-dewpoint requirement. Visibility decreases. Not reported as fog but can reach IFR levels. Obscures distant terrain.'],
               ['Blowing Snow (BLSN)','Wind drives snow horizontally. Can reduce visibility to near zero in minutes. Common in Plains states with strong cP outbreaks. Blowing snow can fill instrument bores and pitot tubes.'],
               ['Dust/Sandstorm (DS/SS)','Strong winds lift dust/sand. Common in desert SW. Can arrive as a wall (haboob) with almost no warning. Severe abrasive damage to airframe and engine if flown through.'],
@@ -2092,7 +2101,7 @@ const MODULES = [
         question:'Fog is officially reported in a METAR when horizontal visibility is:',
         options:['Less than 1 SM','Less than 5/8 SM (1 km)','Less than 3 SM','Less than 1/4 SM only'],
         correct:1,xp:15,
-        explanation:'FG (fog) is reported in a METAR when horizontal visibility is less than 5/8 SM (approximately 1 km). Between 5/8 SM and 6 SM with near-dewpoint temperature, BR (mist) is reported. HZ (haze) is used when the obstruction is aerosols without temperature-dewpoint convergence.',
+        explanation:'FG (fog) is reported in a METAR when horizontal visibility is less than 5/8 SM (~1 km). At visibilities from 5/8 SM up to less than 7 SM, the report uses BR (mist) when T-Td is small (≤ ~20 °C / 40 °F) and HZ (haze) when it is larger. The narrower 5/8–6 SM range you may have seen is the TAF inclusion rule, not the METAR reporting rule. (FAA-H-8083-28B §3.4.2.6, Table 3-9)',
         faaRef:'Ch. 18',concept:'fog_types'
       },
       {
