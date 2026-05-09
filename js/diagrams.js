@@ -1111,7 +1111,7 @@ const Diagrams = {
       {code:'SKC',color:'#1D4ED8',bg:'#EFF6FF',label:'Sky',detail:'Sky clear — no clouds. NSW = no significant weather.'},
       {code:'FM061900',color:'#7C3AED',bg:'#F5F3FF',label:'FROM Group',detail:'FROM day 06 at 1900Z: ALL conditions change abruptly to those that follow. Complete replacement of previous forecast.'},
       {code:'TEMPO 0621/0702',color:'#EC4899',bg:'#FDF2F8',label:'TEMPO',detail:'Temporary fluctuations between 2100Z day 06 and 0200Z day 07. Each occurrence <1 hr. Does not replace base forecast.'},
-      {code:'PROB30',color:'#8B5CF6',bg:'#F5F3FF',label:'Probability',detail:'30% probability of the following conditions. Less likely than not, but significant enough to plan for.'},
+      {code:'PROB30',color:'#8B5CF6',bg:'#F5F3FF',label:'Probability',detail:'30% chance of a thunderstorm or precipitation event (and its associated wind/visibility/sky conditions). Less likely than not, but significant enough to plan for. PROB30 is the only PROB group used by NWS in U.S. domestic TAFs.'},
     ];
     return `<div style="background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08);margin:20px 0">
       <div class="diagram-header"><span style="color:white;font-family:var(--font-display);font-weight:700;font-size:14px">📅 TAF Element Reference — Tap Each Group</span></div>
@@ -1136,7 +1136,7 @@ const Diagrams = {
       {code:'SKC',color:'#1D4ED8',bg:'#EFF6FF',label:'Sky',detail:'Sky clear — no clouds. NSW = No Significant Weather clears previous wx group.'},
       {code:'FM061900',color:'#7C3AED',bg:'#F5F3FF',label:'FROM Group',detail:'FROM day 06 at 1900Z: ALL conditions change abruptly. Complete replacement — wind, vis, wx, sky all change to the values that follow FM.'},
       {code:'TEMPO 0621/0702',color:'#EC4899',bg:'#FDF2F8',label:'TEMPO',detail:'Temporary fluctuations between 2100Z day 06 and 0200Z day 07. Each occurrence <1 hr total. Does NOT replace base forecast — base conditions continue between occurrences.'},
-      {code:'PROB30',color:'#8B5CF6',bg:'#F5F3FF',label:'Probability',detail:'30% probability of conditions in the following group. PROB30 = less likely than not. PROB40 = less common. Neither can be combined with TEMPO.'},
+      {code:'PROB30',color:'#8B5CF6',bg:'#F5F3FF',label:'Probability',detail:'30% chance of a thunderstorm or precipitation event in the following group (and its associated wind/visibility/sky conditions). PROB30 is the only PROB group used by NWS in U.S. domestic TAFs. PROB40 (40%) appears only in U.S. military and international TAFs.'},
     ];
     const g=groups[i];
     document.querySelectorAll('.metar-token').forEach(el=>el.classList.remove('selected'));
@@ -1708,7 +1708,7 @@ const Diagrams = {
         },
         {
           label: 'Step 5 — PROB30: 30% Probability of Alternate Conditions',
-          description: 'PROB30 (or PROB40) explicitly states the probability that alternate conditions will occur. PROB30 = 30% probability; PROB40 = 40% probability. Format: PROB30 hhmm/hhmm. Used for isolated thunderstorms or brief IFR conditions that are possible but not the primary scenario. Alternate planning: if a TAF contains ceiling below 2,000 ft or visibility below 3 SM within ±1 hr of your ETA — at any probability — review 14 CFR 91.169 for alternate requirements.',
+          description: 'PROB30 explicitly states the probability of an alternate thunderstorm or precipitation event (and its associated wind/visibility/sky conditions) — 30% chance. Format: PROB30 YYGG/YeGe. Used for isolated thunderstorms or brief IFR conditions that are possible but not the primary scenario. PROB30 is the only PROB group used by NWS in U.S. domestic TAFs; PROB40 appears only in military and international TAFs. Alternate planning: if a TAF contains ceiling below 2,000 ft or visibility below 3 SM within ±1 hr of your ETA — even under PROB30 — review 14 CFR 91.169 for alternate requirements.',
           svg: `<div style="background:#111827"><img src="img/awh/taf_change_groups.png" alt="Table 27-3. Generic Format of the National Weather Service's TAFs" style="width:100%;display:block;max-height:310px;object-fit:contain"><div style="padding:5px 14px 6px;font-size:11px;font-weight:700;color:#38BDF8;font-family:var(--font-display);border-top:1px solid #1e3a5f">&#9658; PROB group (bottom-right): 30% or 40% probability of alternate conditions — check against IFR alternate planning rules (91.169)</div></div>`
         }
       ]

@@ -1674,7 +1674,7 @@ const MODULES = [
           'Continue and monitor — SLD only affects turbine aircraft'
         ],
         correct:1,xp:10,
-        explanation:'SLDs (droplets > 40 microns — freezing drizzle or freezing rain) flow along the airfoil before freezing, accreting ice BEHIND the coverage area of deicing equipment. This residual aft ice acts as a spoiler and can cause flow separation over a large portion of the wing, potentially triggering uncommanded roll at speeds well above normal stall.',
+        explanation:'SLDs (droplets > 50 microns — freezing drizzle or freezing rain) flow along the airfoil before freezing, accreting ice BEHIND the coverage area of deicing equipment. This residual aft ice acts as a spoiler and can cause flow separation over a large portion of the wing, potentially triggering uncommanded roll at speeds well above normal stall.',
         faaRef:'Ch. 20',concept:'structural_icing'
       },
       {
@@ -2567,7 +2567,7 @@ const MODULES = [
               ['FM####','FROM — abrupt change at stated time. New conditions replace ALL previous. Most common change type. FM0300 = conditions change entirely at 0300Z.','#38BDF8'],
               ['TEMPO DD/DD HH/HH','TEMPORARY — conditions fluctuate, each occurrence lasting <1 hr, total <½ the period. Does NOT replace main forecast. Expect intermittent IFR.','#F59E0B'],
               ['BECMG DDHH/DDHH','BECOMING — gradual change expected to be complete by end of period. Gradual transition. Not as abrupt as FM.','#10B981'],
-              ['PROB30/PROB40','PROBABILITY — 30% or 40% probability of conditions in following group. PROB30 = less likely than not; PROB40 = more likely. Signals significant uncertainty.','#8B5CF6'],
+              ['PROB30','PROBABILITY — 30% chance of a thunderstorm or precipitation event (and its associated wind/vis/sky conditions). PROB30 is the only PROB group used by NWS forecasters in U.S. domestic TAFs. PROB40 (40%) appears only in U.S. military and international TAFs.','#8B5CF6'],
               ['NSW','No Significant Weather — clears previous weather group when conditions improve and no precip/restrictions expected.','#94A3B8'],
             ].map(([code,desc,col])=>`
             <div style="border-bottom:1px solid rgba(255,255,255,.08);padding:10px 0">
@@ -4030,7 +4030,7 @@ const MODULES = [
             ${[
               ['📈','Upper Air (Constant-Pressure) Charts','Show the atmosphere at specific pressure levels (850, 700, 500, 300, 250 mb). Lines are height contours (isoheights) — like isobars on a surface chart. Used to identify jet streams, troughs/ridges aloft, and atmospheric dynamics. 500 mb chart (~18,000 ft) is the primary "steering level" forecasters use.','#E0F2FE','#0284C7'],
               ['🧊','Current Icing Product (CIP)','Computer-generated analysis of current in-flight icing severity and SLD conditions. Available at 1,000 ft increments. Based on radar, satellite, pilot reports, and NWP model data. Used alongside AIRMETs — more precise spatial resolution than AIRMETs.','#EEF2FF','#6366F1'],
-              ['💥','Graphical Turbulence Guidance (GTG)','NWS turbulence analysis and forecast based on algorithm combining multiple CAT indicators. Available hourly. Shows turbulence intensity at flight levels. Good for situational awareness and route planning on IFR flights above FL180.','#FEF3C7','#D97706'],
+              ['💥','Graphical Turbulence Guidance Nowcast (GTG-N)','NWS turbulence analysis based on algorithm combining multiple CAT indicators. GTG-N is the analysis-side nowcast (updated every 15 minutes), available 100 ft MSL through FL500. The forecast counterpart is GTG (Section 27.14). Good for situational awareness and route planning on IFR flights above FL180.','#FEF3C7','#D97706'],
               ['📍','Real-Time Mesoscale Analysis (RTMA)','High-resolution analysis of surface conditions: temperature, dewpoint, wind, and visibility at 2.5 km grid spacing. Updated hourly. More detailed than standard METARs. Useful for identifying fog boundaries, sea breezes, and mesoscale features.','#D1FAE5','#059669'],
             ].map(([icon,name,desc,bg,col])=>`
             <div style="background:${bg};border-radius:14px;padding:14px;display:flex;gap:12px">
@@ -4293,7 +4293,7 @@ const MODULES = [
               <p style="font-size:13px;color:#475569;margin:6px 0 0">${desc}</p>
             </div>`).join('')}
           </div>
-          <p><strong>Area Forecasts (FA)</strong> were the traditional text-based forecast for an entire region. The GFA (Graphical Forecasts for Aviation) tool at aviationweather.gov has largely replaced FAs for the CONUS, Gulf, and Caribbean, providing an interactive graphical interface with 1-hour forecast updates out to 15 hours. The FA is still issued for Alaska (and other areas not covered by GFA).</p>
+          <p><strong>Area Forecasts (FA)</strong> were the traditional text-based forecast for an entire region. The GFA (Graphical Forecasts for Aviation) tool at aviationweather.gov has replaced text FAs across the CONUS, Hawaii, the Gulf of America, and the Caribbean, providing an interactive graphical interface with 1-hour forecast updates out to 15 hours. The NWS will continue producing text FAs for Alaska for the foreseeable future — the FA remains the primary text forecast product for Alaska.</p>
         
           <div style="background:#EEF2FF;border-radius:12px;padding:14px;margin-top:14px;border-left:3px solid #6366F1">
             <strong style="font-family:var(--font-display);font-size:13px;color:var(--navy)">🧊 Forecast Icing Product (FIP)</strong>
