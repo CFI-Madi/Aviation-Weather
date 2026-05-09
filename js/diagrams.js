@@ -3,12 +3,12 @@
 // ============================================================
 
 const Diagrams = {
-  // Unified render — handles all three acts' diagram patterns
+  // Unified render — dispatches every diagram type the lessons can ask for
   render(type, key) {
-    // Act 1 patterns (hotspot / slider with svgKey)
+    // Foundations: hotspot / slider patterns (atmosphere, wind, fronts, clouds)
     if (type === 'hotspot') return this.renderHotspot(key);
     if (type === 'slider') return this.renderSlider(key);
-    // Act 2 pattern (interactive with key)
+    // Hazard interactives (CB ingredients, turbulence, fog, microburst, calculators)
     if (type === 'interactive') {
       const fns = {
         cb_ingredients:()=>this.cbIngredients(),
@@ -21,7 +21,7 @@ const Diagrams = {
       };
       return fns[key] ? fns[key]() : '';
     }
-    // Act 3 direct type patterns
+    // Operational products (METAR/TAF/PIREP decoders, radar, advisories, calculators)
     if (type === 'metar_decoder') return this.renderMetarDecoder();
     if (type === 'taf_decoder') return this.renderTafDecoder();
     if (type === 'pirep_decoder') return this.renderPirepDecoder();

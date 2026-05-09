@@ -1,6 +1,6 @@
 // ============================================================
 // Aviation Weather Academy — App Configuration
-// RANKS, ACT_META, SAMPLE_METAR
+// RANKS, LEVELS, LEVEL_META, SAMPLE_METAR
 // ============================================================
 
 const RANKS=[
@@ -11,13 +11,19 @@ const RANKS=[
   {id:'atp',title:'ATP Captain',minXP:7000,maxXP:99999,emoji:'🏆',color:'#10B981',bg:'#D1FAE5'}
 ];
 
-const ACT_META = [
-  {act:1,title:'Act 1 — The Sky System',subtitle:'Atmosphere, Pressure, Wind, Clouds, Fronts, Heat, Water Vapor',icon:'🌤️',color:'#0284C7',bg:'#E0F2FE',faa:'Chs. 4–13'},
-  {act:2,title:'Act 2 — Hazard Zone',subtitle:'Thunderstorms, Icing, Turbulence, Fog, Mountain, Tropical, Arctic',icon:'⚡',color:'#DC2626',bg:'#FEF2F2',faa:'Chs. 16–22'},
-  {act:3,title:'Act 3 — The Products',subtitle:'METAR, TAF, PIREPs, Radar, Advisories, Space Wx, Charts',icon:'📡',color:'#7C3AED',bg:'#F5F3FF',faa:'Chs. 23–27'}
+// Learner-level taxonomy — drives module grouping, dashboard recommendations,
+// onboarding "where are you in your training" pick, and the progression CTA.
+// Order is meaningful: each level is a stretch goal of the one before.
+const LEVELS = ['student', 'private', 'instrument', 'commercial'];
+
+const LEVEL_META = [
+  {id:'student',    order:1, title:'Student Pilot',    subtitle:'Atmosphere, pressure, wind, clouds, METAR — the foundations every certificate starts with', icon:'🎓', color:'#0284C7', bg:'#E0F2FE', faa:'Chs. 4, 7–8, 9–10, 12, 24'},
+  {id:'private',    order:2, title:'Private Pilot',    subtitle:'Operational weather: fronts, thunderstorms, fog, mountain, TAF, water vapor', icon:'🛩️', color:'#10B981', bg:'#D1FAE5', faa:'Chs. 5–6, 11, 16, 18, 22, 27'},
+  {id:'instrument', order:3, title:'Instrument',       subtitle:'IMC hazards: icing, turbulence, radar, advisories, tropical & arctic',  icon:'🌧️', color:'#6366F1', bg:'#EEF2FF', faa:'Chs. 15, 17, 19, 20, 21, 26'},
+  {id:'commercial', order:4, title:'Commercial+',      subtitle:'Advanced products: space weather, surface analysis, forecast charts',     icon:'🌤️', color:'#F59E0B', bg:'#FEF3C7', faa:'Chs. 23, 25'}
 ];
 
-// Reference METAR for Act 3 interactive decoder (M11)
+// Reference METAR for the M11 METAR Practice decoder
 const SAMPLE_METAR = {
   raw: 'KOKC 011955Z AUTO 22015G25KT 180V250 3/4SM R17L/2600FT +TSRA BR OVC010CB 18/16 A2992 RMK AO2 TSB25 SLP132',
   tokens: [

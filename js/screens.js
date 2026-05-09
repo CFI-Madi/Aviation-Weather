@@ -13,8 +13,12 @@ const Screens = {
     const resumeTarget = GameEngine.getResumeTarget();
     const weakAreas = GameEngine.getWeakAreas(4);
     const recommended = GameEngine.getRecommendedNextStep();
-    const actStats = GameEngine.getActProgress();
-    const currentAct = actStats.find(a => a.completed < a.total) || actStats[actStats.length - 1];
+    const levelStats = GameEngine.getLevelProgress();
+    const currentLevelId = GameEngine.getCurrentLevel();
+    const currentLevel = levelStats.find(l => l.id === currentLevelId) || levelStats[0];
+    const nextLevelId = GameEngine.getNextLevel();
+    const nextLevel = nextLevelId ? levelStats.find(l => l.id === nextLevelId) : null;
+    const levelMastered = GameEngine.isCurrentLevelMastered();
     const bestCheckride = GameEngine.getBestCheckrideScore();
     const achievementTotal = new Set(ACHIEVEMENTS.map(a => a.id)).size;
 
@@ -45,31 +49,34 @@ const Screens = {
         ` : `<div style="text-align:center;padding:8px;background:rgba(255,255,255,.5);border-radius:12px;font-family:var(--font-display);font-weight:800;color:var(--navy)">Maximum Rank Achieved!</div>`}
       </div>
 
-      <!-- Learning Path -->
+      <!-- Learner-level progression -->
       <div class="card" style="padding:18px;margin-bottom:16px">
-        <div style="font-family:var(--font-display);font-weight:900;font-size:16px;color:var(--navy);margin-bottom:12px">Learning Path</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-family:var(--font-display);font-weight:900;font-size:16px;color:var(--navy)">Your Progression</div>
+          <span style="font-size:11px;font-family:var(--font-display);font-weight:800;color:${currentLevel.color};background:${currentLevel.bg};border-radius:99px;padding:3px 10px">Currently: ${currentLevel.title}</span>
+        </div>
         <div style="display:grid;gap:10px">
-          ${actStats.map(a => {
-            const pctA = a.total ? Math.round(a.completed / a.total * 100) : 0;
-            const isActive = a.act === currentAct.act;
-            return `<div style="background:${isActive ? a.bg : '#F8FAFC'};border-radius:14px;padding:12px 14px;border:2px solid ${isActive ? a.color : 'transparent'}">
+          ${levelStats.map(l => {
+            const pctL = l.total ? Math.round(l.completed / l.total * 100) : 0;
+            const isCurrent = l.id === currentLevel.id;
+            return `<div style="background:${isCurrent ? l.bg : '#F8FAFC'};border-radius:14px;padding:12px 14px;border:2px solid ${isCurrent ? l.color : 'transparent'}">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                <div style="font-family:var(--font-display);font-weight:800;font-size:13px;color:${isActive ? a.color : 'var(--navy)'}">${a.icon} ${a.title}</div>
-                <span style="font-size:12px;font-family:var(--font-mono);color:#64748B">${a.completed}/${a.total}</span>
+                <div style="font-family:var(--font-display);font-weight:800;font-size:13px;color:${isCurrent ? l.color : 'var(--navy)'}">${l.icon} ${l.title}</div>
+                <span style="font-size:12px;font-family:var(--font-mono);color:#64748B">${l.completed}/${l.total}</span>
               </div>
-              <div class="xp-bar-track" style="height:6px;background:${isActive ? a.color+'33' : '#E2E8F0'}"><div class="xp-bar-fill" style="height:6px;width:${pctA}%;background:${a.color}"></div></div>
+              <div class="xp-bar-track" style="height:6px;background:${isCurrent ? l.color+'33' : '#E2E8F0'}"><div class="xp-bar-fill" style="height:6px;width:${pctL}%;background:${l.color}"></div></div>
             </div>`;
           }).join('')}
         </div>
-        ${(() => {
-          const act1 = actStats.find(a => a.act === 1);
-          const act2 = actStats.find(a => a.act === 2);
-          const act1Pct = act1 && act1.total ? Math.round(act1.completed / act1.total * 100) : 0;
-          const act2Started = act2 && act2.started > 0;
-          return act1Pct < 60 && act2Started
-            ? `<div style="background:#FEF3C7;border-radius:12px;padding:10px 14px;margin-top:10px;font-size:12px;color:#92400E;font-family:var(--font-body)">Build your Act 1 foundation before tackling Act 2 hazards</div>`
-            : '';
-        })()}
+        ${levelMastered && nextLevel
+          ? `<div style="background:linear-gradient(135deg,${nextLevel.color}22,${nextLevel.bg});border:2px solid ${nextLevel.color};border-radius:14px;padding:14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+              <div style="min-width:0">
+                <div style="font-family:var(--font-display);font-weight:900;font-size:14px;color:${nextLevel.color}">Ready for ${nextLevel.title}?</div>
+                <div style="font-size:12px;color:#64748B;margin-top:3px">You've passed every ${currentLevel.title} module. Step up.</div>
+              </div>
+              <button onclick="Screens.advanceLearnerLevel()" style="background:${nextLevel.color};color:white;border:none;border-radius:12px;padding:10px 14px;font-family:var(--font-display);font-weight:800;font-size:13px;cursor:pointer;flex-shrink:0">Level up</button>
+            </div>`
+          : ''}
       </div>
 
       <div class="card" style="padding:18px;margin-bottom:16px;border-left:4px solid ${resumeTarget ? rank.color : '#CBD5E1'}">
@@ -86,9 +93,9 @@ const Screens = {
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px">
           <div>
             <div style="font-family:var(--font-display);font-weight:900;font-size:16px;color:var(--navy)">Progress Snapshot</div>
-            <div style="font-size:12px;color:#64748B;margin-top:3px">${currentAct.title} - ${currentAct.completed}/${currentAct.total} complete</div>
+            <div style="font-size:12px;color:#64748B;margin-top:3px">${currentLevel.title} - ${currentLevel.completed}/${currentLevel.total} complete</div>
           </div>
-          <button onclick="Screens.filterModules(${currentAct.act});Router.navigate('modules')" style="background:${currentAct.bg};color:${currentAct.color};border:none;border-radius:12px;padding:8px 12px;font-family:var(--font-display);font-weight:800;font-size:12px;cursor:pointer;flex-shrink:0">Open Act ${currentAct.act}</button>
+          <button onclick="Screens.filterModules('${currentLevel.id}');Router.navigate('modules')" style="background:${currentLevel.bg};color:${currentLevel.color};border:none;border-radius:12px;padding:8px 12px;font-family:var(--font-display);font-weight:800;font-size:12px;cursor:pointer;flex-shrink:0">Open ${currentLevel.title}</button>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
           ${[
@@ -172,6 +179,14 @@ const Screens = {
       return;
     }
     Router.navigate(resumeTarget.screen, resumeTarget.params || {});
+  },
+
+  advanceLearnerLevel() {
+    const advanced = GameEngine.advanceLevel();
+    if (advanced && window.Analytics) {
+      Analytics.track('Learner Level Advanced', { newLevel: GameEngine.getCurrentLevel() });
+    }
+    Router.navigate('dashboard');
   },
 
   _inlineParams(params = {}) {
@@ -376,10 +391,16 @@ const Screens = {
   // ===== MODULES =====
   modules() {
     const s = GameEngine.state;
-    const actFilter = s._actFilter || 'all';
+    // _actFilter key reused as the level filter; returning users may have integer
+    // 1/2/3 from the old Act taxonomy — coerce to 'all' since the integer-to-level
+    // mapping was never bijective (Acts grouped multiple levels together).
+    const rawFilter = s._actFilter;
+    const levelFilter = (typeof rawFilter === 'string' && (rawFilter === 'all' || LEVELS.includes(rawFilter))) ? rawFilter : 'all';
+    const currentLevelId = GameEngine.getCurrentLevel();
+    const currentLevelOrder = (LEVEL_META.find(l => l.id === currentLevelId) || {}).order || 1;
     const searchQuery = this._studySearchQuery || '';
     const searchData = this._searchStudyContent(searchQuery);
-    const baseMods = actFilter === 'all' ? MODULES : MODULES.filter(m=>m.act==actFilter);
+    const baseMods = levelFilter === 'all' ? MODULES : MODULES.filter(m => m.level === levelFilter);
     const filteredMods = searchQuery.trim()
       ? baseMods.filter(mod => {
           const sectionHit = searchData.lessonMatches.some(item => item.moduleId === mod.id);
@@ -387,12 +408,12 @@ const Screens = {
           return sectionHit || moduleHit;
         })
       : baseMods;
-    const actMeta = ACT_META.find(a=>a.act==actFilter);
+    const levelMeta = LEVEL_META.find(l => l.id === levelFilter);
 
     document.getElementById('modules-content').innerHTML = `
       <h1 style="font-family:var(--font-display);font-size:26px;font-weight:900;color:var(--navy);margin-bottom:4px">Modules</h1>
-      <p style="color:#64748B;font-size:14px;margin-bottom:16px">FAA-H-8083-28B - ${MODULES.length} modules across 3 acts</p>
-      
+      <p style="color:#64748B;font-size:14px;margin-bottom:16px">FAA-H-8083-28B - ${MODULES.length} modules across 4 learner levels</p>
+
       <div class="card" style="padding:16px;margin-bottom:16px">
         <div style="font-family:var(--font-display);font-weight:800;font-size:15px;color:var(--navy);margin-bottom:10px">Quick Find</div>
         <div style="display:flex;gap:8px;align-items:center">
@@ -402,18 +423,22 @@ const Screens = {
         ${searchQuery.trim() ? `<div style="font-size:12px;color:#64748B;margin-top:8px">Showing ${filteredMods.length} module matches, ${searchData.lessonMatches.length} lesson hits, and ${searchData.caseMatches.length} case matches.</div>` : `<div style="font-size:12px;color:#64748B;margin-top:8px">Search by topic name, lesson title, or case study.</div>`}
       </div>
 
-      <!-- Act filter tabs -->
+      <!-- Level filter tabs -->
       <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:20px;scrollbar-width:none">
-        <button class="act-tab ${actFilter==='all'?'active':''}" onclick="Screens.filterModules('all')">All (${MODULES.length})</button>
-        ${ACT_META.map(a=>`<button class="act-tab ${actFilter==a.act?'active':''}" onclick="Screens.filterModules(${a.act})" style="${actFilter==a.act?`border-color:${a.color};background:${a.bg};color:${a.color}`:''}">${a.icon} Act ${a.act}</button>`).join('')}
+        <button class="act-tab ${levelFilter==='all'?'active':''}" onclick="Screens.filterModules('all')">All (${MODULES.length})</button>
+        ${LEVEL_META.map(l => {
+          const count = MODULES.filter(m => m.level === l.id).length;
+          const active = levelFilter === l.id;
+          return `<button class="act-tab ${active?'active':''}" onclick="Screens.filterModules('${l.id}')" style="${active?`border-color:${l.color};background:${l.bg};color:${l.color}`:''}">${l.icon} ${l.title} (${count})</button>`;
+        }).join('')}
       </div>
 
-      ${actMeta ? (() => {
-        const aStats = GameEngine.getActProgress().find(a => a.act == actMeta.act);
-        const passLabel = aStats ? ` (${aStats.completed}/${aStats.total} passed)` : '';
-        return `<div style="background:${actMeta.bg};border-radius:16px;padding:14px 16px;margin-bottom:16px;border-left:4px solid ${actMeta.color}">
-          <div style="font-family:var(--font-display);font-weight:800;font-size:15px;color:${actMeta.color}">${actMeta.title}<span style="font-weight:600;font-size:13px">${passLabel}</span></div>
-          <div style="font-size:13px;color:#64748B;margin-top:2px">${actMeta.subtitle}</div>
+      ${levelMeta ? (() => {
+        const lStats = GameEngine.getLevelProgress().find(l => l.id === levelMeta.id);
+        const passLabel = lStats ? ` (${lStats.completed}/${lStats.total} passed)` : '';
+        return `<div style="background:${levelMeta.bg};border-radius:16px;padding:14px 16px;margin-bottom:16px;border-left:4px solid ${levelMeta.color}">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:15px;color:${levelMeta.color}">${levelMeta.title}<span style="font-weight:600;font-size:13px">${passLabel}</span></div>
+          <div style="font-size:13px;color:#64748B;margin-top:2px">${levelMeta.subtitle}</div>
         </div>`;
       })() : ''}
 
@@ -445,7 +470,9 @@ const Screens = {
           const secPct = mod.sections ? Math.round(prog.sectionsRead.length/mod.sections.length*100) : 0;
           const firstIncompletePrereq = (mod.prerequisites || []).find(pid => !s.modulesPassed.includes(pid));
           const prereqMod = firstIncompletePrereq ? MODULES.find(m => m.id === firstIncompletePrereq) : null;
-          return `<div class="card" style="padding:18px">
+          const modLevelMeta = LEVEL_META.find(l => l.id === mod.level);
+          const isStretch = modLevelMeta && modLevelMeta.order > currentLevelOrder;
+          return `<div class="card" style="padding:18px;${isStretch ? 'opacity:0.85' : ''}">
             <div style="display:flex;gap:14px;align-items:flex-start">
               <div style="width:54px;height:54px;border-radius:16px;background:${mod.bgColor};display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0">${mod.icon}</div>
               <div style="flex:1;min-width:0">
@@ -455,7 +482,10 @@ const Screens = {
                     <div style="font-size:12px;color:#64748B">${mod.subtitle}</div>
                     ${prereqMod && secPct === 0 ? `<div style="font-size:11px;color:#94A3B8;margin-top:4px">Recommended first: ${prereqMod.icon} ${prereqMod.title}</div>` : ''}
                   </div>
-                  ${modPassed ? `<span style="background:#D1FAE5;color:#065F46;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;white-space:nowrap">PASSED</span>` : `<span style="background:${mod.bgColor};color:${mod.color};font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;white-space:nowrap">+${mod.xpReward} XP</span>`}
+                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                    ${modPassed ? `<span style="background:#D1FAE5;color:#065F46;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;white-space:nowrap">PASSED</span>` : `<span style="background:${mod.bgColor};color:${mod.color};font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;white-space:nowrap">+${mod.xpReward} XP</span>`}
+                    ${isStretch ? `<span style="background:#F1F5F9;color:#64748B;font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;white-space:nowrap" title="${modLevelMeta.title} — beyond your current level, but free to explore">Stretch · ${modLevelMeta.title}</span>` : ''}
+                  </div>
                 </div>
                 <div style="margin:8px 0">
                   <div class="xp-bar-track" style="height:6px"><div class="xp-bar-fill" style="height:6px;width:${secPct}%;background:${mod.color}"></div></div>
@@ -470,7 +500,7 @@ const Screens = {
             </div>
           </div>`;
         }).join('')}
-        ${!filteredMods.length ? `<div class="card" style="padding:20px;text-align:center;color:#64748B">No modules match this filter. Try another act or clear the search.</div>` : ''}
+        ${!filteredMods.length ? `<div class="card" style="padding:20px;text-align:center;color:#64748B">No modules match this filter. Try another level or clear the search.</div>` : ''}
       </div>`;
   },
 
@@ -573,11 +603,11 @@ const Screens = {
   _renderDiagram(sec) {
     if (!sec.diagram) return '';
     const d = sec.diagram;
-    // Act 1: svgKey present
+    // Foundations pattern: hotspot/slider with svgKey
     if (d.svgKey) return Diagrams.render(d.type, d.svgKey);
-    // Act 2: key present (interactive)
+    // Hazard pattern: interactive with explicit key
     if (d.key) return Diagrams.render(d.type, d.key);
-    // Act 3: type is the render key
+    // Operational products: type is the render key
     if (d.type) return Diagrams.render(d.type, d.type);
     return '';
   },
@@ -1000,18 +1030,18 @@ const Screens = {
       return null;
     }).filter(Boolean);
 
-    const actStats = ACT_META.map(a=>({
-      ...a,
-      done: MODULES.filter(m=>m.act===a.act&&s.modulesPassed.includes(m.id)).length,
-      total: MODULES.filter(m=>m.act===a.act).length,
-      xp: MODULES.filter(m=>m.act===a.act&&s.modulesPassed.includes(m.id)).reduce((sum,m)=>sum+m.xpReward,0)
+    const levelStats = LEVEL_META.map(l => ({
+      ...l,
+      done: MODULES.filter(m => m.level === l.id && s.modulesPassed.includes(m.id)).length,
+      total: MODULES.filter(m => m.level === l.id).length,
+      xp: MODULES.filter(m => m.level === l.id && s.modulesPassed.includes(m.id)).reduce((sum, m) => sum + m.xpReward, 0)
     }));
 
     const weaknesses = GameEngine.getConceptWeaknesses();
 
     document.getElementById('logbook-content').innerHTML = `
       <h1 style="font-family:var(--font-display);font-size:26px;font-weight:900;color:var(--navy);margin-bottom:4px">Knowledge Logbook</h1>
-      <p style="color:#64748B;font-size:14px;margin-bottom:20px">All 3 acts - ${MODULES.length} total modules</p>
+      <p style="color:#64748B;font-size:14px;margin-bottom:20px">All 4 levels - ${MODULES.length} total modules</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
         ${[
           ['Total XP',s.totalXP.toLocaleString()+' XP',GameEngine.getRank().title],
@@ -1036,14 +1066,14 @@ const Screens = {
         </div>`).join('')}
       </div>` : ''}
 
-      <h2 style="font-size:18px;font-weight:800;color:var(--navy);margin:0 0 12px">Progress by Act</h2>
+      <h2 style="font-size:18px;font-weight:800;color:var(--navy);margin:0 0 12px">Progress by Level</h2>
       <div style="display:grid;gap:10px;margin-bottom:24px">
-        ${actStats.map(a=>`<div class="card" style="padding:14px;border-left:4px solid ${a.color}">
+        ${levelStats.map(l => `<div class="card" style="padding:14px;border-left:4px solid ${l.color}">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <div style="font-family:var(--font-display);font-weight:800;font-size:15px;color:var(--navy)">${a.icon} ${a.title.replace('Act 1 - ','').replace('Act 2 - ','').replace('Act 3 - ','')}</div>
-            <div style="font-family:var(--font-mono);font-size:13px;color:${a.color}">${a.done}/${a.total} - +${a.xp} XP</div>
+            <div style="font-family:var(--font-display);font-weight:800;font-size:15px;color:var(--navy)">${l.icon} ${l.title}</div>
+            <div style="font-family:var(--font-mono);font-size:13px;color:${l.color}">${l.done}/${l.total} - +${l.xp} XP</div>
           </div>
-          <div class="xp-bar-track" style="height:6px"><div class="xp-bar-fill" style="height:6px;width:${Math.round(a.done/a.total*100)}%;background:${a.color}"></div></div>
+          <div class="xp-bar-track" style="height:6px"><div class="xp-bar-fill" style="height:6px;width:${l.total ? Math.round(l.done/l.total*100) : 0}%;background:${l.color}"></div></div>
         </div>`).join('')}
       </div>
 
@@ -1303,16 +1333,39 @@ const Screens = {
 
   _startCheckride(count) {
     const nQ = count || 60;
-    const pool = { a1:[], a2:[], a3:[] };
+    // Pool questions by learner level. Mix favors foundation-heavy: 35% Student,
+    // 30% Private, 25% Instrument, 10% Commercial+. Caps at the user's reach so
+    // a Student doesn't get blindsided by space-weather questions on a 20Q quick exam —
+    // Commercial questions only enter when the user has progressed past Instrument.
+    const pool = { student:[], private:[], instrument:[], commercial:[] };
     MODULES.forEach(m => {
-      const key = m.act===1?'a1':m.act===2?'a2':'a3';
-      if(m.quiz) pool[key].push(...m.quiz.filter(q=>q.type!=='drag_drop').map(q=>({...q,_mod:m.title,_moduleId:m.id,_color:m.color,_icon:m.icon})));
+      const key = m.level || 'student';
+      if (!pool[key]) pool[key] = [];
+      if (m.quiz) pool[key].push(...m.quiz.filter(q => q.type !== 'drag_drop').map(q => ({...q,_mod:m.title,_moduleId:m.id,_color:m.color,_icon:m.icon})));
     });
-    const shuf = a => a.sort(()=>Math.random()-.5);
-    shuf(pool.a1); shuf(pool.a2); shuf(pool.a3);
-    const n1=Math.floor(nQ*.4), n2=Math.floor(nQ*.3), n3=nQ-n1-n2;
-    const exam = shuf([...pool.a1.slice(0,n1),...pool.a2.slice(0,n2),...pool.a3.slice(0,n3)]);
-    this._cr = {qs:exam, cur:0, ans:{}, t0:Date.now(), lim:(nQ===60?60:20)*60000};
+    const shuf = a => a.sort(() => Math.random() - .5);
+    Object.keys(pool).forEach(k => shuf(pool[k]));
+    const userOrder = (LEVEL_META.find(l => l.id === GameEngine.getCurrentLevel()) || {}).order || 1;
+    // If the user is Student-level, omit Commercial questions; Private-level omits Commercial too;
+    // Instrument-level includes everything but at reduced Commercial weight.
+    const dist = userOrder >= 3
+      ? { student: 0.30, private: 0.30, instrument: 0.30, commercial: 0.10 }
+      : userOrder >= 2
+      ? { student: 0.40, private: 0.40, instrument: 0.20, commercial: 0.0 }
+      : { student: 0.55, private: 0.30, instrument: 0.15, commercial: 0.0 };
+    const counts = {};
+    let allocated = 0;
+    LEVELS.forEach((lvl, i) => {
+      counts[lvl] = i === LEVELS.length - 1 ? nQ - allocated : Math.floor(nQ * dist[lvl]);
+      allocated += counts[lvl];
+    });
+    const exam = shuf([
+      ...pool.student.slice(0, counts.student),
+      ...pool.private.slice(0, counts.private),
+      ...pool.instrument.slice(0, counts.instrument),
+      ...pool.commercial.slice(0, counts.commercial)
+    ]);
+    this._cr = { qs: exam, cur: 0, ans: {}, t0: Date.now(), lim: (nQ === 60 ? 60 : 20) * 60000 };
     this._renderCRQ();
   },
 
@@ -1910,9 +1963,13 @@ const Onboarding = {
   },
 
   // Save state, hide overlay, init router, then navigate to target.
-  // _selectedLevel is forwarded to analytics for funnel reporting; nothing in the app
-  // reads back a stored learner level today, so we don't persist it.
+  // _selectedLevel is now load-bearing — persisted to state.learnerLevel and used by
+  // dashboard recommendations, the "Stretch" tag on the Modules screen, and the
+  // checkride question-mix.
   _complete(screen, moduleId) {
+    if (this._selectedLevel && typeof LEVELS !== 'undefined' && LEVELS.includes(this._selectedLevel)) {
+      GameEngine.state.learnerLevel = this._selectedLevel;
+    }
     if (window.Analytics) Analytics.track('Onboarding Completed', { level: this._selectedLevel });
     GameEngine.state.firstLaunchSeen = true;
     GameEngine.save();
@@ -1932,7 +1989,7 @@ const Onboarding = {
 
   _selectLevel(level) {
     this._selectedLevel = level;
-    ['student', 'private', 'instrument', 'refresh'].forEach(l => {
+    ['student', 'private', 'instrument', 'commercial'].forEach(l => {
       const card = document.getElementById('ob-card-' + l);
       if (!card) return;
       card.style.borderColor = l === level ? 'var(--sky-dark)' : '#E2E8F0';
@@ -1960,10 +2017,10 @@ const Onboarding = {
   _renderScreen2() {
     this._selectedLevel = null;
     const levels = [
-      { id: 'student',    emoji: '🎓', label: 'Student Pilot',          sub: 'Working toward my Private certificate' },
-      { id: 'private',    emoji: '🛩️', label: 'Private Pilot',           sub: 'Certificated, building hours or reviewing' },
-      { id: 'instrument', emoji: '🌧️', label: 'Instrument Student',      sub: 'Working on my instrument rating' },
-      { id: 'refresh',    emoji: '✈️', label: 'Rated Pilot / Refresher', sub: 'Staying current, BFR prep, or general review' }
+      { id: 'student',    emoji: '🎓', label: 'Student Pilot',  sub: 'Working toward my Private certificate' },
+      { id: 'private',    emoji: '🛩️', label: 'Private Pilot',   sub: 'Certificated, building hours or reviewing' },
+      { id: 'instrument', emoji: '🌧️', label: 'Instrument',      sub: 'Instrument student or rated, IFR-focused study' },
+      { id: 'commercial', emoji: '✈️', label: 'Commercial+',     sub: 'Commercial / CFI / refresher — advanced products' }
     ];
     document.getElementById('onboarding-overlay').innerHTML = `
       <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;box-sizing:border-box">
@@ -1991,13 +2048,13 @@ const Onboarding = {
 
   _renderScreen3(level) {
     const config = {
-      student:    { msg: 'Start with Act 1 — it builds the atmospheric foundation everything else depends on.',  screen: 'lesson',  moduleId: 'm1',  modLabel: 'Module 1: The Atmosphere' },
-      private:    { msg: 'Jump into Act 1 to refresh your weather foundations before moving to hazards.',         screen: 'lesson',  moduleId: 'm1',  modLabel: 'Module 1: The Atmosphere' },
-      instrument: { msg: "You'll get the most from Act 2 and Act 3 — but Act 1 is worth a review first.",        screen: 'lesson',  moduleId: 'm4',  modLabel: 'Module 4: Clouds & Stability' },
-      refresh:    { msg: 'Head straight to the modules most relevant to your currency needs.',                    screen: 'modules', moduleId: null,  modLabel: 'Explore modules' }
+      student:    { msg: 'We\'ll start you on the Student Pilot foundation — atmosphere, pressure, wind, and METAR. Higher-level modules stay open as Stretch material.', screen: 'lesson',  moduleId: 'm1',  modLabel: 'Module 1: The Atmosphere' },
+      private:    { msg: 'Your dashboard will steer you toward Private Pilot operational topics — fronts, thunderstorms, fog, mountain weather, TAF.',                       screen: 'lesson',  moduleId: 'm5',  modLabel: 'Module 5: The Weather Machine' },
+      instrument: { msg: 'Recommendations bias toward Instrument-level hazards — icing, turbulence, radar, advisories. Lower-level modules remain available for review.',  screen: 'lesson',  moduleId: 'm7',  modLabel: 'Module 7: Structural Icing' },
+      commercial: { msg: 'You\'ll see the full curriculum, with bias toward advanced products — space weather, surface analysis, forecast charts.',                          screen: 'modules', moduleId: null,  modLabel: 'Explore modules' }
     };
     const c = config[level] || config.student;
-    const levelLabels = { student: 'Student Pilot', private: 'Private Pilot', instrument: 'Instrument Student', refresh: 'Rated Pilot / Refresher' };
+    const levelLabels = { student: 'Student Pilot', private: 'Private Pilot', instrument: 'Instrument', commercial: 'Commercial+' };
     const navCall = c.moduleId ? `Onboarding._complete('${c.screen}','${c.moduleId}')` : `Onboarding._complete('${c.screen}')`;
     document.getElementById('onboarding-overlay').innerHTML = `
       <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;box-sizing:border-box">

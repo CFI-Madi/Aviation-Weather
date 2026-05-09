@@ -5,7 +5,7 @@
 const FAA_VALIDATION_SCHEMA = {
   sourceTypes: ['AWH', 'PHAK', 'AIM'],
   validationStatuses: ['validated_exact', 'validated_paraphrase', 'training_simplification', 'needs_review'],
-  learnerLevels: ['student', 'private', 'instrument', 'commercial', 'cfi', 'atp_refresher'],
+  learnerLevels: ['student', 'private', 'instrument', 'commercial'],
   contentContexts: ['beginner_foundation', 'checkride_core', 'operational_refresh', 'advanced_weather_awareness'],
   relevanceLevels: ['low', 'medium', 'high']
 };
@@ -31,9 +31,11 @@ const FAA_VALIDATION_SOURCES = {
   }
 };
 
-const ALL_LEVELS = ['student', 'private', 'instrument', 'commercial', 'cfi', 'atp_refresher'];
-const ADV_LEVELS = ['private', 'instrument', 'commercial', 'cfi', 'atp_refresher'];
-const PRO_LEVELS = ['instrument', 'commercial', 'cfi', 'atp_refresher'];
+// Level-target presets mirror the four-level taxonomy from config.js LEVELS.
+// CFI / ATP Refresher use cases now sit under 'commercial' for filtering purposes.
+const ALL_LEVELS = ['student', 'private', 'instrument', 'commercial'];
+const ADV_LEVELS = ['private', 'instrument', 'commercial'];
+const PRO_LEVELS = ['instrument', 'commercial'];
 const FOUNDATION = ['beginner_foundation', 'checkride_core'];
 const CORE_OPS = ['checkride_core', 'operational_refresh'];
 const OPS_ADV = ['operational_refresh', 'advanced_weather_awareness'];

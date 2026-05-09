@@ -150,21 +150,49 @@ const GameEngine = {
     const scores = this.state.checkrideScores || [];
     return scores.length ? Math.max(...scores.map(r => r.pct || 0)) : null;
   },
-  getActProgress() {
-    return ACT_META.map(act => {
-      const actModules = MODULES.filter(m => m.act === act.act);
-      const completed = actModules.filter(m => this.state.modulesPassed.includes(m.id)).length;
-      const started = actModules.filter(m => {
+  getLevelProgress() {
+    return LEVEL_META.map(level => {
+      const levelModules = MODULES.filter(m => m.level === level.id);
+      const completed = levelModules.filter(m => this.state.modulesPassed.includes(m.id)).length;
+      const started = levelModules.filter(m => {
         const prog = this.getModuleProgress(m.id);
         return prog.sectionsRead.length > 0 || prog.attempts > 0;
       }).length;
       return {
-        ...act,
+        ...level,
         completed,
         started,
-        total: actModules.length
+        total: levelModules.length
       };
     });
+  },
+  // Returns the user's current learner level (from onboarding or default).
+  // Falls back to 'student' for users from before the level taxonomy existed.
+  getCurrentLevel() {
+    return this.state.learnerLevel && LEVELS.includes(this.state.learnerLevel)
+      ? this.state.learnerLevel
+      : 'student';
+  },
+  // Returns the next level above the current one, or null if already at top.
+  getNextLevel() {
+    const cur = this.getCurrentLevel();
+    const idx = LEVELS.indexOf(cur);
+    return idx >= 0 && idx < LEVELS.length - 1 ? LEVELS[idx + 1] : null;
+  },
+  // True when every module at the user's current level has a passing quiz score.
+  isCurrentLevelMastered() {
+    const cur = this.getCurrentLevel();
+    const mods = MODULES.filter(m => m.level === cur);
+    if (!mods.length) return false;
+    return mods.every(m => this.state.modulesPassed.includes(m.id));
+  },
+  // Promote the user to the next level after they tap the "Ready for [next]?" CTA.
+  advanceLevel() {
+    const next = this.getNextLevel();
+    if (!next) return false;
+    this.state.learnerLevel = next;
+    this.save();
+    return true;
   },
   recordCheckrideTopics(resultsByModule) {
     if (!resultsByModule || !Object.keys(resultsByModule).length) return;
@@ -331,7 +359,23 @@ const GameEngine = {
       };
     }
 
-    const nextModule = MODULES.find(mod => mod.id !== excludeModuleId && !this.state.modulesPassed.includes(mod.id));
+    // Bias toward modules at the user's current level. If those are all mastered,
+    // step up one level. Last resort: any unpassed module.
+    const curLevel = this.getCurrentLevel();
+    const nextLevel = this.getNextLevel();
+    const candidatePools = [curLevel, nextLevel].filter(Boolean);
+    let nextModule = null;
+    for (const lvl of candidatePools) {
+      nextModule = MODULES.find(mod =>
+        mod.level === lvl &&
+        mod.id !== excludeModuleId &&
+        !this.state.modulesPassed.includes(mod.id)
+      );
+      if (nextModule) break;
+    }
+    if (!nextModule) {
+      nextModule = MODULES.find(mod => mod.id !== excludeModuleId && !this.state.modulesPassed.includes(mod.id));
+    }
     if (nextModule) {
       return {
         title: `Start ${nextModule.title}`,

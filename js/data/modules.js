@@ -10,7 +10,7 @@ const MODULES = [
   // MODULE 1: THE ATMOSPHERE
   // ================================================
   {
-    id: 'm1', act: 1, title: 'The Atmosphere', subtitle: 'Layers, composition & temperature',
+    id: 'm1', level: 'student', title: 'The Atmosphere', subtitle: 'Layers, composition & temperature',
     icon: '🌍', color: '#38BDF8', bgColor: '#E0F2FE', prerequisites: [],
     xpReward: 150, estimatedMin: 12,
     faaRef: 'FAA-H-8083-28B Chapters 4, 5, 6, 7',
@@ -260,7 +260,7 @@ const MODULES = [
   // MODULE 2: PRESSURE & ALTIMETRY
   // ================================================
   {
-    id: 'm2', act: 1, title: 'Pressure & Altimetry', subtitle: 'Density altitude & altimeter errors',
+    id: 'm2', level: 'student', title: 'Pressure & Altimetry', subtitle: 'Density altitude & altimeter errors',
     icon: '🌡️', color: '#6366F1', bgColor: '#EEF2FF', prerequisites:['m1'],
     xpReward: 175, estimatedMin: 14,
     faaRef: 'FAA-H-8083-28B Chapter 8',
@@ -453,7 +453,7 @@ const MODULES = [
   // MODULE 3: WIND & CIRCULATION
   // ================================================
   {
-    id: 'm3', act: 1, title: 'Wind & Circulation', subtitle: 'Forces, jet streams & local winds',
+    id: 'm3', level: 'student', title: 'Wind & Circulation', subtitle: 'Forces, jet streams & local winds',
     icon: '💨', color: '#10B981', bgColor: '#D1FAE5', prerequisites:['m1','m2'],
     xpReward: 175, estimatedMin: 15,
     faaRef: 'FAA-H-8083-28B Chapters 9, 10',
@@ -727,7 +727,7 @@ const MODULES = [
   // MODULE 4: CLOUDS & STABILITY
   // ================================================
   {
-    id: 'm4', act: 1, title: 'Clouds & Stability', subtitle: 'Lapse rates, inversions & cloud types',
+    id: 'm4', level: 'student', title: 'Clouds & Stability', subtitle: 'Lapse rates, inversions & cloud types',
     icon: '☁️', color: '#8B5CF6', bgColor: '#F5F3FF', prerequisites:['m1','m2'],
     xpReward: 200, estimatedMin: 16,
     faaRef: 'FAA-H-8083-28B Chapters 12, 13, 14',
@@ -1015,7 +1015,7 @@ const MODULES = [
   // MODULE 5: THE WEATHER MACHINE
   // ================================================
   {
-    id: 'm5', act: 1, title: 'The Weather Machine', subtitle: 'Air masses, fronts & wave cyclones',
+    id: 'm5', level: 'private', title: 'The Weather Machine', subtitle: 'Air masses, fronts & wave cyclones',
     icon: '🌪️', color: '#F59E0B', bgColor: '#FEF3C7', prerequisites:['m1','m3','m4'],
     xpReward: 225, estimatedMin: 18,
     faaRef: 'FAA-H-8083-28B Chapter 11',
@@ -1250,7 +1250,7 @@ const MODULES = [
   // M6: THUNDERSTORMS
   // ============================================================
   {
-    id:'m6',act:2,title:'Thunderstorms',subtitle:'Lifecycle, types & avoidance rules',
+    id:'m6',level:'private',title:'Thunderstorms',subtitle:'Lifecycle, types & avoidance rules',
     icon:'⛈️',color:'#DC2626',bgColor:'#FEF2F2',prerequisites:['m4','m5'],
     xpReward:200,estimatedMin:18,faaRef:'FAA-H-8083-28B Chapter 22',
     sections:[
@@ -1546,7 +1546,7 @@ const MODULES = [
   // M7: STRUCTURAL ICING
   // ============================================================
   {
-    id:'m7',act:2,title:'Structural Icing',subtitle:'Types, effects & escape strategies',
+    id:'m7',level:'instrument',title:'Structural Icing',subtitle:'Types, effects & escape strategies',
     icon:'🧊',color:'#0EA5E9',bgColor:'#F0F9FF',prerequisites:['m4'],
     xpReward:200,estimatedMin:16,faaRef:'FAA-H-8083-28B Chapter 20',
     sections:[
@@ -1749,7 +1749,7 @@ const MODULES = [
   // M8: TURBULENCE
   // ============================================================
   {
-    id:'m8',act:2,title:'Turbulence',subtitle:'Types, intensities & wind shear',
+    id:'m8',level:'instrument',title:'Turbulence',subtitle:'Types, intensities & wind shear',
     icon:'💥',color:'#7C3AED',bgColor:'#F5F3FF',prerequisites:['m3','m4'],
     xpReward:175,estimatedMin:14,faaRef:'FAA-H-8083-28B Chapter 19',
     sections:[
@@ -1936,7 +1936,7 @@ const MODULES = [
   // M9: FOG & LOW IFR
   // ============================================================
   {
-    id:'m9',act:2,title:'Fog & Low IFR',subtitle:'Fog types, formation & visibility hazards',
+    id:'m9',level:'private',title:'Fog & Low IFR',subtitle:'Fog types, formation & visibility hazards',
     icon:'🌫️',color:'#64748B',bgColor:'#F8FAFC',prerequisites:['m4','m5'],
     xpReward:175,estimatedMin:14,faaRef:'FAA-H-8083-28B Chapter 18',
     sections:[
@@ -2208,7 +2208,7 @@ const MODULES = [
   // M10: MOUNTAIN WEATHER
   // ============================================================
   {
-    id:'m10',act:2,title:'Mountain Weather',subtitle:'Waves, rotors & downslope winds',
+    id:'m10',level:'private',title:'Mountain Weather',subtitle:'Waves, rotors & downslope winds',
     icon:'⛰️',color:'#059669',bgColor:'#ECFDF5',prerequisites:['m3','m8'],
     xpReward:225,estimatedMin:18,faaRef:'FAA-H-8083-28B Chapter 16',
     sections:[
@@ -2421,7 +2421,7 @@ const MODULES = [
   // M11: METAR DECODER
   // ============================================================
   {
-    id:'m11',act:3,title:'METAR Decoder',subtitle:'Read any aviation weather observation',
+    id:'m11',level:'student',title:'METAR Decoder',subtitle:'Read any aviation weather observation',
     icon:'📋',color:'#7C3AED',bgColor:'#F5F3FF',prerequisites:['m1','m2'],
     xpReward:200,estimatedMin:20,faaRef:'FAA-H-8083-28B Chapter 24',
     sections:[
@@ -2541,7 +2541,7 @@ const MODULES = [
   // M12: TAF DECODER
   // ============================================================
   {
-    id:'m12',act:3,title:'TAF — Terminal Forecasts',subtitle:'Read and decode aerodrome forecasts',
+    id:'m12',level:'private',title:'TAF — Terminal Forecasts',subtitle:'Read and decode aerodrome forecasts',
     icon:'📅',color:'#0284C7',bgColor:'#E0F2FE',prerequisites:['m11'],
     xpReward:200,estimatedMin:18,faaRef:'FAA-H-8083-28B Chapter 27',
     sections:[
@@ -2652,7 +2652,7 @@ const MODULES = [
   // M13: PIREPs
   // ============================================================
   {
-    id:'m13',act:3,title:'PIREPs — Pilot Reports',subtitle:'Read, interpret and file pilot weather reports',
+    id:'m13',level:'private',title:'PIREPs — Pilot Reports',subtitle:'Read, interpret and file pilot weather reports',
     icon:'📻',color:'#059669',bgColor:'#ECFDF5',prerequisites:['m11'],
     xpReward:175,estimatedMin:14,faaRef:'FAA-H-8083-28B Chapter 24',
     sections:[
@@ -2776,7 +2776,7 @@ const MODULES = [
   // M14: RADAR
   // ============================================================
   {
-    id:'m14',act:3,title:'Weather Radar',subtitle:'Reading NEXRAD, dBZ & radar products',
+    id:'m14',level:'instrument',title:'Weather Radar',subtitle:'Reading NEXRAD, dBZ & radar products',
     icon:'📡',color:'#DC2626',bgColor:'#FEF2F2',prerequisites:['m6'],
     xpReward:175,estimatedMin:14,faaRef:'FAA-H-8083-28B Chapters 15, 24',
     sections:[
@@ -3081,7 +3081,7 @@ const MODULES = [
   // M15: ADVISORIES (SIGMETs, AIRMETs, CWAs)
   // ============================================================
   {
-    id:'m15',act:3,title:'Advisories',subtitle:'SIGMETs, AIRMETs, CWAs & convective products',
+    id:'m15',level:'instrument',title:'Advisories',subtitle:'SIGMETs, AIRMETs, CWAs & convective products',
     icon:'⚠️',color:'#EA580C',bgColor:'#FFF7ED',prerequisites:['m6','m7','m8'],
     xpReward:225,estimatedMin:18,faaRef:'FAA-H-8083-28B Chapter 26',
     sections:[
@@ -3274,7 +3274,7 @@ const MODULES = [
   // M1A: THE WEATHER SERVICE SYSTEM (Ch. 1, 2, 3)
   // ============================================================
   {
-    id:'m1a',act:1,title:'The Weather Service System',subtitle:'NOAA, NWS, AWC, FSS & how a briefing is built',
+    id:'m1a',level:'student',title:'The Weather Service System',subtitle:'NOAA, NWS, AWC, FSS & how a briefing is built',
     icon:'🏛️',color:'#0284C7',bgColor:'#E0F2FE',prerequisites:['m1'],
     xpReward:100,estimatedMin:10,faaRef:'FAA-H-8083-28B Chapters 1, 2, 3',
     sections:[
@@ -3456,7 +3456,7 @@ const MODULES = [
   // M16: WEATHER SERVICE & BRIEFINGS (Ch. 2, 3)
   // ============================================================
   {
-    id:'m16',act:1,title:'Weather Service & Briefings',subtitle:'NWS, FAA, FSS & the self-briefing process',
+    id:'m16',level:'student',title:'Weather Service & Briefings',subtitle:'NWS, FAA, FSS & the self-briefing process',
     icon:'📞',color:'#0369A1',bgColor:'#E0F2FE',prerequisites:['m11','m12','m15'],
     xpReward:175,estimatedMin:16,faaRef:'FAA-H-8083-28B Chapters 2, 3',
     sections:[
@@ -3694,7 +3694,7 @@ const MODULES = [
   // M17: HEAT, WATER VAPOR & PRECIPITATION (Ch. 5, 6, 14)
   // ============================================================
   {
-    id:'m17',act:1,title:'Heat, Water Vapor & Precipitation',subtitle:'Heat transfer, dewpoint, latent heat & precip types',
+    id:'m17',level:'private',title:'Heat, Water Vapor & Precipitation',subtitle:'Heat transfer, dewpoint, latent heat & precip types',
     icon:'💧',color:'#0EA5E9',bgColor:'#F0F9FF',prerequisites:['m1','m4'],
     xpReward:200,estimatedMin:18,faaRef:'FAA-H-8083-28B Chapters 5, 6, 14',
     sections:[
@@ -3874,7 +3874,7 @@ const MODULES = [
   // M18: TROPICAL & ARCTIC WEATHER (Ch. 17, 21)
   // ============================================================
   {
-    id:'m18',act:2,title:'Tropical & Arctic Weather',subtitle:'ITCZ, tropical cyclones, Arctic hazards & whiteout',
+    id:'m18',level:'instrument',title:'Tropical & Arctic Weather',subtitle:'ITCZ, tropical cyclones, Arctic hazards & whiteout',
     icon:'🌏',color:'#0891B2',bgColor:'#ECFEFF',prerequisites:['m1','m5','m6'],
     xpReward:200,estimatedMin:16,faaRef:'FAA-H-8083-28B Chapters 17, 21',
     sections:[
@@ -3974,7 +3974,7 @@ const MODULES = [
   // M19: SPACE WEATHER & ANALYSIS CHARTS (Ch. 23, 25)
   // ============================================================
   {
-    id:'m19',act:3,title:'Space Weather & Analysis Charts',subtitle:'Solar events, GPS disruption, surface analysis & skew-T',
+    id:'m19',level:'commercial',title:'Space Weather & Analysis Charts',subtitle:'Solar events, GPS disruption, surface analysis & skew-T',
     icon:'🛰️',color:'#7C3AED',bgColor:'#F5F3FF',prerequisites:['m1','m3'],
     xpReward:200,estimatedMin:18,faaRef:'FAA-H-8083-28B Chapters 23, 25',
     sections:[
@@ -4225,7 +4225,7 @@ const MODULES = [
   // M20: ADVANCED PRODUCTS (Ch. 7, 27 gaps, 26 gaps)
   // ============================================================
   {
-    id:'m20',act:3,title:'Advanced Weather Products',subtitle:'Winds aloft, SIGWX charts, energy balance & full advisory suite',
+    id:'m20',level:'commercial',title:'Advanced Weather Products',subtitle:'Winds aloft, SIGWX charts, energy balance & full advisory suite',
     icon:'🗺️',color:'#059669',bgColor:'#ECFDF5',prerequisites:['m11','m12','m13','m14','m15'],
     xpReward:225,estimatedMin:20,faaRef:'FAA-H-8083-28B Chapters 7, 26, 27',
     sections:[
