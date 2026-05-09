@@ -116,12 +116,22 @@ const GameEngine = {
       : Math.max(0, Math.min(progress.lastSectionIdx || 0, mod.sections.length - 1));
     const sectionTitle = mod.sections[sectionIdx]?.title || 'Lesson';
     if (target.type === 'quiz') {
+      // Resume genuinely works (see Screens.quiz() — it shows a Continue/Start-over
+      // prompt rehydrated from state.quizInProgress.current/score/wrongIds/resolved
+      // when the saved progress matches the requested module). Reflect that in
+      // the CTA: if an in-progress quiz exists for this module, surface the
+      // "question N of M" detail so the user knows tapping resumes, not restarts.
+      const saved = this.state.quizInProgress;
+      const total = Array.isArray(mod.quiz) ? mod.quiz.filter(Boolean).length : 0;
+      const inProgress = saved && saved.moduleId === mod.id && saved.current > 0 && total > 0 && saved.current < total;
       return {
         screen: 'quiz',
         params: { moduleId: mod.id },
-        title: 'Resume quiz',
-        subtitle: `${mod.title} · restart the module quiz`,
-        actionLabel: 'Restart quiz'
+        title: inProgress ? 'Resume quiz' : 'Quiz',
+        subtitle: inProgress
+          ? `${mod.title} · question ${saved.current + 1} of ${total}`
+          : `${mod.title} · take the module quiz`,
+        actionLabel: inProgress ? 'Resume' : 'Take quiz'
       };
     }
     return {
