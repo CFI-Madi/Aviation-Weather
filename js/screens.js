@@ -22,7 +22,7 @@ const Screens = {
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <div>
           <h1 style="font-family:var(--font-display);font-size:26px;font-weight:900;color:var(--navy);margin:0">Aviation Weather</h1>
-          <p style="color:#64748B;font-size:13px;margin:4px 0 0">Weather Academy — FAA-H-8083-28A</p>
+          <p style="color:#64748B;font-size:13px;margin:4px 0 0">Weather Academy — FAA-H-8083-28B</p>
         </div>
         <div style="text-align:right">
           <div style="font-family:var(--font-mono);font-size:24px;font-weight:700;color:var(--navy)">${s.totalXP.toLocaleString()}</div>
@@ -155,7 +155,7 @@ const Screens = {
         <button onclick="Screens.filterModules('all');Router.navigate('modules')" style="background:var(--navy);color:white;border:none;border-radius:14px;padding:14px 28px;font-family:var(--font-display);font-weight:800;font-size:16px;cursor:pointer">View All ${MODULES.length} Modules</button>
       </div>
 
-      <div style="text-align:center;font-family:var(--font-mono);font-size:10px;color:#CBD5E1;padding:8px">FAA-H-8083-28A Aviation Weather Handbook (2024)</div>
+      <div style="text-align:center;font-family:var(--font-mono);font-size:10px;color:#CBD5E1;padding:8px">FAA-H-8083-28B Aviation Weather Handbook (2026)</div>
     `;
   },
 
@@ -373,7 +373,7 @@ const Screens = {
 
     document.getElementById('modules-content').innerHTML = `
       <h1 style="font-family:var(--font-display);font-size:26px;font-weight:900;color:var(--navy);margin-bottom:4px">Modules</h1>
-      <p style="color:#64748B;font-size:14px;margin-bottom:16px">FAA-H-8083-28A - ${MODULES.length} modules across 3 acts</p>
+      <p style="color:#64748B;font-size:14px;margin-bottom:16px">FAA-H-8083-28B - ${MODULES.length} modules across 3 acts</p>
       
       <div class="card" style="padding:16px;margin-bottom:16px">
         <div style="font-family:var(--font-display);font-weight:800;font-size:15px;color:var(--navy);margin-bottom:10px">Quick Find</div>
@@ -1930,9 +1930,9 @@ const Onboarding = {
         <div style="background:white;border-radius:24px;padding:36px 28px;max-width:400px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.5)">
           <div style="font-size:44px;margin-bottom:16px;letter-spacing:6px">✈️ ⛅</div>
           <h1 style="font-family:var(--font-display);font-size:24px;font-weight:900;color:#0C1B33;margin:0 0 6px">Aviation Weather Academy</h1>
-          <div style="font-family:var(--font-mono);font-size:11px;color:#94A3B8;letter-spacing:.04em;margin-bottom:28px">FAA-H-8083-28A · Pilot Weather Training</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:#94A3B8;letter-spacing:.04em;margin-bottom:28px">FAA-H-8083-28B · Pilot Weather Training</div>
           <div style="background:#F0F9FF;border-radius:14px;padding:16px 18px;text-align:left;margin-bottom:28px">
-            <p style="font-size:13px;color:#334155;line-height:1.75;margin:0;font-family:var(--font-body)">This app is an educational study tool based on FAA-H-8083-28A (Aviation Weather Handbook). It is not a substitute for FAA-approved training, a certified ground school, or instruction from a qualified CFI. Always verify weather decisions with official sources and current briefings.</p>
+            <p style="font-size:13px;color:#334155;line-height:1.75;margin:0;font-family:var(--font-body)">This app is an educational study tool based on FAA-H-8083-28B (Aviation Weather Handbook). It is not a substitute for FAA-approved training, a certified ground school, or instruction from a qualified CFI. Always verify weather decisions with official sources and current briefings.</p>
           </div>
           <button onclick="Onboarding._renderScreen2()" style="width:100%;background:#0C1B33;color:white;border:none;border-radius:16px;padding:16px;font-family:var(--font-display);font-weight:800;font-size:15px;cursor:pointer">I understand — let's begin</button>
         </div>

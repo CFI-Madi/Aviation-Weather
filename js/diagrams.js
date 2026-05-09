@@ -39,14 +39,14 @@ const Diagrams = {
   // Renders an image with an attribution strip on top (mono font, sky-blue on navy)
   // and an optional teaching caption below. Image sizing follows the existing
   // PROCESS_DIAGRAMS convention (width:100%, max-height:320px, object-fit:contain).
-  // Graceful degradation: missing figureNumber → "FAA-H-8083-28A" only;
+  // Graceful degradation: missing figureNumber → "FAA-H-8083-28B" only;
   // missing alt → derive from title, otherwise warn and use a generic fallback.
   renderFaaFigure({ src, figureNumber, title, caption, alt } = {}) {
     if (!src) {
       console.warn('[renderFaaFigure] src is required');
       return '';
     }
-    const attribParts = ['FAA-H-8083-28A'];
+    const attribParts = ['FAA-H-8083-28B'];
     if (figureNumber) attribParts.push(`Fig ${figureNumber}`);
     const attribText = attribParts.join(' · ');
     const titleSuffix = title ? ` <span class="faa-fig-title">— ${title}</span>` : '';
@@ -152,7 +152,7 @@ const Diagrams = {
     </div>`;
   },
 
-  // FAA-H-8083-28A Fig 10-8 — geostrophic-wind balance diagram. Two panels:
+  // FAA-H-8083-28B Fig 10-8 — geostrophic-wind balance diagram. Two panels:
   // an air parcel accelerating down the pressure gradient (NET FORCE) on the
   // left, and the steady-state where Coriolis balances PGF (NO NET FORCE)
   // and the wind flows parallel to height contours on the right.
@@ -162,11 +162,11 @@ const Diagrams = {
       figureNumber: '10-8',
       title: 'Geostrophic Wind',
       caption: 'Left panel: an air parcel accelerated by the pressure-gradient force (PGF). Right panel: at steady state above the friction layer, Coriolis force balances PGF and the resultant wind flows parallel to the height contours — geostrophic wind.',
-      alt: 'FAA-H-8083-28A Figure 10-8: geostrophic wind balance — PGF accelerating an air parcel until Coriolis balances it and produces wind parallel to height contours.',
+      alt: 'FAA-H-8083-28B Figure 10-8: geostrophic wind balance — PGF accelerating an air parcel until Coriolis balances it and produces wind parallel to height contours.',
     });
   },
 
-  // FAA-H-8083-28A Fig 11-4 — the four-row table of frontal chart symbols and
+  // FAA-H-8083-28B Fig 11-4 — the four-row table of frontal chart symbols and
   // their definitions. Bespoke markup (not via renderFaaFigure) because this
   // swap preserves the original tap-to-expand popup behavior: each table row
   // has a transparent overlay button that triggers Diagrams.showPopup with
@@ -174,7 +174,7 @@ const Diagrams = {
   // alone doesn't carry.
   //
   // Row vertical bands (percent of figure height) are calibrated against
-  // Fig 11-4's specific table layout in the FAA-H-8083-28A (Dec 2024)
+  // Fig 11-4's specific table layout in the FAA-H-8083-28B (Apr 2026)
   // edition: header band ~14%, four equal data rows ~19% each, footer
   // note ~10%. Mobile-verified at 657px viewport — overlays remain aligned
   // because the image is rendered at width:100%/max-height:320px with
@@ -198,9 +198,9 @@ const Diagrams = {
     const escAttr = s => String(s).replace(/'/g, '&apos;').replace(/"/g, '&quot;');
     const overlays = rows.map(r => `<button type="button" class="fronts-row-tap" aria-label="${escAttr(r.label)} — tap for description" onclick="Diagrams.showPopup('${r.key}','${escAttr(r.title)}','${escAttr(r.text)}')" style="position:absolute;left:0;width:100%;top:${r.top}%;height:19%;background:transparent;border:0;cursor:pointer;padding:0"></button>`).join('');
     return `<figure class="faa-figure" style="position:relative">
-      <div class="faa-fig-tag">FAA-H-8083-28A · Fig 11-4 <span class="faa-fig-title">— Front Symbols</span></div>
+      <div class="faa-fig-tag">FAA-H-8083-28B · Fig 11-4 <span class="faa-fig-title">— Front Symbols</span></div>
       <div style="position:relative">
-        <img src="img/awh/awh_p0142_img_002.png" alt="FAA-H-8083-28A Figure 11-4: table of frontal chart symbols and definitions for cold, warm, stationary, and occluded fronts." style="width:100%;display:block;max-height:320px;object-fit:contain;background:white">
+        <img src="img/awh/awh_p0142_img_002.png" alt="FAA-H-8083-28B Figure 11-4: table of frontal chart symbols and definitions for cold, warm, stationary, and occluded fronts." style="width:100%;display:block;max-height:320px;object-fit:contain;background:white">
         ${overlays}
       </div>
       <div id="fr-popup" style="display:none;background:var(--navy);color:white;padding:14px 16px;font-family:var(--font-display);font-size:13px;line-height:1.5;border-top:1px solid rgba(56,189,248,.15)">
@@ -331,7 +331,7 @@ const Diagrams = {
 
   // ===== NEW: CLOUD GALLERY =====
   cloudGallerySVG() {
-    // FAA-H-8083-28A Appendix A — twelve canonical cloud-genera photo plates.
+    // FAA-H-8083-28B Appendix A — twelve canonical cloud-genera photo plates.
     // Each entry: figure number, official caption from the handbook, file path, and
     // a one-line operational hint surfaced as the FAA caption strip.
     const plates = [
@@ -353,9 +353,9 @@ const Diagrams = {
       figureNumber: p.fig,
       title: p.title,
       caption: p.tip,
-      alt: `FAA-H-8083-28A Figure ${p.fig}: ${p.title}`,
+      alt: `FAA-H-8083-28B Figure ${p.fig}: ${p.title}`,
     })).join('');
-    return `<div style="padding:14px 14px 8px;font-family:var(--font-display);font-size:13px;color:#64748B;font-weight:700">FAA-H-8083-28A Appendix A — Cloud Identification Plates</div>
+    return `<div style="padding:14px 14px 8px;font-family:var(--font-display);font-size:13px;color:#64748B;font-weight:700">FAA-H-8083-28B Appendix A — Cloud Identification Plates</div>
       <div class="faa-fig-grid cols-2-3" style="padding:0 12px 12px">${cells}</div>`;
   },
 
@@ -660,7 +660,7 @@ const Diagrams = {
     statusEl.textContent = status; statusEl.style.background = bg; statusEl.style.color = color;
   },
 
-  // FAA-H-8083-28A Fig 9-5 — global view of polar and subtropical jet streams.
+  // FAA-H-8083-28B Fig 9-5 — global view of polar and subtropical jet streams.
   // The lesson body in m3/s3_3 covers altitudes, wind speeds, CAT placement,
   // and jet-streak entrance/exit quadrants in text — not overlaid here.
   jetStreamSVG() {
@@ -669,11 +669,11 @@ const Diagrams = {
       figureNumber: '9-5',
       title: 'Polar and Subtropical Jet Streams',
       caption: 'The polar jet (blue, ~30,000–40,000 ft) and subtropical jet (red, ~35,000–40,000 ft) wind around the globe at temperate and subtropical latitudes. CAT zones, jet-streak entrance/exit quadrants, and seasonal migration are covered in the lesson body above.',
-      alt: 'FAA-H-8083-28A Figure 9-5: Illustration of polar and subtropical jet streams and their relative locations around the globe.',
+      alt: 'FAA-H-8083-28B Figure 9-5: Illustration of polar and subtropical jet streams and their relative locations around the globe.',
     });
   },
 
-  // FAA-H-8083-28A Fig 25-5 — synoptic surface chart showing H/L pressure
+  // FAA-H-8083-28B Fig 25-5 — synoptic surface chart showing H/L pressure
   // systems, isobars at 4-mb intervals, troughs (dashed blue lines), and
   // drainage axes (dashed brown lines). Pass 2c relocated this from m3/s3_2
   // (where the call site predated the FAA swap and was conceptually
@@ -685,11 +685,11 @@ const Diagrams = {
       figureNumber: '25-5',
       title: 'Surface Chart Pressure Patterns',
       caption: 'Synoptic surface chart over the United States: H and L mark pressure-system centers, solid black lines are isobars (4-mb intervals labeled in millibars), dashed blue lines are troughs, and dashed brown lines are drainage axes.',
-      alt: 'FAA-H-8083-28A Figure 25-5: schematic of surface chart pressure patterns showing high and low centers, isobars, troughs, and drainage axes over the continental United States.',
+      alt: 'FAA-H-8083-28B Figure 25-5: schematic of surface chart pressure patterns showing high and low centers, isobars, troughs, and drainage axes over the continental United States.',
     });
   },
 
-  // FAA-H-8083-28A Fig 10-10 — three forces acting on a surface air parcel:
+  // FAA-H-8083-28B Fig 10-10 — three forces acting on a surface air parcel:
   // PGF (toward lower pressure), Coriolis (perpendicular to motion), and
   // friction (opposite the wind). Below the friction layer the three
   // forces no longer balance cleanly, so the resultant wind crosses isobars
@@ -700,7 +700,7 @@ const Diagrams = {
       figureNumber: '10-10',
       title: 'Surface Wind Forces',
       caption: 'Below the friction layer (roughly the lowest 2,000 ft AGL over flat terrain), friction adds a third force opposite the wind direction. PGF and Coriolis no longer balance cleanly, so the resultant wind crosses isobars at an angle toward lower pressure rather than flowing parallel to them.',
-      alt: 'FAA-H-8083-28A Figure 10-10: surface wind forces showing PGF, Coriolis, and friction acting on an air parcel below the boundary layer.',
+      alt: 'FAA-H-8083-28B Figure 10-10: surface wind forces showing PGF, Coriolis, and friction acting on an air parcel below the boundary layer.',
     });
   },
 
@@ -779,7 +779,7 @@ const Diagrams = {
     document.getElementById('cb-ing-text').textContent=i.text;
   },
 
-  // FAA-H-8083-28A Ch 19 — turbulence types by mechanism. The four figures
+  // FAA-H-8083-28B Ch 19 — turbulence types by mechanism. The four figures
   // below cover the four mechanisms the FAA splits into separate diagrams.
   // Clear Air Turbulence is handled in m8/s8_3 (text + jet-stream context),
   // not represented here — the FAA itself doesn't combine CAT with the
@@ -796,16 +796,16 @@ const Diagrams = {
       figureNumber: f.fig,
       title: f.title,
       caption: f.caption,
-      alt: `FAA-H-8083-28A Figure ${f.fig}: ${f.title} turbulence`,
+      alt: `FAA-H-8083-28B Figure ${f.fig}: ${f.title} turbulence`,
     })).join('');
     return `<div class="diagram-container"><div class="diagram-header"><span style="font-size:14px;color:white;font-family:var(--font-display);font-weight:700">💥 Turbulence Sources — FAA Handbook Ch 19</span></div>
     <div style="background:#F8FAFC;padding:14px">
-      <p style="font-size:13px;color:#475569;margin:0 0 10px;line-height:1.6">The four mechanism types covered by FAA-H-8083-28A Chapter 19. <strong>Clear Air Turbulence (CAT)</strong> is treated separately in the lesson section that follows, alongside its jet-stream context.</p>
+      <p style="font-size:13px;color:#475569;margin:0 0 10px;line-height:1.6">The four mechanism types covered by FAA-H-8083-28B Chapter 19. <strong>Clear Air Turbulence (CAT)</strong> is treated separately in the lesson section that follows, alongside its jet-stream context.</p>
       <div class="faa-fig-grid cols-2">${cells}</div>
     </div></div>`;
   },
 
-  // FAA-H-8083-28A Ch 18 — five fog formation diagrams. The section's lesson
+  // FAA-H-8083-28B Ch 18 — five fog formation diagrams. The section's lesson
   // body in m9/s9_2 already carries five characteristic cards (when each
   // forms, what wind speeds favor it, where it commonly occurs); these
   // formation figures complement that operational summary by showing the
@@ -824,11 +824,11 @@ const Diagrams = {
       figureNumber: f.fig,
       title: f.title,
       caption: f.caption,
-      alt: `FAA-H-8083-28A Figure ${f.fig}: ${f.title} formation`,
+      alt: `FAA-H-8083-28B Figure ${f.fig}: ${f.title} formation`,
     })).join('');
     return `<div class="diagram-container"><div class="diagram-header"><span style="font-size:14px;color:white;font-family:var(--font-display);font-weight:700">🌫️ Fog Formation — FAA Handbook Ch 18</span></div>
     <div style="background:#F8FAFC;padding:14px">
-      <p style="font-size:13px;color:#475569;margin:0 0 10px;line-height:1.6">Five formation mechanisms covered by FAA-H-8083-28A Chapter 18. Each figure shows how that fog type physically develops; the operational characteristics (when, where, and what wind speeds favor each) are in the cards in the section above.</p>
+      <p style="font-size:13px;color:#475569;margin:0 0 10px;line-height:1.6">Five formation mechanisms covered by FAA-H-8083-28B Chapter 18. Each figure shows how that fog type physically develops; the operational characteristics (when, where, and what wind speeds favor each) are in the cards in the section above.</p>
       <div class="faa-fig-grid cols-2-3">${cells}</div>
     </div></div>`;
   },

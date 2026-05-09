@@ -1,6 +1,6 @@
 # Aviation Weather Academy
 
-A study tool for Part 61 private pilot students, built around the **FAA Aviation Weather Handbook (FAA-H-8083-28A)**. Maintained by [Charlotte Flight Academy](https://github.com/CFI-Madi).
+A study tool for Part 61 private pilot students, built around the **FAA Aviation Weather Handbook (FAA-H-8083-28B)**. Maintained by [Charlotte Flight Academy](https://github.com/CFI-Madi).
 
 ## What's in it
 
@@ -15,7 +15,7 @@ A study tool for Part 61 private pilot students, built around the **FAA Aviation
 
 ## Source
 
-The curriculum is structured around **FAA-H-8083-28A — Aviation Weather Handbook (Dec. 2024)**. Section text paraphrases handbook concepts for learner clarity rather than reproducing FAA copy verbatim; figure references use FAA-H-8083-28A figure numbers where the in-app diagram corresponds to a handbook figure.
+The curriculum is structured around **FAA-H-8083-28B — Aviation Weather Handbook (Apr. 2026)**. Section text paraphrases handbook concepts for learner clarity rather than reproducing FAA copy verbatim; figure references use FAA-H-8083-28B figure numbers where the in-app diagram corresponds to a handbook figure.
 
 This app is an educational study tool. It is **not a substitute** for FAA-approved training, a certified ground school, or instruction from a qualified CFI. Always verify weather decisions with official sources and current briefings.
 

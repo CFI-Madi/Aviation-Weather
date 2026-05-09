@@ -14,8 +14,8 @@ const FAA_VALIDATION_SOURCES = {
   AWH: {
     sourceType: 'AWH',
     sourceTitle: 'Aviation Weather Handbook',
-    sourceEdition: 'FAA-H-8083-28A (Dec. 2024)',
-    sourceUrl: 'https://www.faa.gov/regulationspolicies/handbooksmanuals/aviation/faa-h-8083-28a-aviation-weather-handbook'
+    sourceEdition: 'FAA-H-8083-28B (Apr. 2026)',
+    sourceUrl: 'https://www.faa.gov/regulationspolicies/handbooksmanuals/aviation/faa-h-8083-28b-aviation-weather-handbook'
   },
   PHAK: {
     sourceType: 'PHAK',

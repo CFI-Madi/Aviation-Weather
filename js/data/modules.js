@@ -1,6 +1,6 @@
 // ============================================================
 // Aviation Weather Academy — Modules Data
-// 15 modules across 3 acts, FAA-H-8083-28A (2024)
+// 15 modules across 3 acts, FAA-H-8083-28B (2026)
 // ============================================================
 
 const MODULES = [
@@ -13,7 +13,7 @@ const MODULES = [
     id: 'm1', act: 1, title: 'The Atmosphere', subtitle: 'Layers, composition & temperature',
     icon: '🌍', color: '#38BDF8', bgColor: '#E0F2FE', prerequisites: [],
     xpReward: 150, estimatedMin: 12,
-    faaRef: 'FAA-H-8083-28A Chapters 4, 5, 6, 7',
+    faaRef: 'FAA-H-8083-28B Chapters 4, 5, 6, 7',
     sections: [
       {
         id: 's1_1', title: 'Layers of the Atmosphere',
@@ -49,7 +49,7 @@ const MODULES = [
             </div>
           </div>
           <div class="callout">💧 <strong>Water vapor is the wildcard.</strong> While only 0–4% of total volume, it is the most important component for weather formation—it is the source of all clouds, precipitation, and the release of latent heat that drives atmospheric dynamics.</div>
-          <p>At the revised <span class="data-tag">0.042%</span> CO₂ level noted in FAA-H-8083-28A Revision A (updated from 0.033%), CO₂ plays an increasing role in atmospheric heat retention but has negligible direct effect on aircraft performance.</p>
+          <p>At the revised <span class="data-tag">0.042%</span> CO₂ level noted in FAA-H-8083-28B Revision A (updated from 0.033%), CO₂ plays an increasing role in atmospheric heat retention but has negligible direct effect on aircraft performance.</p>
         `
       },
       {
@@ -263,7 +263,7 @@ const MODULES = [
     id: 'm2', act: 1, title: 'Pressure & Altimetry', subtitle: 'Density altitude & altimeter errors',
     icon: '🌡️', color: '#6366F1', bgColor: '#EEF2FF', prerequisites:['m1'],
     xpReward: 175, estimatedMin: 14,
-    faaRef: 'FAA-H-8083-28A Chapter 8',
+    faaRef: 'FAA-H-8083-28B Chapter 8',
     sections: [
       {
         id: 's2_1', title: 'Atmospheric Pressure',
@@ -456,7 +456,7 @@ const MODULES = [
     id: 'm3', act: 1, title: 'Wind & Circulation', subtitle: 'Forces, jet streams & local winds',
     icon: '💨', color: '#10B981', bgColor: '#D1FAE5', prerequisites:['m1','m2'],
     xpReward: 175, estimatedMin: 15,
-    faaRef: 'FAA-H-8083-28A Chapters 9, 10',
+    faaRef: 'FAA-H-8083-28B Chapters 9, 10',
     sections: [
       {
         id: 's3_1', title: 'Three Forces That Drive Wind',
@@ -730,7 +730,7 @@ const MODULES = [
     id: 'm4', act: 1, title: 'Clouds & Stability', subtitle: 'Lapse rates, inversions & cloud types',
     icon: '☁️', color: '#8B5CF6', bgColor: '#F5F3FF', prerequisites:['m1','m2'],
     xpReward: 200, estimatedMin: 16,
-    faaRef: 'FAA-H-8083-28A Chapters 12, 13, 14',
+    faaRef: 'FAA-H-8083-28B Chapters 12, 13, 14',
     sections: [
       {
         id: 's4_1', title: 'Atmospheric Stability',
@@ -1018,7 +1018,7 @@ const MODULES = [
     id: 'm5', act: 1, title: 'The Weather Machine', subtitle: 'Air masses, fronts & wave cyclones',
     icon: '🌪️', color: '#F59E0B', bgColor: '#FEF3C7', prerequisites:['m1','m3','m4'],
     xpReward: 225, estimatedMin: 18,
-    faaRef: 'FAA-H-8083-28A Chapter 11',
+    faaRef: 'FAA-H-8083-28B Chapter 11',
     sections: [
       {
         id: 's5_1', title: 'Air Masses',
@@ -1252,7 +1252,7 @@ const MODULES = [
   {
     id:'m6',act:2,title:'Thunderstorms',subtitle:'Lifecycle, types & avoidance rules',
     icon:'⛈️',color:'#DC2626',bgColor:'#FEF2F2',prerequisites:['m4','m5'],
-    xpReward:200,estimatedMin:18,faaRef:'FAA-H-8083-28A Chapter 22',
+    xpReward:200,estimatedMin:18,faaRef:'FAA-H-8083-28B Chapter 22',
     sections:[
       {
         id:'s6_1',title:'The Three Ingredients',
@@ -1503,7 +1503,7 @@ const MODULES = [
          ],
          trap:'KJQF is VMC and the sky at departure looks inviting. The error is fixating on current departure conditions while ignoring where you will be in 70 minutes. The TEMPO window is not "later" — it begins before you even reach the mountains and continues through your entire arrival window.'
        },
-       xp:30,concept:'thunderstorm_avoidance',faaRef:'FAA-H-8083-28A Ch. 22, 26'},
+       xp:30,concept:'thunderstorm_avoidance',faaRef:'FAA-H-8083-28B Ch. 22, 26'},
       {id:'wb_m6_2',type:'wx_brief',
        title:'Embedded Thunderstorms — Night IFR KCLT to KATL',
        mission:{departure:'KCLT',destination:'KATL',aircraft:'Single-engine piston (no airborne weather radar)',
@@ -1538,7 +1538,7 @@ const MODULES = [
          ],
          trap:'Both airport METARs look reasonable — KCLT MVFR, KATL VFR. The error is fixating on endpoint conditions and assuming the route is safe because both ends report acceptable weather. EMBD means you will not see these cells until you are inside them. Option C (alternate routing) is tempting but the SIGMET covers the entire corridor, not a discrete cell that can be routed around.'
        },
-       xp:30,concept:'thunderstorm_avoidance',faaRef:'FAA-H-8083-28A Ch. 22, 26'}
+       xp:30,concept:'thunderstorm_avoidance',faaRef:'FAA-H-8083-28B Ch. 22, 26'}
     ]
   },
 
@@ -1548,7 +1548,7 @@ const MODULES = [
   {
     id:'m7',act:2,title:'Structural Icing',subtitle:'Types, effects & escape strategies',
     icon:'🧊',color:'#0EA5E9',bgColor:'#F0F9FF',prerequisites:['m4'],
-    xpReward:200,estimatedMin:16,faaRef:'FAA-H-8083-28A Chapter 20',
+    xpReward:200,estimatedMin:16,faaRef:'FAA-H-8083-28B Chapter 20',
     sections:[
       {
         id:'s7_1',title:'How Ice Forms on Aircraft',
@@ -1751,7 +1751,7 @@ const MODULES = [
   {
     id:'m8',act:2,title:'Turbulence',subtitle:'Types, intensities & wind shear',
     icon:'💥',color:'#7C3AED',bgColor:'#F5F3FF',prerequisites:['m3','m4'],
-    xpReward:175,estimatedMin:14,faaRef:'FAA-H-8083-28A Chapter 19',
+    xpReward:175,estimatedMin:14,faaRef:'FAA-H-8083-28B Chapter 19',
     sections:[
       {
         id:'s8_1',title:'Turbulence Intensity Scale',
@@ -1880,7 +1880,7 @@ const MODULES = [
           'Normal wind gradient effect — maintain current configuration and continue'
         ],
         correct:1,xp:25,
-        explanation:'A sudden airspeed increase near convective weather is the classic WARNING sign of an approaching microburst — you are in the initial headwind phase. The tailwind and downdraft phases follow, with sudden airspeed LOSS. The correct response: go-around IMMEDIATELY, report wind shear to ATC, and do not attempt another approach until conditions clear. "Any sudden airspeed increase should be viewed as a possible indication of a forthcoming airspeed decrease." — FAA-H-8083-28A',
+        explanation:'A sudden airspeed increase near convective weather is the classic WARNING sign of an approaching microburst — you are in the initial headwind phase. The tailwind and downdraft phases follow, with sudden airspeed LOSS. The correct response: go-around IMMEDIATELY, report wind shear to ATC, and do not attempt another approach until conditions clear. "Any sudden airspeed increase should be viewed as a possible indication of a forthcoming airspeed decrease." — FAA-H-8083-28B',
         faaRef:'Ch. 22, 19'
       },
       {
@@ -1938,7 +1938,7 @@ const MODULES = [
   {
     id:'m9',act:2,title:'Fog & Low IFR',subtitle:'Fog types, formation & visibility hazards',
     icon:'🌫️',color:'#64748B',bgColor:'#F8FAFC',prerequisites:['m4','m5'],
-    xpReward:175,estimatedMin:14,faaRef:'FAA-H-8083-28A Chapter 18',
+    xpReward:175,estimatedMin:14,faaRef:'FAA-H-8083-28B Chapter 18',
     sections:[
       {
         id:'s9_1',title:'What Is Fog?',
@@ -2164,7 +2164,7 @@ const MODULES = [
          ],
          trap:'The TAF says KHKY improves to 1SM by 1400Z — if you depart at 1330Z it looks like you will just make it. The trap is treating the TAF BECMG timing as a precision guarantee. Radiation fog lift depends on solar heating rate, which varies with cloud albedo, humidity, and wind. A fog layer that traps its own moisture can delay burn-off by 1-3 hours beyond TAF forecasts. Actual KHKY conditions at 1300Z are more reliable than a 3-hour-old forecast.'
        },
-       xp:30,concept:'fog_types',faaRef:'FAA-H-8083-28A Ch. 18'},
+       xp:30,concept:'fog_types',faaRef:'FAA-H-8083-28B Ch. 18'},
       {id:'wb_m9_2',type:'wx_brief',
        title:'Advection Fog, Persistent IFR — KGSP to KCAE',
        mission:{departure:'KGSP',destination:'KCAE',aircraft:'Single-engine piston',
@@ -2200,7 +2200,7 @@ const MODULES = [
          ],
          trap:'Option A: "3SM is above VFR minimums." Two errors: (1) the ceiling at 400ft AGL means you must fly at or below 400ft above ground in Class E airspace — legally prohibited and dangerous near terrain; (2) Options D: filing KCUB as alternate provides no protection — KCUB is 3nm from KCAE in the same advection fog airmass. Both airports will have identical conditions.'
        },
-       xp:30,concept:'fog_types',faaRef:'FAA-H-8083-28A Ch. 18'}
+       xp:30,concept:'fog_types',faaRef:'FAA-H-8083-28B Ch. 18'}
     ]
   },
 
@@ -2210,7 +2210,7 @@ const MODULES = [
   {
     id:'m10',act:2,title:'Mountain Weather',subtitle:'Waves, rotors & downslope winds',
     icon:'⛰️',color:'#059669',bgColor:'#ECFDF5',prerequisites:['m3','m8'],
-    xpReward:225,estimatedMin:18,faaRef:'FAA-H-8083-28A Chapter 16',
+    xpReward:225,estimatedMin:18,faaRef:'FAA-H-8083-28B Chapter 16',
     sections:[
       {
         id:'s10_1',title:'Mountain Wave Mechanics',
@@ -2423,7 +2423,7 @@ const MODULES = [
   {
     id:'m11',act:3,title:'METAR Decoder',subtitle:'Read any aviation weather observation',
     icon:'📋',color:'#7C3AED',bgColor:'#F5F3FF',prerequisites:['m1','m2'],
-    xpReward:200,estimatedMin:20,faaRef:'FAA-H-8083-28A Chapter 24',
+    xpReward:200,estimatedMin:20,faaRef:'FAA-H-8083-28B Chapter 24',
     sections:[
       {
         id:'s11_1',title:'What Is a METAR?',
@@ -2433,7 +2433,7 @@ const MODULES = [
             <span style="font-size:28px">⏱️</span>
             <div><strong>Routine METARs</strong> are issued near the top of each hour. <strong>SPECIs</strong> (Special reports) are issued whenever conditions change significantly — visibility crosses key thresholds, thunderstorm begins/ends, wind shifts 45°+ in under 15 min at ≥10 kt.</div>
           </div>
-          <p>The METAR code is used worldwide (ICAO standard), though some elements differ between countries. This course focuses on the US format as defined in FAA-H-8083-28A.</p>
+          <p>The METAR code is used worldwide (ICAO standard), though some elements differ between countries. This course focuses on the US format as defined in FAA-H-8083-28B.</p>
           <div class="callout">📖 <strong>Format overview:</strong> TYPE · STATION · DATE/TIME · MODIFIER · WIND · VISIBILITY · RVR · WEATHER · SKY · TEMP/DEW · ALTIMETER · RMK (remarks)</div>
           <p>Modern weather apps decode METARs automatically — but <em>every pilot must understand the raw code</em> because the decoded version may not always be available, and understanding the format lets you spot unusual or critical items quickly.</p>
         `
@@ -2543,7 +2543,7 @@ const MODULES = [
   {
     id:'m12',act:3,title:'TAF — Terminal Forecasts',subtitle:'Read and decode aerodrome forecasts',
     icon:'📅',color:'#0284C7',bgColor:'#E0F2FE',prerequisites:['m11'],
-    xpReward:200,estimatedMin:18,faaRef:'FAA-H-8083-28A Chapter 27',
+    xpReward:200,estimatedMin:18,faaRef:'FAA-H-8083-28B Chapter 27',
     sections:[
       {
         id:'s12_1',title:'What Is a TAF?',
@@ -2654,7 +2654,7 @@ const MODULES = [
   {
     id:'m13',act:3,title:'PIREPs — Pilot Reports',subtitle:'Read, interpret and file pilot weather reports',
     icon:'📻',color:'#059669',bgColor:'#ECFDF5',prerequisites:['m11'],
-    xpReward:175,estimatedMin:14,faaRef:'FAA-H-8083-28A Chapter 24',
+    xpReward:175,estimatedMin:14,faaRef:'FAA-H-8083-28B Chapter 24',
     sections:[
       {
         id:'s13_1',title:'PIREP Fundamentals',
@@ -2778,7 +2778,7 @@ const MODULES = [
   {
     id:'m14',act:3,title:'Weather Radar',subtitle:'Reading NEXRAD, dBZ & radar products',
     icon:'📡',color:'#DC2626',bgColor:'#FEF2F2',prerequisites:['m6'],
-    xpReward:175,estimatedMin:14,faaRef:'FAA-H-8083-28A Chapters 15, 24',
+    xpReward:175,estimatedMin:14,faaRef:'FAA-H-8083-28B Chapters 15, 24',
     sections:[
       {
         id:'s14_1',title:'How Weather Radar Works',
@@ -2950,12 +2950,12 @@ const MODULES = [
         question: 'Classify the intensity per FAA Table 24-1, decide the minimum lateral avoidance distance per AC 00-24C, and brief the action.',
         options: [
           '55 dBZ = Moderate — proceed with 5 NM lateral offset',
-          '55 dBZ exceeds the >50 dBZ threshold for EXTREME intensity (FAA-H-8083-28A Table 24-1: <30 light / 30–40 moderate / 40–50 heavy / >50 extreme). AC 00-24C calls for a minimum 20 NM lateral avoidance from any cell showing severe intensity, with greater margins for extreme cores. Request immediate deviation; do not penetrate; treat datalink position as approximate (assume the cell may be closer than displayed)',
+          '55 dBZ exceeds the >50 dBZ threshold for EXTREME intensity (FAA-H-8083-28B Table 24-1: <30 light / 30–40 moderate / 40–50 heavy / >50 extreme). AC 00-24C calls for a minimum 20 NM lateral avoidance from any cell showing severe intensity, with greater margins for extreme cores. Request immediate deviation; do not penetrate; treat datalink position as approximate (assume the cell may be closer than displayed)',
           '55 dBZ = Heavy — penetrate with caution at reduced airspeed',
           'Color displays vary; the 55 dBZ value is unreliable without knowing the EFB color legend'
         ],
         correct: 1, xp: 15,
-        explanation: 'Per FAA-H-8083-28A Table 24-1 (corrected reference): <30 dBZ = light, 30–40 = moderate, 40–50 = heavy, >50 = extreme. A 55 dBZ core is solidly in the EXTREME category — large hail, severe-to-extreme turbulence, structural threat. AC 00-24C "Thunderstorms" specifies a 20 NM minimum lateral avoidance from any cell showing severe intensity, with wider margins (some operators use 30 NM or more) for extreme cores. The datalink range and timestamp introduce additional uncertainty — treat the displayed position as approximate; assume the cell is closer and growing. Never penetrate at any speed.',
+        explanation: 'Per FAA-H-8083-28B Table 24-1 (corrected reference): <30 dBZ = light, 30–40 = moderate, 40–50 = heavy, >50 = extreme. A 55 dBZ core is solidly in the EXTREME category — large hail, severe-to-extreme turbulence, structural threat. AC 00-24C "Thunderstorms" specifies a 20 NM minimum lateral avoidance from any cell showing severe intensity, with wider margins (some operators use 30 NM or more) for extreme cores. The datalink range and timestamp introduce additional uncertainty — treat the displayed position as approximate; assume the cell is closer and growing. Never penetrate at any speed.',
         faaRef: 'Ch. 24', concept: 'radar_products'
       },
       {
@@ -2972,7 +2972,7 @@ const MODULES = [
         explanation: 'FIS-B / SiriusXM datalink NEXRAD is a STRATEGIC tool, not a tactical one. Proper use: confirm the synoptic picture, pick the right side of a frontal line, decide whether to delay or reroute, identify the location and motion of a storm system. The latency (5–20 minutes depending on product) means the displayed image shows where precipitation WAS, not where it IS — a cell moving at 40 kt covers 5–7 NM in an 8-minute lag. For pre-flight briefing this is fine because you are making decisions on tens-of-NM scales that absorb the lag. For in-close (within 20–40 NM) cell avoidance, the lag plus beam-overshoot effects make the picture unreliable — use airborne radar or visual avoidance instead.',
         faaRef: 'Ch. 24', concept: 'radar_products'
       },
-      {id:'q_m14_5',type:'scenario',scenario:'You are en route at FL200. Your EFB shows a large area of radar returns, but there appears to be a 15-NM gap between two cells. The returns show 35-45 dBZ on both sides of the gap. The datalink radar timestamp shows 12 minutes ago.',options:['Fly through the gap — radar shows no returns in the corridor','Avoid the gap — 12-minute-old radar may show a corridor that no longer exists; 35-45 dBZ cells indicate moderate-to-heavy precipitation; the gap may contain severe turbulence at the updraft/downdraft boundary','Descend to 10,000 ft where radar shows clear','Request ATC vectors through the gap — they have better radar'],correct:1,question:'What is your assessment of the gap?',xp:25,explanation:'Multiple red flags: (1) 12-minute-old datalink radar — the storms have moved; the gap may be closed. (2) 35-45 dBZ spans moderate-to-heavy returns on both sides (per FAA-H-8083-28A Table 24-1: 30–40 moderate, 40–50 heavy) — severe turbulence likely in the boundary zones regardless of category. (3) Radar gaps = updraft/downdraft interface = worst turbulence. ATC radar is also not real-time enough for tactical decisions. The only safe choice is to deviate around the storm system entirely.',faaRef:'Ch. 24'},
+      {id:'q_m14_5',type:'scenario',scenario:'You are en route at FL200. Your EFB shows a large area of radar returns, but there appears to be a 15-NM gap between two cells. The returns show 35-45 dBZ on both sides of the gap. The datalink radar timestamp shows 12 minutes ago.',options:['Fly through the gap — radar shows no returns in the corridor','Avoid the gap — 12-minute-old radar may show a corridor that no longer exists; 35-45 dBZ cells indicate moderate-to-heavy precipitation; the gap may contain severe turbulence at the updraft/downdraft boundary','Descend to 10,000 ft where radar shows clear','Request ATC vectors through the gap — they have better radar'],correct:1,question:'What is your assessment of the gap?',xp:25,explanation:'Multiple red flags: (1) 12-minute-old datalink radar — the storms have moved; the gap may be closed. (2) 35-45 dBZ spans moderate-to-heavy returns on both sides (per FAA-H-8083-28B Table 24-1: 30–40 moderate, 40–50 heavy) — severe turbulence likely in the boundary zones regardless of category. (3) Radar gaps = updraft/downdraft interface = worst turbulence. ATC radar is also not real-time enough for tactical decisions. The only safe choice is to deviate around the storm system entirely.',faaRef:'Ch. 24'},
       {
         id: 'q_m14_6', type: 'scenario',
         scenario: 'NEXRAD Echo Tops shows a thunderstorm at 35,000 ft over your route. You are en route turbine traffic at FL340 considering whether to overfly the cell.',
@@ -3042,7 +3042,7 @@ const MODULES = [
           'Light through extreme can all be safely overflown by 1,000 ft; lateral avoidance is unnecessary'
         ],
         correct: 1, xp: 10,
-        explanation: 'Per the corrected FAA-H-8083-28A Table 24-1 thresholds: <30 dBZ = light, 30–40 = moderate, 40–50 = heavy, >50 = extreme. The standard NEXRAD color enhancement is green (light), yellow → orange (moderate), red (heavy), and magenta/purple (extreme); but color scales DIFFER between providers (NWS, ForeFlight, SiriusXM, Garmin, etc.) — always read the legend on the actual product. AC 00-24C "Thunderstorms" calls for a 20 NM minimum lateral avoidance from any cell showing severe intensity (heavy/extreme); operators commonly add wider margins for extreme cores. Overflying convective cells is rarely safe regardless of altitude — vertical motions in CBs can climb tens of thousands of feet rapidly.',
+        explanation: 'Per the corrected FAA-H-8083-28B Table 24-1 thresholds: <30 dBZ = light, 30–40 = moderate, 40–50 = heavy, >50 = extreme. The standard NEXRAD color enhancement is green (light), yellow → orange (moderate), red (heavy), and magenta/purple (extreme); but color scales DIFFER between providers (NWS, ForeFlight, SiriusXM, Garmin, etc.) — always read the legend on the actual product. AC 00-24C "Thunderstorms" calls for a 20 NM minimum lateral avoidance from any cell showing severe intensity (heavy/extreme); operators commonly add wider margins for extreme cores. Overflying convective cells is rarely safe regardless of altitude — vertical motions in CBs can climb tens of thousands of feet rapidly.',
         faaRef: 'Ch. 24', concept: 'radar_products'
       },
       {
@@ -3082,7 +3082,7 @@ const MODULES = [
   {
     id:'m15',act:3,title:'Advisories',subtitle:'SIGMETs, AIRMETs, CWAs & convective products',
     icon:'⚠️',color:'#EA580C',bgColor:'#FFF7ED',prerequisites:['m6','m7','m8'],
-    xpReward:225,estimatedMin:18,faaRef:'FAA-H-8083-28A Chapter 26',
+    xpReward:225,estimatedMin:18,faaRef:'FAA-H-8083-28B Chapter 26',
     sections:[
       {
         id:'s15_1',title:'The Advisory Hierarchy',
@@ -3229,7 +3229,7 @@ const MODULES = [
          ],
          trap:'"AIRMETs are just advisories — they do not prohibit flight." Correct, but the KAVL METAR is not advisory. It is what exists at the destination right now. When an AIRMET Sierra is issued and the destination METAR confirms IFR conditions, the advisory has been validated by observation. "Staying clear of clouds" is not physically possible when ceilings are confirmed at 800-1,000ft across the entire route.'
        },
-       xp:30,concept:'advisories',faaRef:'FAA-H-8083-28A Ch. 26'},
+       xp:30,concept:'advisories',faaRef:'FAA-H-8083-28B Ch. 26'},
       {id:'wb_m15_2',type:'wx_brief',
        title:'Convective SIGMET on Direct Route — KJQF to KGSP',
        mission:{departure:'KJQF',destination:'KGSP',aircraft:'Single-engine piston',
@@ -3264,7 +3264,7 @@ const MODULES = [
          ],
          trap:'"Go direct and deviate around the cell if needed." Treating in-flight deviation as equivalent to pre-planned routing puts you in a reactive position near a severe storm moving at 40kt. A 30nm-diameter cell at 40kt closes distance at nearly 1nm per minute. The alternate route is pre-planned, known-safe, and eliminates the reactive decision entirely. No reason to improvise when the safe option is already planned.'
        },
-       xp:30,concept:'thunderstorm_avoidance',faaRef:'FAA-H-8083-28A Ch. 22, 26'}
+       xp:30,concept:'thunderstorm_avoidance',faaRef:'FAA-H-8083-28B Ch. 22, 26'}
     ]
   }
 ,
@@ -3275,7 +3275,7 @@ const MODULES = [
   {
     id:'m1a',act:1,title:'The Weather Service System',subtitle:'NOAA, NWS, AWC, FSS & how a briefing is built',
     icon:'🏛️',color:'#0284C7',bgColor:'#E0F2FE',prerequisites:['m1'],
-    xpReward:100,estimatedMin:10,faaRef:'FAA-H-8083-28A Chapters 1, 2, 3',
+    xpReward:100,estimatedMin:10,faaRef:'FAA-H-8083-28B Chapters 1, 2, 3',
     sections:[
       {
         id:'s1a_1',title:'Who Makes Your Weather Briefing',
@@ -3456,7 +3456,7 @@ const MODULES = [
   {
     id:'m16',act:1,title:'Weather Service & Briefings',subtitle:'NWS, FAA, FSS & the self-briefing process',
     icon:'📞',color:'#0369A1',bgColor:'#E0F2FE',prerequisites:['m11','m12','m15'],
-    xpReward:175,estimatedMin:16,faaRef:'FAA-H-8083-28A Chapters 2, 3',
+    xpReward:175,estimatedMin:16,faaRef:'FAA-H-8083-28B Chapters 2, 3',
     sections:[
       {
         id:'s16_1',title:'The Aviation Weather Team',
@@ -3694,7 +3694,7 @@ const MODULES = [
   {
     id:'m17',act:1,title:'Heat, Water Vapor & Precipitation',subtitle:'Heat transfer, dewpoint, latent heat & precip types',
     icon:'💧',color:'#0EA5E9',bgColor:'#F0F9FF',prerequisites:['m1','m4'],
-    xpReward:200,estimatedMin:18,faaRef:'FAA-H-8083-28A Chapters 5, 6, 14',
+    xpReward:200,estimatedMin:18,faaRef:'FAA-H-8083-28B Chapters 5, 6, 14',
     sections:[
       {
         id:'s17_1',title:'Heat Transfer — Three Mechanisms',
@@ -3874,7 +3874,7 @@ const MODULES = [
   {
     id:'m18',act:2,title:'Tropical & Arctic Weather',subtitle:'ITCZ, tropical cyclones, Arctic hazards & whiteout',
     icon:'🌏',color:'#0891B2',bgColor:'#ECFEFF',prerequisites:['m1','m5','m6'],
-    xpReward:200,estimatedMin:16,faaRef:'FAA-H-8083-28A Chapters 17, 21',
+    xpReward:200,estimatedMin:16,faaRef:'FAA-H-8083-28B Chapters 17, 21',
     sections:[
       {
         id:'s18_1',title:'Tropical Circulation & ITCZ',
@@ -3952,7 +3952,7 @@ const MODULES = [
       }],
     quiz:[
       {id:'q_m18_1',type:'mc',question:'The Intertropical Convergence Zone (ITCZ) forms because:',options:['Cold air from both poles meets at the equator','Northeast and southeast trade winds converge near the equator, forcing air upward','Subtropical high-pressure belts produce subsidence near the equator','The equatorial low-pressure belt prevents convective development'],correct:1,xp:10,explanation:'The ITCZ forms where the northeast trade winds of the Northern Hemisphere converge with the southeast trade winds of the Southern Hemisphere. This convergence forces air upward, producing a nearly continuous band of showers and thunderstorms circling the globe near the equator. Cloud tops can exceed 40,000 ft.',faaRef:'Ch. 17',concept:'air_masses'},
-      {id:'q_m18_2',type:'mc',question:'A pilot ditching in the open Pacific tropics should look for:',options:['Low stratus clouds — they mark deep ocean water','A cumulus cloud taller than surrounding clouds — it likely marks an island','The ITCZ — the convergence zone always creates near-shore weather','A clear area — absence of clouds indicates land is nearby'],correct:1,xp:10,explanation:'Islands in the tropical ocean cause orographic lift that forces air to rise and build taller cumulus clouds than the surrounding oceanic convection. "A cumulus top higher than the average top of surrounding cumulus usually marks the approximate location of an island" (FAA-H-8083-28A). Any land surface dramatically increases survival chances after ditching.',faaRef:'Ch. 17'},
+      {id:'q_m18_2',type:'mc',question:'A pilot ditching in the open Pacific tropics should look for:',options:['Low stratus clouds — they mark deep ocean water','A cumulus cloud taller than surrounding clouds — it likely marks an island','The ITCZ — the convergence zone always creates near-shore weather','A clear area — absence of clouds indicates land is nearby'],correct:1,xp:10,explanation:'Islands in the tropical ocean cause orographic lift that forces air to rise and build taller cumulus clouds than the surrounding oceanic convection. "A cumulus top higher than the average top of surrounding cumulus usually marks the approximate location of an island" (FAA-H-8083-28B). Any land surface dramatically increases survival chances after ditching.',faaRef:'Ch. 17'},
       {id:'q_m18_3',type:'mc',question:'Ice fog is most likely when temperature is:',options:['Near 0°C with high humidity and calm winds','-10°C to -20°C — the prime freezing fog range','Below -30°C, especially near sources of water vapor or combustion','Above 0°C near large bodies of open water'],correct:2,xp:10,explanation:'Ice fog requires very low temperatures — it is rare above -30°C and becomes increasingly frequent as temperature drops below that threshold. It forms when water vapor freezes directly into suspended ice crystals and is almost always present at -45°C near sources of moisture (open water, aircraft engines, buildings). Unlike regular fog, it does not burn off with daytime heating.',faaRef:'Ch. 21',concept:'fog_types'},
       {id:'q_m18_4',type:'timed',timeLimit:10,question:'Whiteout conditions are most dangerous for VFR pilots because:',options:['Visibility drops below 1/4 SM in snow','All shadows disappear and the horizon vanishes — loss of depth perception creates CFIT risk','Icing accumulates on all aircraft surfaces during whiteout','Radio communications are blocked by blowing snow'],correct:1,xp:15,explanation:'Whiteout eliminates shadows and the horizon by diffusing light in all directions between overcast clouds and a snow/ice-covered surface. Pilots lose spatial orientation and depth perception — buildings and terrain features appear to float. The result is a loss of the visual cues needed for VFR flight and a serious risk of controlled flight into terrain (CFIT). Always fly IFR if whiteout is possible.',faaRef:'Ch. 21',concept:'fog_types'},
       {id:'q_m18_5',type:'mc',question:'A tropical cyclone is classified as a Hurricane when sustained winds reach:',options:['At least 34 kt','35–64 kt','65 kt (approximately 74 mph) or more','100 kt or more — below this is "tropical storm"'],correct:2,xp:10,explanation:'Tropical cyclone classification: Tropical Depression = up to 34 kt; Tropical Storm = 35–64 kt; Hurricane = 65 kt (74 mph) or more. The NHC uses 1-minute average wind speeds for this classification. Category 5 hurricanes (Saffir-Simpson scale) have sustained winds of 137+ kt.',faaRef:'Ch. 17',concept:'air_masses'},
@@ -3974,7 +3974,7 @@ const MODULES = [
   {
     id:'m19',act:3,title:'Space Weather & Analysis Charts',subtitle:'Solar events, GPS disruption, surface analysis & skew-T',
     icon:'🛰️',color:'#7C3AED',bgColor:'#F5F3FF',prerequisites:['m1','m3'],
-    xpReward:200,estimatedMin:18,faaRef:'FAA-H-8083-28A Chapters 23, 25',
+    xpReward:200,estimatedMin:18,faaRef:'FAA-H-8083-28B Chapters 23, 25',
     sections:[
       {
         id:'s19_1',title:'Space Weather — Effects on Aviation',
@@ -4225,7 +4225,7 @@ const MODULES = [
   {
     id:'m20',act:3,title:'Advanced Weather Products',subtitle:'Winds aloft, SIGWX charts, energy balance & full advisory suite',
     icon:'🗺️',color:'#059669',bgColor:'#ECFDF5',prerequisites:['m11','m12','m13','m14','m15'],
-    xpReward:225,estimatedMin:20,faaRef:'FAA-H-8083-28A Chapters 7, 26, 27',
+    xpReward:225,estimatedMin:20,faaRef:'FAA-H-8083-28B Chapters 7, 26, 27',
     sections:[
       {
         id:'s20_1',title:'Earth\'s Energy Balance & Weather Drivers',

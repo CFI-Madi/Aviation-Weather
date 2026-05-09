@@ -1,7 +1,7 @@
 {
   "name": "aviation-weather-academy",
   "version": "1.0.0",
-  "description": "Aviation Weather Academy — FAA-H-8083-28A pilot weather training app",
+  "description": "Aviation Weather Academy — FAA-H-8083-28B pilot weather training app",
   "main": "index.html",
   "scripts": {
     "format": "prettier --write \"**/*.{js,css,html,json}\"",

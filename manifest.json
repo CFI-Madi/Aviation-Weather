@@ -1,7 +1,7 @@
 {
   "name": "Aviation Weather Academy",
   "short_name": "WxAcademy",
-  "description": "FAA-H-8083-28A pilot weather training — 20 modules, quizzes, case studies, and spaced repetition.",
+  "description": "FAA-H-8083-28B pilot weather training — 20 modules, quizzes, case studies, and spaced repetition.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0C1B33",
