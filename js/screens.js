@@ -1518,28 +1518,53 @@ const Screens = {
     const doc = document.getElementById('case_studies-content');
     if(!doc) return;
 
-    const categories = [...new Set(CASE_STUDIES.map(c=>c.category))];
+    if (!this._activeCaseTab) this._activeCaseTab = 'verified';
+    const activeTab = this._activeCaseTab;
+    const tabCases = CASE_STUDIES.filter(cs => cs.caseType === activeTab);
+    const tabCompleted = completed.filter(id => tabCases.some(cs => cs.id === id));
+
+    const tabBtn = (key, label) => `
+      <button onclick="Screens._setCaseTab('${key}')"
+        style="flex:1;padding:11px 8px;border:none;border-radius:10px;
+          background:${activeTab===key?'white':'transparent'};
+          font-family:var(--font-display);font-weight:800;font-size:13px;
+          color:${activeTab===key?'#0C1B33':'#64748B'};
+          box-shadow:${activeTab===key?'0 1px 3px rgba(0,0,0,.08)':'none'};
+          cursor:pointer;transition:all 0.15s">
+        ${label}
+      </button>`;
+
+    const heroGradient = activeTab==='verified' ? '#7F1D1D,#EF4444' : '#92400E,#F59E0B';
+    const heroTitle = activeTab==='verified' ? 'Real NTSB-Anchored Cases' : 'Simulated Training Scenarios';
+    const heroBlurb = activeTab==='verified'
+      ? 'These cases are distilled from actual NTSB final reports. Each links to the official source and teaches a documented hazard angle from a real accident.'
+      : 'Pattern-based teaching scenarios designed to build weather judgment. They are not anchored to specific NTSB investigations and are for educational use only.';
 
     doc.innerHTML = `
       <div style="padding:4px 0 100px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
           <div>
             <h1 style="font-family:var(--font-display);font-weight:900;font-size:22px;color:var(--navy);margin:0">Case Studies</h1>
             <p style="font-size:12px;color:#64748B;margin:3px 0 0">Real weather accidents - learn what went wrong</p>
           </div>
           <div style="text-align:right">
-            <div style="font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--navy)">${completed.length}/<span style="color:#94A3B8">${CASE_STUDIES.length}</span></div>
+            <div style="font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--navy)">${tabCompleted.length}/<span style="color:#94A3B8">${tabCases.length}</span></div>
             <div style="font-size:10px;color:#94A3B8">Completed</div>
           </div>
         </div>
 
-        <div style="background:linear-gradient(135deg,#7F1D1D,#EF4444);border-radius:20px;padding:18px;color:white;margin-bottom:20px">
-          <div style="font-size:13px;font-weight:700;opacity:.9;margin-bottom:6px">Why Case Studies Matter</div>
-          <div style="font-size:12px;opacity:.8;line-height:1.6">These cases are drawn from real accident patterns and NTSB-verified investigations. Understanding what went wrong — and why — builds the weather judgment that quizzes alone cannot. Each case maps directly to FAA-H-8083-28A content. Verified NTSB cases are labeled accordingly.</div>
+        <div style="display:flex;gap:6px;background:#F1F5F9;border-radius:14px;padding:4px;margin-bottom:16px" role="tablist" aria-label="Case study category">
+          ${tabBtn('verified', 'Real Cases (NTSB)')}
+          ${tabBtn('simulated', 'Simulated Scenarios')}
+        </div>
+
+        <div style="background:linear-gradient(135deg,${heroGradient});border-radius:20px;padding:18px;color:white;margin-bottom:20px">
+          <div style="font-size:13px;font-weight:700;opacity:.9;margin-bottom:6px">${heroTitle}</div>
+          <div style="font-size:12px;opacity:.8;line-height:1.6">${heroBlurb}</div>
         </div>
 
         <div style="display:grid;gap:12px">
-          ${CASE_STUDIES.map((cs,i) => {
+          ${tabCases.map((cs,i) => {
             const done = completed.includes(cs.id);
             const severityColor = cs.severity==='fatal'?'#EF4444':cs.severity==='serious injury'?'#F59E0B':'#10B981';
             return `
@@ -1557,7 +1582,7 @@ const Screens = {
                     <span style="background:${cs.color}15;color:${cs.color};font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px">${cs.hazard}</span>
                     <span style="background:${severityColor}15;color:${severityColor};font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px">${cs.severity}</span>
                     <span style="background:#F1F5F9;color:#64748B;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">${cs.faaRef}</span>
-                    ${cs.verified
+                    ${cs.caseType === 'verified'
                       ? '<span style="background:#D1FAE5;color:#065F46;font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px">NTSB Verified</span>'
                       : '<span style="background:#FEF3C7;color:#92400E;font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px">Training Scenario</span>'}
                   </div>
@@ -1567,6 +1592,12 @@ const Screens = {
           }).join('')}
         </div>
       </div>`;
+  },
+
+  _setCaseTab(tab) {
+    if (tab !== 'verified' && tab !== 'simulated') return;
+    this._activeCaseTab = tab;
+    this.case_studies();
   },
 
   // Receives a params object from Screens.render ? extract caseId from it.
@@ -1588,7 +1619,7 @@ const Screens = {
       safety_alert:  'Read NTSB safety alert'
     };
     const ntsbLinkLabel = NTSB_SOURCE_LABELS[cs.ntsbSourceType] || 'Read official NTSB report';
-    const scenarioBanner = cs.verified
+    const scenarioBanner = cs.caseType === 'verified'
       ? ''
       : `<div style="background:#FEF3C7;border-radius:14px;padding:12px 14px;margin-bottom:16px;border-left:4px solid #F59E0B;display:flex;gap:10px;align-items:flex-start">
            <div style="font-size:18px;flex-shrink:0">⚠️</div>

@@ -6,7 +6,6 @@ const CASE_STUDIES = [
   {
     id:'cs1',
     caseType: 'verified',
-    verified: true,
     title:'Into the Haze',
     subtitle:'Night VFR, spatial disorientation over water',
     category:'VFR into IMC',
@@ -79,7 +78,6 @@ const CASE_STUDIES = [
   {
     id:'cs2',
     caseType: 'simulated',
-    verified: false,
     title:'The Valley Closes In',
     subtitle:'Scud running into rising terrain, mountain valleys',
     category:'VFR into IMC',
@@ -147,7 +145,6 @@ const CASE_STUDIES = [
   {
     id:'cs3',
     caseType: 'simulated',
-    verified: false,
     title:'The Shortcut That Wasn\'t',
     subtitle:'Convective SIGMET active, pilot attempted shortcut through storm',
     category:'Thunderstorm Penetration',
@@ -216,7 +213,6 @@ const CASE_STUDIES = [
   {
     id:'cs4',
     caseType: 'verified',
-    verified: true,
     title:'Wind Shear on Final',
     subtitle:'Microburst encounter during approach in convective weather',
     category:'Wind Shear / Microburst',
@@ -289,7 +285,6 @@ const CASE_STUDIES = [
   {
     id:'cs5',
     caseType: 'simulated',
-    verified: false,
     title:'The AIRMET They Ignored',
     subtitle:'Non-ice-certified GA aircraft into moderate icing, AIRMET Zulu active',
     category:'Structural Icing',
@@ -358,7 +353,6 @@ const CASE_STUDIES = [
   {
     id:'cs6',
     caseType: 'simulated',
-    verified: false,
     title:'Silent Engine at 3,000 Feet',
     subtitle:'Carburetor ice during descent, power loss over populated area',
     category:'Engine Icing',
@@ -427,7 +421,6 @@ const CASE_STUDIES = [
   {
     id:'cs7',
     caseType: 'simulated',
-    verified: false,
     title:'Density Altitude Death Trap',
     subtitle:'Hot day, high elevation, obstacle-laden departure, overloaded aircraft',
     category:'Density Altitude',
@@ -498,7 +491,6 @@ const CASE_STUDIES = [
   {
     id:'cs8',
     caseType: 'simulated',
-    verified: false,
     title:'Swallowed by the Rotor',
     subtitle:'Mountain wave turbulence, unexpected downdraft over ridge',
     category:'Mountain Weather',
@@ -568,7 +560,6 @@ const CASE_STUDIES = [
   {
     id:'cs9',
     caseType: 'simulated',
-    verified: false,
     title:'The Weather Deviation That Ran Out of Fuel',
     subtitle:'En route weather deviation, new routing, fuel not recalculated',
     category:'Fuel Management',
@@ -638,7 +629,6 @@ const CASE_STUDIES = [
   {
     id:'cs10',
     caseType: 'simulated',
-    verified: false,
     title:'Frost on the Wings',
     subtitle:'Frost not removed before takeoff, stall during initial climb',
     category:'Ground Icing',
@@ -707,7 +697,6 @@ const CASE_STUDIES = [
   {
     id:'cs11',
     caseType: 'simulated',
-    verified: false,
     title:'IMC in Two Minutes',
     subtitle:'VFR pilot enters clouds, graveyard spiral, impact within 90 seconds',
     category:'VFR into IMC',
@@ -774,7 +763,6 @@ const CASE_STUDIES = [
   {
     id:'cs12',
     caseType: 'verified',
-    verified: true,
     title:'The Ice Boots Weren\'t Enough',
     subtitle:'SLD icing overwhelms de-icing system, stall on approach',
     category:'Structural Icing',
@@ -847,7 +835,6 @@ const CASE_STUDIES = [
   {
     id:'cs13',
     caseType: 'simulated',
-    verified: false,
     title:'The Schedule Killed Him',
     subtitle:'Progressive go/no-go failures, "get-there-itis," known deteriorating conditions',
     category:'Decision Making',
@@ -917,7 +904,6 @@ const CASE_STUDIES = [
   {
     id:'cs14',
     caseType: 'simulated',
-    verified: false,
     title:'The Night the Radar Lied',
     subtitle:'IFR night flight, no airborne radar, embedded CB penetration',
     category:'Thunderstorm',
@@ -986,7 +972,6 @@ const CASE_STUDIES = [
   {
     id:'cs15',
     caseType: 'simulated',
-    verified: false,
     title:'Trapped on Top',
     subtitle:'VFR departure on top, destination socks in, no instrument rating',
     category:'VFR into IMC',
@@ -1056,7 +1041,6 @@ const CASE_STUDIES = [
   {
     id:'cs16',
     caseType: 'verified',
-    verified: true,
     title:'The Storm at the End of the Runway',
     subtitle:'Microburst-induced wind shear during takeoff, New Orleans 1982',
     category:'Microburst on Takeoff',
@@ -1131,7 +1115,6 @@ const CASE_STUDIES = [
   {
     id:'cs17',
     caseType: 'verified',
-    verified: true,
     title:'The Gap That Closed',
     subtitle:'Beechcraft A36 IFR through line of thunderstorms, datalink NEXRAD lag',
     category:'Thunderstorm Penetration',
@@ -1207,7 +1190,6 @@ const CASE_STUDIES = [
   {
     id:'cs18',
     caseType: 'verified',
-    verified: true,
     title:'Circling Until the Tank Was Empty',
     subtitle:'Piper Comanche fuel exhaustion after weather circling, four occupants survived',
     category:'Fuel Management',
@@ -1283,7 +1265,6 @@ const CASE_STUDIES = [
   {
     id:'cs19',
     caseType: 'verified',
-    verified: true,
     title:'The Test Pilot in the Squall Line',
     subtitle:'Cessna 210A IFR cruise into severe MCS, Stormscope-only equipment',
     category:'Embedded TS in IMC',
@@ -1358,7 +1339,6 @@ const CASE_STUDIES = [
   {
     id:'cs20',
     caseType: 'verified',
-    verified: true,
     title:'The 156-Knot Departure',
     subtitle:'Comair 3272 EMB-120 icing-induced upset during slow vector to KDTW',
     category:'Structural Icing',
@@ -1434,7 +1414,6 @@ const CASE_STUDIES = [
   {
     id:'cs21',
     caseType: 'verified',
-    verified: true,
     title:'Six and Two',
     subtitle:'Cessna 177B Cardinal cruise carb ice → engine power loss → stall on forced landing',
     category:'Engine Icing',
@@ -1509,7 +1488,6 @@ const CASE_STUDIES = [
   {
     id:'cs22',
     caseType: 'verified',
-    verified: true,
     title:'The Wings Were Cold',
     subtitle:'Air Florida 90 takeoff with snow/ice on wings, engine anti-ice off',
     category:'Ground Icing / Contamination',
@@ -1585,7 +1563,6 @@ const CASE_STUDIES = [
   {
     id:'cs23',
     caseType: 'verified',
-    verified: true,
     title:'The Wave Won',
     subtitle:'Aero Commander 112 mountain wave downdrafts exceed aircraft climb performance, Mt Hood',
     category:'Mountain Wave / Rotor',
@@ -1662,7 +1639,6 @@ const CASE_STUDIES = [
   {
     id:'cs24',
     caseType: 'verified',
-    verified: true,
     title:'Airborne but Not Climbing',
     subtitle:'Cessna 172N high-DA departure from Big Bear City, unable to clear ground effect',
     category:'Density Altitude',
@@ -1737,7 +1713,6 @@ const CASE_STUDIES = [
   {
     id:'cs25',
     caseType: 'verified',
-    verified: true,
     title:'Through the Cloud Deck Anyway',
     subtitle:'Mooney M20C VFR-into-IMC over Wyoming mountains, intentional cloud entry',
     category:'Mountain CFIT',
@@ -1812,7 +1787,6 @@ const CASE_STUDIES = [
   {
     id:'cs26',
     caseType: 'verified',
-    verified: true,
     title:'After the Rain Passes',
     subtitle:'Cherokee VFR-into-night-IMC after FBO declined fuel due to weather',
     category:'Decision Making',
@@ -1888,7 +1862,6 @@ const CASE_STUDIES = [
   {
     id:'cs27',
     caseType: 'verified',
-    verified: true,
     title:'Thirty-Eight Hours and a Cloud Layer',
     subtitle:'Student pilot departs into night IMC despite incomplete instrument-flight training',
     category:'VFR into IMC',
