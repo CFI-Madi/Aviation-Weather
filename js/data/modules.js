@@ -2829,6 +2829,7 @@ const MODULES = [
               ['Ground Clutter','Nearby objects (buildings, terrain) produce false returns near the radar site. Normally filtered, but can break through.','#059669'],
               ['Virga','Rain or snow that evaporates before reaching the ground produces radar returns at altitude but no surface precipitation. Can fool pilots into thinking a storm is weaker than it is.','#0284C7'],
               ['Datalink Delay','FIS-B ADS-B radar: up to 5 min delay. SiriusXM: varies. No cockpit datalink radar is current enough for tactical storm penetration. Use for strategic routing only.','#DC2626'],
+              ['Chaff (Military)','Aluminum-strip clutter released by military aircraft as a counter-measure to distract enemy radar. Appears on weather radar as elongated linear streaks of high reflectivity, typically near or downwind of military operating areas (MOAs) and restricted airspace. Not weather, not turbulence-producing — a non-meteorological return that may briefly puzzle pilots reading raw NEXRAD imagery.','#94A3B8'],
             ].map(([title,desc,col])=>`
             <div style="background:white;border-radius:14px;padding:14px;border-left:4px solid ${col};box-shadow:0 2px 8px rgba(0,0,0,.05)">
               <strong style="font-family:var(--font-display);font-size:14px;color:var(--navy)">${title}</strong>
@@ -3361,6 +3362,7 @@ const MODULES = [
               ['⚠️ SIGMETs / AIRMETs','Mapped on the GFA tool or listed by text. Always verify valid times before acting on any advisory product.'],
               ['💨 Winds Aloft (FB Winds)','AWC-issued forecast wind direction, speed, and temperature at standard altitudes. Used for fuel planning, altitude selection, density altitude, and turbulence avoidance.'],
               ['📊 Prog Charts','Surface analysis and 12/24/36/48-hr prognosis. Shows where fronts and pressure systems are now and where they are forecast to be — the big-picture framework for every flight plan.'],
+              ['🗄️ NDFD (weather.gov)','National Digital Forecast Database — a suite of gridded forecasts of sensible weather elements (cloud cover, max temperature, etc.) compiled by NWS field offices and NCEP. Weather elements relevant to aviation are included. Caveat: NDFD may provide different forecast information than the GFA for the same location and time — they are independent products.'],
             ].map(([title,desc])=>`
             <div style="background:white;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.05)">
               <strong style="font-family:var(--font-display);font-size:14px;color:var(--navy)">${title}</strong>
