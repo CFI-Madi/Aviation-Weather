@@ -185,6 +185,14 @@ const Screens = {
     const trace = FAAValidation.getSectionRecord(mod.id, sec);
     if (!trace) return '';
     const tone = FAAValidation.statusTone(trace.validationStatus);
+    // Hide redundant pills whose label restates information already conveyed by
+    // the descriptive notes line below the card. Currently: 'validated_paraphrase'
+    // ("FAA paraphrase"). Other status values keep their pill — 'needs_review' is
+    // an actionable CFI annotation; 'validated_exact' and 'training_simplification'
+    // convey distinct fidelity claims worth surfacing visibly.
+    const HIDE_PILL = new Set(['validated_paraphrase']);
+    const showPill = !HIDE_PILL.has(trace.validationStatus);
+    const borderColor = showPill ? tone.border : '#CBD5E1';
     const contexts = FAAValidation.formatContentContext(trace.contentContext).slice(0, 2);
     const relevance = [
       trace.checkrideRelevance === 'high' ? 'High checkride relevance' : trace.checkrideRelevance === 'medium' ? 'Checkride support' : '',
@@ -192,7 +200,7 @@ const Screens = {
     ].filter(Boolean).slice(0, 2);
     const detailLine = [trace.sourceChapter, trace.sourceSection].filter(Boolean).join(' - ');
     return `
-      <div class="card" style="padding:14px 16px;margin:16px 0;background:#F8FAFC;border-left:4px solid ${tone.border}">
+      <div class="card" style="padding:14px 16px;margin:16px 0;background:#F8FAFC;border-left:4px solid ${borderColor}">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
           <div style="min-width:0">
             <div style="font-size:11px;color:#94A3B8;font-weight:800;text-transform:uppercase;margin-bottom:4px">FAA Source</div>
@@ -200,7 +208,7 @@ const Screens = {
             <div style="font-size:12px;color:#64748B;margin-top:2px">${trace.sourceEdition}</div>
             ${detailLine ? `<div style="font-size:12px;color:#64748B;margin-top:2px">${detailLine}</div>` : ''}
           </div>
-          <span style="background:${tone.bg};color:${tone.fg};border:1px solid ${tone.border};border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800;white-space:nowrap">${FAAValidation.formatStatus(trace.validationStatus)}</span>
+          ${showPill ? `<span style="background:${tone.bg};color:${tone.fg};border:1px solid ${tone.border};border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800;white-space:nowrap">${FAAValidation.formatStatus(trace.validationStatus)}</span>` : ''}
         </div>
         ${(contexts.length || relevance.length) ? `
           <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">
