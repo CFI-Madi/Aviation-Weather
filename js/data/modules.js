@@ -993,6 +993,20 @@ const MODULES = [
         correct: 1, xp: 10,
         explanation: 'LCL ≈ (T − Td in °C) × 400 ft AGL is a quick cockpit estimator for cumulus base height. METAR T = 22°C / Td = 12°C → spread = 10°C → LCL ≈ 10 × 400 = 4,000 ft AGL ≈ 4,700 ft MSL given a 700 ft field elevation. Cumulus bases form near the LCL once afternoon parcels reach saturation. A 5,500 ft cruise is only ~800 ft above expected bases — close enough that growing cumulus along the route can force a deviation up or laterally. Decision input: a wider T-Td spread = higher cloud bases (better VFR), a narrower spread = lower bases (potentially below your cruise). Brief the spread before every VFR cross-country.',
         faaRef: 'Ch. 12', concept: 'stability'
+      },
+      {
+        id: 'q_m4_12', type: 'scenario',
+        scenario: 'Morning preflight, clear day. Looking up, you notice a high-altitude cloud field with a rippled, almost-fish-scale appearance — the classic "mackerel sky." The pattern sits well above where you’d expect mid-level alto clouds. There is no halo effect (which would suggest cirrostratus) and no thin wispy streaks (which would suggest cirrus).',
+        question: 'Identify the cloud genus, and what does its appearance imply for the day’s upper-atmosphere conditions?',
+        options: [
+          'Cirrus (Ci) — thin wispy ice streaks; first sign of an approaching warm front',
+          'Cirrocumulus (Cc) — high-altitude ice cloud in a rippled "mackerel sky" pattern; relatively rare. The cellular pattern (instead of the smooth sheet of cirrostratus or the wispy streaks of cirrus) suggests upper-tropospheric instability or jet-stream proximity. Cross-check the 500-mb / 300-mb charts and winds-aloft forecast for the cruise band',
+          'Cirrostratus (Cs) — thin uniform veil producing a halo around the sun or moon',
+          'Altocumulus (Ac) — gray-white middle-altitude cloud patches'
+        ],
+        correct: 1, xp: 10,
+        explanation: 'Three high-altitude (>20,000 ft) ice-crystal cloud genera form the cirrus family, and they are visually distinct from each other (s4_3): CIRRUS (Ci) — thin wispy streaks, often the first visual signal of an approaching warm front. CIRROSTRATUS (Cs) — thin uniform sheet whose hallmark is the halo it produces around the sun or moon. CIRROCUMULUS (Cc) — rippled or fish-scale cellular pattern, the "mackerel sky." All three are ice clouds at the same altitude tier, but their shape encodes different upper-atmosphere physics. Cc is comparatively rare; the rippled cellular pattern means turbulent / unstable air in the upper troposphere — often a soft signal of jet-stream proximity or upper-level instability that could feed into the day’s convective evolution at lower altitudes. Operational read: when the morning sky shows mackerel pattern, cross-check 500-mb / 300-mb charts and winds-aloft forecasts for jet activity along the cruise band, and note that the upper instability can co-occur with afternoon convective development at lower levels (especially in summer). Distinguishing the three high-cloud types by appearance is a foundational visual-meteorology skill.',
+        faaRef: 'Ch. 12, App. A', concept: 'stability'
       }
     ]
   },
