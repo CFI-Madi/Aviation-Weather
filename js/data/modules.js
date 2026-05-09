@@ -1,6 +1,9 @@
 // ============================================================
 // Aviation Weather Academy — Modules Data
-// 15 modules across 3 acts, FAA-H-8083-28B (2026)
+// Each module has a `level:` tag — 'student' | 'private' | 'instrument' | 'commercial'
+// (see config.js LEVELS / LEVEL_META). Module count and per-level breakdowns
+// are derived at runtime via MODULES.length and MODULES.filter(m=>m.level===...).
+// FAA-H-8083-28B (April 2026).
 // ============================================================
 
 const MODULES = [

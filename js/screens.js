@@ -1116,12 +1116,15 @@ const Screens = {
   // ===== MORE HUB =====
   more() {
     const s = GameEngine.state;
+    // derived — don't hardcode: dedupe by id (defensive against any duplicate
+    // entries in ACHIEVEMENTS) and use the resulting length as the badge total.
     const seen = new Set();
     const uniqueAch = ACHIEVEMENTS.filter(a=>{ if(seen.has(a.id))return false; seen.add(a.id); return true; });
     const achEarned = s.achievements.length;
     const achTotal = uniqueAch.length;
     const casesCompleted = (s.caseStudiesCompleted||[]).length;
-    const casesTotal = typeof CASE_STUDIES !== 'undefined' ? CASE_STUDIES.length : 15;
+    // derived — don't hardcode (case-study count grows; the 15 fallback was stale and is gone)
+    const casesTotal = typeof CASE_STUDIES !== 'undefined' ? CASE_STUDIES.length : 0;
     const bestCR = s.checkrideScores && s.checkrideScores.length
       ? Math.max(...s.checkrideScores.map(r=>r.pct||0)) : null;
 
@@ -1168,7 +1171,7 @@ const Screens = {
                 <div style="font-family:var(--font-display);font-weight:800;font-size:17px;color:var(--navy)">Case Studies</div>
                 <div style="font-size:13px;color:#64748B;margin-top:2px">${casesCompleted} of ${casesTotal} completed</div>
                 <div class="xp-bar-track" style="height:6px;margin-top:8px">
-                  <div class="xp-bar-fill" style="height:6px;width:${Math.round(casesCompleted/casesTotal*100)}%;background:var(--coral)"></div>
+                  <div class="xp-bar-fill" style="height:6px;width:${casesTotal ? Math.round(casesCompleted/casesTotal*100) : 0}%;background:var(--coral)"></div>
                 </div>
               </div>
               <div style="color:#CBD5E1;font-size:20px;flex-shrink:0">&gt;</div>
