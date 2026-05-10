@@ -79,4 +79,26 @@ same tool in two simultaneous places.
 
 ---
 
+## Split `js/data/config.js` into content + config (deferred)
+
+The new "content data vs app configuration" convention added in
+[CONVENTIONS.md](CONVENTIONS.md) during Phase 2 says content lives in
+`js/data/` and configuration lives in `js/config.js`. Today
+`js/data/config.js` mixes both:
+
+- **Configuration** (should move to `js/config.js`): RANKS, LEVELS,
+  LEVEL_META.
+- **Content** (stays in `js/data/`): METAR_LIBRARY, TAF_LIBRARY,
+  SAMPLE_METAR, SAMPLE_TAF.
+
+Also: `TOOL_REGISTRY` currently lives inside `js/screens.js`. The
+"app configuration" bucket would be its natural home.
+
+The split is straightforward but touches every script-tag order in
+`index.html`, the SW APP_SHELL list, and any code that imports from
+`js/data/config.js`. Out of scope for the Phase 2 PR; a one-PR
+refactor candidate when there's a quiet moment between phases.
+
+---
+
 (future entries land below this line)
