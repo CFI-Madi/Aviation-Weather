@@ -112,7 +112,9 @@ const Diagrams = {
         svgContent: this.cloudGallerySVG(),
       },
       jet_stream: {
+        // Module renders its own header + FAA attribution strip.
         title: '✈️ Polar and Subtropical Jet Streams',
+        selfTitled: true,
         svgContent: this.jetStreamSVG(),
       },
       pressure_systems: {
@@ -972,17 +974,390 @@ const Diagrams = {
     statusEl.textContent = status; statusEl.style.background = bg; statusEl.style.color = color;
   },
 
-  // FAA-H-8083-28B Fig 9-5 — global view of polar and subtropical jet streams.
-  // The lesson body in m3/s3_3 covers altitudes, wind speeds, CAT placement,
-  // and jet-streak entrance/exit quadrants in text — not overlaid here.
+  // M3 §s3_3 — bespoke interactive Jet Streams module that replaced the
+  // FAA Fig 9-5 still image. Globe view with two ribbon-jets, season
+  // toggle (winter/summer), tap-to-reveal info cards on each jet, CAT
+  // zone overlay. Subtropical speed envelope: winter 80-150 kt /
+  // summer 50-100 kt — anchored within the FAA-H-8083-28B 50-150 kt
+  // range. Init logic in _initJetStreamsModule.
   jetStreamSVG() {
-    return this.renderFaaFigure({
-      src: 'img/awh/awh_p0119_img_002.png',
-      figureNumber: '9-5',
-      title: 'Polar and Subtropical Jet Streams',
-      caption: 'The polar jet (blue, ~30,000–40,000 ft) and subtropical jet (red, ~35,000–40,000 ft) wind around the globe at temperate and subtropical latitudes. CAT zones, jet-streak entrance/exit quadrants, and seasonal migration are covered in the lesson body above.',
-      alt: 'FAA-H-8083-28B Figure 9-5: Illustration of polar and subtropical jet streams and their relative locations around the globe.',
+    return this.renderJetStreamsModule();
+  },
+
+  renderJetStreamsModule() {
+    return `
+<div class="jet-module" id="jetModule" role="region" aria-label="Polar and subtropical jet streams teaching figure">
+  <div class="jet-module__header">
+    <h2 class="jet-module__title">Polar &amp; Subtropical Jet Streams</h2>
+  </div>
+  <div class="jet-module__attr">FAA-H-8083-28B · Fig 9-5 — Polar &amp; Subtropical Jet Streams</div>
+
+  <div class="jet-module__figure">
+    <div class="jet-legend-keys" aria-hidden="true">
+      <div class="jet-legend-keys__item">
+        <span class="jet-legend-keys__swatch jet-legend-keys__swatch--polar"></span>
+        <span class="jet-legend-keys__label--polar">Polar Jet</span>
+      </div>
+      <div class="jet-legend-keys__item">
+        <span class="jet-legend-keys__swatch jet-legend-keys__swatch--sub"></span>
+        <span class="jet-legend-keys__label--sub">Subtropical Jet</span>
+      </div>
+    </div>
+
+    <svg id="jetGlobeSvg" viewBox="0 0 600 460" preserveAspectRatio="xMidYMid meet" aria-label="Globe with two jet streams encircling Earth">
+      <defs>
+        <radialGradient id="jetGlobeShade" cx="35%" cy="32%" r="75%">
+          <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.55" />
+          <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0" />
+          <stop offset="100%" stop-color="#0C1B33" stop-opacity="0.18" />
+        </radialGradient>
+        <linearGradient id="jetPolarGrad" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0%" stop-color="#1E40AF" />
+          <stop offset="100%" stop-color="#38BDF8" />
+        </linearGradient>
+        <linearGradient id="jetSubGrad" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0%" stop-color="#B91C1C" />
+          <stop offset="100%" stop-color="#F59E0B" />
+        </linearGradient>
+        <clipPath id="jetGlobeClip">
+          <circle cx="300" cy="230" r="180" />
+        </clipPath>
+      </defs>
+
+      <g clip-path="url(#jetGlobeClip)">
+        <circle cx="300" cy="230" r="180" class="ocean" />
+        <g class="land">
+          <path d="M 188 120 L 210 100 L 240 92 L 282 92 L 318 102 L 344 118 L 352 145 L 350 175 L 340 200 L 322 218 L 322 234 L 308 232 L 295 226 L 280 230 L 268 240 L 258 254 L 248 244 L 232 232 L 212 218 L 195 200 L 184 178 L 180 152 Z" />
+          <path d="M 358 90 C 376 86 390 100 386 120 C 380 138 364 138 354 128 C 348 118 350 100 358 90 Z" />
+          <path d="M 268 264 L 286 268 L 304 280 L 316 300 L 320 322 L 314 348 L 302 372 L 288 384 L 278 380 L 268 364 L 260 342 L 254 318 L 252 294 L 256 274 Z" />
+        </g>
+        <g class="latitude">
+          <ellipse cx="300" cy="230" rx="178" ry="22" />
+          <ellipse cx="300" cy="230" rx="178" ry="55" />
+          <ellipse cx="300" cy="230" rx="178" ry="92" />
+          <ellipse cx="300" cy="230" rx="178" ry="130" />
+          <ellipse cx="300" cy="230" rx="178" ry="165" />
+        </g>
+        <line class="equator" x1="122" y1="230" x2="478" y2="230" />
+        <circle cx="300" cy="230" r="180" fill="url(#jetGlobeShade)" />
+      </g>
+      <circle cx="300" cy="230" r="180" class="globe-edge" />
+
+      <g id="jetCatGroup" clip-path="url(#jetGlobeClip)">
+        <path id="jetCatPolarN" class="cat-zone" />
+        <path id="jetCatPolarS" class="cat-zone" />
+        <path id="jetCatSubN" class="cat-zone" />
+        <path id="jetCatSubS" class="cat-zone" />
+      </g>
+
+      <g clip-path="url(#jetGlobeClip)">
+        <path id="jetPolarGlow" class="jet-glow" stroke="url(#jetPolarGrad)" stroke-width="22" />
+        <path id="jetSubGlow" class="jet-glow" stroke="url(#jetSubGrad)" stroke-width="20" />
+        <path id="jetPolarBack" class="jet-ribbon" stroke="url(#jetPolarGrad)" stroke-width="9" opacity="0.28" stroke-dasharray="3 6" />
+        <path id="jetSubBack" class="jet-ribbon" stroke="url(#jetSubGrad)" stroke-width="8" opacity="0.28" stroke-dasharray="3 6" />
+        <path id="jetPolarFront" class="jet-ribbon" stroke="url(#jetPolarGrad)" stroke-width="13" data-jet="polar" />
+        <path id="jetSubFront" class="jet-ribbon" stroke="url(#jetSubGrad)" stroke-width="11" data-jet="sub" />
+        <g id="jetPolarArrows"></g>
+        <g id="jetSubArrows"></g>
+      </g>
+
+      <path id="jetPolarHit" class="jet-hit" data-jet="polar" />
+      <path id="jetSubHit" class="jet-hit" data-jet="sub" />
+
+      <g id="jetSeasonBadge" transform="translate(488 30)">
+        <rect x="-58" y="-18" width="116" height="28" rx="14" fill="#0C1B33" opacity="0.86" />
+        <text x="0" y="1" text-anchor="middle" font-weight="900" font-size="11" letter-spacing="0.06em" fill="#F8FAFC">
+          <tspan id="jetSeasonBadgeText">WINTER · N. HEM.</tspan>
+        </text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="jet-module__caption" aria-live="polite">
+    <span class="jet-caption__lead" id="jetCapLead">Tap a jet to learn more</span>
+    <span class="jet-caption__text" id="jetCapText">Two ribbon-like wind currents wrap Earth in the upper troposphere. Their position shifts with the seasons.</span>
+  </div>
+
+  <div class="jet-controls">
+    <div class="jet-controls__row">
+      <div class="jet-toggle-group" role="radiogroup" aria-label="Season">
+        <button class="jet-toggle-btn" id="jetSeasonWinter" aria-pressed="true" role="radio">
+          <svg class="jet-toggle-icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M8 1 V15 M1 8 H15 M3 3 L13 13 M13 3 L3 13" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+          </svg>Winter
+        </button>
+        <button class="jet-toggle-btn" id="jetSeasonSummer" aria-pressed="false" role="radio">
+          <svg class="jet-toggle-icon" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="3" fill="currentColor"/>
+            <g stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+              <path d="M8 1 V3 M8 13 V15 M1 8 H3 M13 8 H15 M3 3 L4.5 4.5 M11.5 11.5 L13 13 M3 13 L4.5 11.5 M11.5 4.5 L13 3"/>
+            </g>
+          </svg>Summer
+        </button>
+      </div>
+      <button class="jet-toggle-btn jet-toggle-btn--cat" id="jetCatToggle" aria-pressed="false">
+        <svg class="jet-toggle-icon" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M8 1 L15 14 L1 14 Z" fill="currentColor" opacity="0.85"/>
+          <path d="M8 6 V10 M8 12 V12.5" stroke="#0C1B33" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>CAT zones
+      </button>
+    </div>
+    <div class="jet-info-card" id="jetInfoCard" data-open="false" aria-live="polite">
+      <div class="jet-info-card__head">
+        <span class="jet-info-card__chip" id="jetInfoChip"></span>
+        <h2 class="jet-info-card__title" id="jetInfoTitle">Polar Jet</h2>
+        <button class="jet-info-card__close" id="jetInfoClose" aria-label="Close">
+          <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+            <path d="M2 2 L12 12 M12 2 L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="jet-info-card__body" id="jetInfoBody">…</div>
+      <div class="jet-info-card__stats" id="jetInfoStats"></div>
+    </div>
+    <div class="jet-hint" id="jetHint">Tap either jet on the globe to reveal its stats.</div>
+  </div>
+</div>`;
+  },
+
+  _initJetStreamsModule() {
+    const root = document.getElementById('jetModule');
+    if (!root || root.dataset.jetInit === 'done') return;
+    root.dataset.jetInit = 'done';
+
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    const CX = 300, CY = 230, R = 180;
+
+    function buildJet(latOffset, amplitude, segments, phase) {
+      const meanY = CY + latOffset;
+      const xMin = CX - R - 20;
+      const xMax = CX + R + 20;
+      const wave = (x) => meanY + Math.sin((x - xMin) / (xMax - xMin) * Math.PI * segments + phase) * amplitude;
+      const N = 40;
+      const pts = [];
+      for (let i = 0; i <= N; i++) {
+        const t = i / N;
+        const x = xMin + (xMax - xMin) * t;
+        pts.push([x, wave(x)]);
+      }
+      let d = `M ${pts[0][0]} ${pts[0][1]}`;
+      for (let i = 1; i < pts.length; i++) d += ` L ${pts[i][0]} ${pts[i][1]}`;
+      return d;
+    }
+    function buildCatBand(latOffset, amplitude, segments, phase, bandWidth) {
+      const meanY = CY + latOffset;
+      const xMin = CX - R - 20;
+      const xMax = CX + R + 20;
+      const wave = (x, off) => meanY + off + Math.sin((x - xMin) / (xMax - xMin) * Math.PI * segments + phase) * amplitude;
+      const N = 50;
+      const top = [], bot = [];
+      for (let i = 0; i <= N; i++) {
+        const t = i / N;
+        const x = xMin + (xMax - xMin) * t;
+        top.push([x, wave(x, -bandWidth)]);
+        bot.push([x, wave(x, bandWidth)]);
+      }
+      let d = `M ${top[0][0]} ${top[0][1]}`;
+      for (let i = 1; i < top.length; i++) d += ` L ${top[i][0]} ${top[i][1]}`;
+      for (let i = bot.length - 1; i >= 0; i--) d += ` L ${bot[i][0]} ${bot[i][1]}`;
+      d += ' Z';
+      return d;
+    }
+    function pointOn(latOffset, amplitude, segments, phase, frac) {
+      const meanY = CY + latOffset;
+      const xMin = CX - R - 20;
+      const xMax = CX + R + 20;
+      const x = xMin + (xMax - xMin) * frac;
+      const k = Math.PI * segments / (xMax - xMin);
+      const y = meanY + Math.sin((x - xMin) * k + phase) * amplitude;
+      const dy = Math.cos((x - xMin) * k + phase) * amplitude * k;
+      const ang = Math.atan2(dy, 1) * 180 / Math.PI;
+      return { x, y, angle: ang };
+    }
+
+    // Speed envelopes per the user's adjustment: subtropical anchored
+    // within FAA-H-8083-28B 50–150 kt range — winter 80-150, summer 50-100.
+    // Polar unchanged from the design (60-200 winter, 60-120 summer).
+    const seasons = {
+      winter: {
+        polar:  { latOffset: -42, amplitude: 22, segments: 4, phase: 0.3, width: 14 },
+        sub:    { latOffset: 12,  amplitude: 14, segments: 5, phase: 1.1, width: 10 },
+        polarSpeed: '60–200 kt (peaks 250+)',
+        subSpeed:   '80–150 kt'
+      },
+      summer: {
+        polar:  { latOffset: -78, amplitude: 16, segments: 4, phase: 0.3, width: 12 },
+        sub:    { latOffset: -18, amplitude: 10, segments: 5, phase: 1.1, width: 7 },
+        polarSpeed: '60–120 kt',
+        subSpeed:   '50–100 kt'
+      }
+    };
+
+    let currentSeason = 'winter';
+    let activeJet = null;
+    let catOn = false;
+
+    const polarFront = root.querySelector('#jetPolarFront');
+    const polarBack  = root.querySelector('#jetPolarBack');
+    const polarGlow  = root.querySelector('#jetPolarGlow');
+    const polarHit   = root.querySelector('#jetPolarHit');
+    const polarArrows = root.querySelector('#jetPolarArrows');
+    const subFront = root.querySelector('#jetSubFront');
+    const subBack  = root.querySelector('#jetSubBack');
+    const subGlow  = root.querySelector('#jetSubGlow');
+    const subHit   = root.querySelector('#jetSubHit');
+    const subArrows = root.querySelector('#jetSubArrows');
+    const catPolarN = root.querySelector('#jetCatPolarN');
+    const catPolarS = root.querySelector('#jetCatPolarS');
+    const catSubN = root.querySelector('#jetCatSubN');
+    const catSubS = root.querySelector('#jetCatSubS');
+    const seasonBadgeText = root.querySelector('#jetSeasonBadgeText');
+    const seasonWinter = root.querySelector('#jetSeasonWinter');
+    const seasonSummer = root.querySelector('#jetSeasonSummer');
+    const catToggle = root.querySelector('#jetCatToggle');
+    const infoCard = root.querySelector('#jetInfoCard');
+    const infoChip = root.querySelector('#jetInfoChip');
+    const infoTitle = root.querySelector('#jetInfoTitle');
+    const infoBody = root.querySelector('#jetInfoBody');
+    const infoStats = root.querySelector('#jetInfoStats');
+    const infoClose = root.querySelector('#jetInfoClose');
+    const hint = root.querySelector('#jetHint');
+    const capLead = root.querySelector('#jetCapLead');
+    const capText = root.querySelector('#jetCapText');
+
+    function renderSeason(s) {
+      const cfg = seasons[s];
+      const polarPath = buildJet(cfg.polar.latOffset, cfg.polar.amplitude, cfg.polar.segments, cfg.polar.phase);
+      const subPath   = buildJet(cfg.sub.latOffset,   cfg.sub.amplitude,   cfg.sub.segments,   cfg.sub.phase);
+      polarFront.setAttribute('d', polarPath);
+      polarBack.setAttribute('d', polarPath);
+      polarGlow.setAttribute('d', polarPath);
+      polarHit.setAttribute('d', polarPath);
+      polarFront.setAttribute('stroke-width', cfg.polar.width);
+      subFront.setAttribute('d', subPath);
+      subBack.setAttribute('d', subPath);
+      subGlow.setAttribute('d', subPath);
+      subHit.setAttribute('d', subPath);
+      subFront.setAttribute('stroke-width', cfg.sub.width);
+      catPolarN.setAttribute('d', buildCatBand(cfg.polar.latOffset - 14, cfg.polar.amplitude, cfg.polar.segments, cfg.polar.phase, 8));
+      catPolarS.setAttribute('d', buildCatBand(cfg.polar.latOffset + 14, cfg.polar.amplitude, cfg.polar.segments, cfg.polar.phase, 8));
+      catSubN.setAttribute('d', buildCatBand(cfg.sub.latOffset - 12, cfg.sub.amplitude, cfg.sub.segments, cfg.sub.phase, 7));
+      catSubS.setAttribute('d', buildCatBand(cfg.sub.latOffset + 12, cfg.sub.amplitude, cfg.sub.segments, cfg.sub.phase, 7));
+      // Three arrows along each visible jet
+      [0.28, 0.55, 0.82].forEach((frac, idx) => {
+        const polarPt = pointOn(cfg.polar.latOffset, cfg.polar.amplitude, cfg.polar.segments, cfg.polar.phase, frac);
+        const subPt   = pointOn(cfg.sub.latOffset,   cfg.sub.amplitude,   cfg.sub.segments,   cfg.sub.phase,   frac);
+        let pa = polarArrows.children[idx];
+        if (!pa) {
+          pa = document.createElementNS(SVG_NS, 'g');
+          const tri = document.createElementNS(SVG_NS, 'polygon');
+          tri.setAttribute('points', '-6,-5 7,0 -6,5');
+          tri.setAttribute('fill', '#FFFFFF');
+          tri.setAttribute('stroke', '#0C1B33');
+          tri.setAttribute('stroke-width', '0.7');
+          pa.appendChild(tri);
+          polarArrows.appendChild(pa);
+        }
+        pa.setAttribute('transform', `translate(${polarPt.x} ${polarPt.y}) rotate(${polarPt.angle})`);
+        let sa = subArrows.children[idx];
+        if (!sa) {
+          sa = document.createElementNS(SVG_NS, 'g');
+          const tri = document.createElementNS(SVG_NS, 'polygon');
+          tri.setAttribute('points', '-6,-5 7,0 -6,5');
+          tri.setAttribute('fill', '#FFFFFF');
+          tri.setAttribute('stroke', '#0C1B33');
+          tri.setAttribute('stroke-width', '0.7');
+          sa.appendChild(tri);
+          subArrows.appendChild(sa);
+        }
+        sa.setAttribute('transform', `translate(${subPt.x} ${subPt.y}) rotate(${subPt.angle})`);
+      });
+      seasonBadgeText.textContent = (s === 'winter' ? 'WINTER · N. HEM.' : 'SUMMER · N. HEM.');
+    }
+
+    function showInfo(jet) {
+      activeJet = jet;
+      polarFront.setAttribute('data-active', jet === 'polar' ? 'true' : 'false');
+      subFront.setAttribute('data-active', jet === 'sub' ? 'true' : 'false');
+      if (jet === 'polar') {
+        infoChip.className = 'jet-info-card__chip jet-info-card__chip--polar';
+        infoTitle.textContent = 'Polar Jet';
+        infoBody.textContent = 'Forms along the polar front where cold polar air meets warmer mid-latitude air. Strongest in winter when the temperature contrast is greatest. Often associated with major weather systems and turbulence.';
+        infoStats.innerHTML = `
+          <div class="jet-stat"><div class="jet-stat__label">Latitude</div><div class="jet-stat__val">30–60°N</div></div>
+          <div class="jet-stat"><div class="jet-stat__label">Altitude</div><div class="jet-stat__val">35–40k ft</div></div>
+          <div class="jet-stat"><div class="jet-stat__label">Speed</div><div class="jet-stat__val">${seasons[currentSeason].polarSpeed}</div></div>`;
+        capLead.textContent = 'Polar jet';
+        capText.textContent = 'Cold polar air meets warmer mid-latitude air — driving the strongest jet, especially in winter.';
+      } else if (jet === 'sub') {
+        infoChip.className = 'jet-info-card__chip jet-info-card__chip--sub';
+        infoTitle.textContent = 'Subtropical Jet';
+        infoBody.textContent = 'Forms at the poleward edge of the Hadley cell, where rising tropical air diverges aloft. Most consistent in winter; weakens or fragments in summer. Generally more steady than the polar jet.';
+        infoStats.innerHTML = `
+          <div class="jet-stat"><div class="jet-stat__label">Latitude</div><div class="jet-stat__val">20–30°N</div></div>
+          <div class="jet-stat"><div class="jet-stat__label">Altitude</div><div class="jet-stat__val">~40k ft</div></div>
+          <div class="jet-stat"><div class="jet-stat__label">Speed</div><div class="jet-stat__val">${seasons[currentSeason].subSpeed}</div></div>`;
+        capLead.textContent = 'Subtropical jet';
+        capText.textContent = 'Sits at the poleward edge of the Hadley cell — usually steadier and weaker than the polar jet.';
+      } else if (jet === 'cat') {
+        infoChip.className = 'jet-info-card__chip jet-info-card__chip--cat';
+        infoTitle.textContent = 'Clear Air Turbulence Zones';
+        infoBody.textContent = 'CAT is most likely on the north and south flanks of each jet, where wind shear is strongest. It is invisible — no clouds, no precip cues — and can range from light to severe. Plan altitudes that avoid jet edges when possible.';
+        infoStats.innerHTML = `
+          <div class="jet-stat"><div class="jet-stat__label">Where</div><div class="jet-stat__val">Jet flanks</div></div>
+          <div class="jet-stat"><div class="jet-stat__label">Cause</div><div class="jet-stat__val">Wind shear</div></div>
+          <div class="jet-stat"><div class="jet-stat__label">Cue</div><div class="jet-stat__val">None visible</div></div>`;
+        capLead.textContent = 'Clear Air Turbulence';
+        capText.textContent = 'Shaded bands flank each jet — the wind-shear regions where CAT is most likely.';
+      }
+      infoCard.setAttribute('data-open', 'true');
+      hint.style.opacity = '0';
+    }
+
+    function hideInfo() {
+      activeJet = null;
+      infoCard.setAttribute('data-open', 'false');
+      polarFront.removeAttribute('data-active');
+      subFront.removeAttribute('data-active');
+      hint.style.opacity = '1';
+      capLead.textContent = 'Tap a jet to learn more';
+      capText.textContent = 'Two ribbon-like wind currents wrap Earth in the upper troposphere. Their position shifts with the seasons.';
+    }
+
+    function setSeason(s) {
+      currentSeason = s;
+      seasonWinter.setAttribute('aria-pressed', s === 'winter' ? 'true' : 'false');
+      seasonSummer.setAttribute('aria-pressed', s === 'summer' ? 'true' : 'false');
+      renderSeason(s);
+      if (activeJet === 'polar' || activeJet === 'sub') showInfo(activeJet);
+    }
+    function setCat(on) {
+      catOn = on;
+      catToggle.setAttribute('aria-pressed', on ? 'true' : 'false');
+      [catPolarN, catPolarS, catSubN, catSubS].forEach(n => n.setAttribute('data-on', on ? 'true' : 'false'));
+      if (on) showInfo('cat');
+      else if (activeJet === 'cat') hideInfo();
+    }
+
+    seasonWinter.addEventListener('click', () => setSeason('winter'));
+    seasonSummer.addEventListener('click', () => setSeason('summer'));
+    catToggle.addEventListener('click', () => setCat(!catOn));
+
+    function bindJetTap(node, jet) {
+      const handler = () => showInfo(jet);
+      node.addEventListener('click', handler);
+      node.addEventListener('touchend', (e) => { e.preventDefault(); handler(); });
+    }
+    bindJetTap(polarHit, 'polar');
+    bindJetTap(polarFront, 'polar');
+    bindJetTap(subHit, 'sub');
+    bindJetTap(subFront, 'sub');
+    infoClose.addEventListener('click', () => {
+      if (activeJet === 'cat') setCat(false);
+      else hideInfo();
     });
+
+    renderSeason('winter');
   },
 
   // FAA-H-8083-28B Fig 25-5 — synoptic surface chart showing H/L pressure

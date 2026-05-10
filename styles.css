@@ -621,3 +621,103 @@ button:focus-visible{outline:3px solid var(--sky-dark);outline-offset:2px;border
   .sw-module .panel-status{font-size:11px}
   .sw-module .force-text{font-size:11px}
 }
+
+/* ============================================================
+   Jet Streams Module (replaces FAA Fig 9-5 hotspot in M3 §s3_3).
+   Globe view with two ribbon-jets, season toggle (winter/summer),
+   tap-to-reveal info cards, CAT zone overlay.
+   ============================================================ */
+
+.jet-module{
+  max-width:720px;margin:20px auto;background:var(--navy);
+  border-radius:16px;overflow:hidden;font-family:var(--font-body);
+  color:#334155;line-height:1.5;
+  box-shadow:0 10px 40px rgba(12,27,51,.18)
+}
+.jet-module__header{padding:18px 20px 4px}
+.jet-module__title{font-family:var(--font-display);font-weight:900;
+  color:white;font-size:22px;line-height:1.15;letter-spacing:-.01em;margin:0}
+.jet-module__attr{font-family:var(--font-mono);font-size:11px;color:var(--sky);
+  padding:6px 20px 14px;letter-spacing:.02em}
+.jet-module__figure{
+  background:radial-gradient(circle at 50% 38%,#EFF6FF 0%,#FFFFFF 65%);
+  padding:14px 12px 14px;position:relative
+}
+.jet-module__figure svg{width:100%;height:auto;display:block;user-select:none;touch-action:manipulation}
+.jet-legend-keys{position:absolute;top:18px;left:22px;display:flex;flex-direction:column;
+  gap:6px;font-family:var(--font-display);font-weight:800;font-size:13px;pointer-events:none}
+.jet-legend-keys__item{display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.85);padding:4px 8px;border-radius:8px;
+  box-shadow:0 1px 4px rgba(12,27,51,.08)}
+.jet-legend-keys__swatch{width:22px;height:6px;border-radius:999px}
+.jet-legend-keys__swatch--polar{background:linear-gradient(90deg,#1E40AF,#38BDF8)}
+.jet-legend-keys__swatch--sub{background:linear-gradient(90deg,#B91C1C,#F59E0B)}
+.jet-legend-keys__label--polar{color:#1E3A8A}
+.jet-legend-keys__label--sub{color:#991B1B}
+.jet-module__caption{background:var(--navy);color:#CBD5E1;padding:14px 20px 6px;
+  font-size:14px;line-height:1.5;min-height:64px}
+.jet-caption__lead{font-family:var(--font-mono);font-size:11px;color:var(--sky);
+  letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:4px}
+.jet-caption__text{color:white;font-weight:600}
+.jet-controls{background:var(--navy);padding:12px 16px 18px;
+  border-top:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;gap:12px}
+.jet-controls__row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.jet-toggle-group{display:inline-flex;background:rgba(255,255,255,.06);border-radius:10px;padding:4px;gap:4px}
+.jet-toggle-btn{font-family:var(--font-body);font-weight:800;font-size:13px;
+  height:44px;min-width:44px;padding:0 16px;border-radius:8px;border:0;cursor:pointer;
+  background:transparent;color:#CBD5E1;display:inline-flex;align-items:center;gap:6px}
+.jet-toggle-btn[aria-pressed="true"]{background:var(--sky-dark);color:white}
+.jet-toggle-btn--cat[aria-pressed="true"]{background:var(--amber);color:var(--navy)}
+.jet-toggle-icon{width:14px;height:14px}
+.jet-info-card{margin-top:4px;background:white;border-radius:12px;padding:14px 16px;
+  color:#334155;box-shadow:0 6px 20px rgba(0,0,0,.18);transform:translateY(6px);
+  opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease}
+.jet-info-card[data-open="true"]{opacity:1;transform:translateY(0);pointer-events:auto}
+.jet-info-card__head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.jet-info-card__chip{width:28px;height:7px;border-radius:999px;flex:0 0 auto}
+.jet-info-card__chip--polar{background:linear-gradient(90deg,#1E40AF,#38BDF8)}
+.jet-info-card__chip--sub{background:linear-gradient(90deg,#B91C1C,#F59E0B)}
+.jet-info-card__chip--cat{background:var(--amber)}
+.jet-info-card__title{font-family:var(--font-display);font-weight:900;font-size:16px;
+  color:var(--navy);margin:0}
+.jet-info-card__close{margin-left:auto;background:transparent;border:0;width:32px;height:32px;
+  border-radius:50%;cursor:pointer;color:#334155;
+  display:inline-flex;align-items:center;justify-content:center}
+.jet-info-card__close:hover{background:#F8FAFC}
+.jet-info-card__stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+.jet-stat{background:#F8FAFC;border-radius:8px;padding:8px 10px}
+.jet-stat__label{font-family:var(--font-mono);font-size:10px;letter-spacing:.05em;
+  color:#334155;opacity:.7;text-transform:uppercase}
+.jet-stat__val{font-family:var(--font-display);font-weight:900;font-size:14px;color:var(--navy)}
+.jet-info-card__body{font-size:13px;line-height:1.5;color:#334155}
+.jet-hint{font-family:var(--font-mono);font-size:11px;color:#CBD5E1;text-align:center;padding-top:4px}
+/* SVG element styles */
+.jet-module .jet-ribbon{fill:none;stroke-linecap:round;cursor:pointer;
+  transition:stroke-width .22s ease,filter .22s ease,opacity .22s ease}
+.jet-module .jet-hit{fill:none;stroke:transparent;stroke-width:30;cursor:pointer;pointer-events:stroke}
+.jet-module .jet-glow{fill:none;opacity:.35;filter:blur(3px)}
+.jet-module .jet-arrow{fill:white;stroke:var(--navy);stroke-width:.8}
+.jet-module .ocean{fill:#BFE3F2}
+.jet-module .land{fill:#C9E2BC}
+.jet-module .equator{stroke:#94A3B8;stroke-width:1;stroke-dasharray:4 4;fill:none}
+.jet-module .latitude{stroke:#CBD5E1;stroke-width:.8;fill:none;opacity:.6}
+.jet-module .globe-edge{stroke:var(--navy);stroke-width:2;fill:none}
+.jet-module .cat-zone{fill:var(--amber);opacity:0;transition:opacity .32s ease;pointer-events:none}
+.jet-module .cat-zone[data-on="true"]{opacity:.28}
+.jet-module .jet-ribbon[data-active="true"]{filter:drop-shadow(0 0 8px rgba(56,189,248,.45))}
+@media (max-width:599px){
+  .jet-module{margin:16px auto;border-radius:12px}
+  .jet-module__header{padding:14px 16px 2px}
+  .jet-module__title{font-size:18px}
+  .jet-module__attr{font-size:10px;padding:6px 16px 12px}
+  .jet-module__caption{padding:12px 16px 6px;font-size:13px}
+  .jet-legend-keys{top:12px;left:14px;font-size:11px}
+  .jet-controls{padding:10px 12px 14px}
+  .jet-toggle-btn{font-size:12px;padding:0 12px}
+  .jet-info-card__stats{grid-template-columns:1fr 1fr 1fr;gap:6px}
+  .jet-stat{padding:6px 8px}
+  .jet-stat__val{font-size:13px}
+  /* SVG legibility — bump the season-badge text since it's the only
+     SVG text that drops below readable at 390px */
+  .jet-module svg text{font-size:13px}
+}
