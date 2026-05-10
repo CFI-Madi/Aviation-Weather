@@ -1267,7 +1267,11 @@ const Screens = {
           renderFn: 'renderMetarDecoder' },
         { id: 'taf-practice',   name: 'TAF Practice',   icon: '📅', moduleId: 'm12',
           desc: '8 annotated TAF examples covering FM/TEMPO/BECMG/PROB/WS.',
-          renderFn: 'renderTafDecoder' }
+          renderFn: 'renderTafDecoder' },
+        // Companion to METAR Quiz — public-domain FAA Appendix C reference.
+        { id: 'asos_reference', name: 'ASOS Reference', icon: '📖', moduleId: 'm11',
+          desc: "Field-by-field decode of the FAA's canonical ASOS METAR example.",
+          renderType: 'screen', renderFn: 'asosReference' }
       ]
     },
     {
@@ -1872,9 +1876,12 @@ const Screens = {
     this._mq = null;
   },
 
-  // ASOS Reference overlay — content lands in Chunk 5; for now stub with a
-  // placeholder so the Beginner button is reachable and the modal pattern
-  // works end-to-end.
+  // ASOS Reference overlay — modal version, used from inside Beginner quiz.
+  // Preserves quiz state (state.metarQuizInProgress lands in Chunk 6) since
+  // the overlay sits on top of the quiz screen without navigating away.
+  // Hardware Android back button: handled by pushing a state on open and
+  // listening for popstate; closing the overlay just pops without
+  // navigating away from the quiz screen.
   _openAsosReferenceOverlay() {
     let overlay = document.getElementById('asos-reference-overlay');
     if (!overlay) {
@@ -1889,24 +1896,127 @@ const Screens = {
     overlay.innerHTML = `
       <div class="quiz-overlay-card" style="position:relative">
         <button class="quiz-overlay-close" onclick="Screens._closeAsosReferenceOverlay()" aria-label="Close reference">×</button>
-        <h2 style="font-family:var(--font-display);font-size:20px;font-weight:900;color:var(--navy);margin:0 0 6px">ASOS Quick Reference</h2>
-        <p style="font-size:13px;color:#64748B;margin:0 0 14px">Reference card content lands in Chunk 5 of Phase 2.</p>
+        ${this._renderAsosReferenceContent({ compact: true })}
       </div>`;
     overlay.style.display = 'flex';
-    // Trap escape + Android back button → close overlay (verified in Chunk 5)
+
+    // Push a history state so the hardware Android back button closes the
+    // overlay instead of navigating away from the quiz screen.
+    history.pushState({ asosOverlay: true }, '');
+    this._asosOverlayPopHandler = () => this._closeAsosReferenceOverlay({ skipHistoryPop: true });
+    window.addEventListener('popstate', this._asosOverlayPopHandler);
+
+    // Escape key fallback for desktop.
     this._asosOverlayKeyHandler = (e) => {
       if (e.key === 'Escape') this._closeAsosReferenceOverlay();
     };
     document.addEventListener('keydown', this._asosOverlayKeyHandler);
   },
 
-  _closeAsosReferenceOverlay() {
+  _closeAsosReferenceOverlay(opts) {
     const overlay = document.getElementById('asos-reference-overlay');
     if (overlay) overlay.style.display = 'none';
     if (this._asosOverlayKeyHandler) {
       document.removeEventListener('keydown', this._asosOverlayKeyHandler);
       this._asosOverlayKeyHandler = null;
     }
+    if (this._asosOverlayPopHandler) {
+      window.removeEventListener('popstate', this._asosOverlayPopHandler);
+      this._asosOverlayPopHandler = null;
+      // Pop the synthetic history state we pushed on open. Skip when the
+      // popstate listener itself is what called us — the browser already
+      // popped the state in that case.
+      if (!opts || !opts.skipHistoryPop) history.back();
+    }
+  },
+
+  // Standalone ASOS Reference screen (#/tools/asos_reference). Same content
+  // as the overlay but with a Back-to-Tools chrome and full-page layout.
+  asosReference(params) {
+    document.getElementById('tool_detail-content').innerHTML = `
+      <div style="padding-bottom:24px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <button onclick="Router.navigate('tools')" aria-label="Back to Study Tools" style="background:#F1F5F9;border:none;border-radius:12px;padding:8px 14px;cursor:pointer;font-family:var(--font-display);font-weight:700;color:#64748B;font-size:13px">← Back</button>
+        </div>
+        ${this._renderAsosReferenceContent({ compact: false })}
+      </div>`;
+  },
+
+  // Shared content renderer for the standalone screen + the modal overlay.
+  // Renders the canonical METAR with each field group as a tappable chip
+  // group, plus a panel below that opens to show field details on tap.
+  _renderAsosReferenceContent(opts) {
+    if (typeof ASOS_REFERENCE === 'undefined') {
+      return '<p style="color:#EF4444">ASOS reference data not loaded.</p>';
+    }
+    const compact = !!(opts && opts.compact);
+    const ref = ASOS_REFERENCE;
+
+    const tokenColor = '#F1F5F9';     // soft neutral background
+    const tokenBorder = '#E2E8F0';
+
+    const renderTokenGroup = (field) => {
+      const tokensHtml = field.tokens.map(t =>
+        `<span class="metar-token" style="background:${tokenColor};color:var(--navy);border-color:${tokenBorder};margin:2px 1px">${this._escapeHtml(t)}</span>`
+      ).join(' ');
+      return `<button type="button" data-asos-field="${field.id}"
+            onclick="Screens._showAsosField('${field.id}')"
+            style="display:inline-flex;align-items:center;gap:0;background:none;border:none;padding:0;cursor:pointer;border-radius:8px;outline:none"
+            aria-label="${this._escapeHtml(field.name)}">
+          ${tokensHtml}
+        </button>`;
+    };
+
+    const bodyTokensHtml = ref.body_fields.map(renderTokenGroup).join(' ');
+    const rmkTokensHtml = ref.rmk_fields.map(renderTokenGroup).join(' ');
+
+    const titleSize = compact ? '20px' : '26px';
+    const titleMargin = compact ? '0 0 4px' : '0 0 6px';
+
+    return `
+      <h1 style="font-family:var(--font-display);font-size:${titleSize};font-weight:900;color:var(--navy);margin:${titleMargin};display:flex;align-items:center;gap:10px"><span aria-hidden="true">📖</span><span>ASOS Quick Reference</span></h1>
+      <p style="color:#64748B;font-size:13px;line-height:1.5;margin:0 0 18px">
+        Field-by-field decode of the FAA's canonical ASOS METAR example. Tap any group to see the verbatim FAA description.
+      </p>
+
+      <div style="margin-bottom:16px">
+        <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:#64748B;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">Body group</div>
+        <div style="background:white;border:1.5px solid #E2E8F0;border-radius:14px;padding:12px;font-family:var(--font-mono);font-size:13px;line-height:2.0;word-break:break-word">${bodyTokensHtml}</div>
+      </div>
+
+      <div style="margin-bottom:18px">
+        <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:#64748B;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">Remarks group</div>
+        <div style="background:white;border:1.5px solid #E2E8F0;border-radius:14px;padding:12px;font-family:var(--font-mono);font-size:13px;line-height:2.0;word-break:break-word">${rmkTokensHtml}</div>
+      </div>
+
+      <div id="asos-field-panel" aria-live="polite" style="background:#F8FAFC;border-left:4px solid var(--sky-dark);border-radius:14px;padding:14px;font-family:var(--font-body);font-size:14px;color:var(--navy);line-height:1.55;min-height:80px">
+        <span style="color:#94A3B8;font-style:italic">Tap a field above to see its description.</span>
+      </div>
+    `;
+  },
+
+  // Render the description panel for a tapped field.
+  _showAsosField(fieldId) {
+    if (typeof ASOS_REFERENCE === 'undefined') return;
+    const all = ASOS_REFERENCE.body_fields.concat(ASOS_REFERENCE.rmk_fields);
+    const field = all.find(f => f.id === fieldId);
+    const panel = document.getElementById('asos-field-panel');
+    if (!field || !panel) return;
+    panel.innerHTML = `
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px">
+        <div>
+          <div style="font-family:var(--font-display);font-weight:900;color:var(--navy);font-size:15px">${this._escapeHtml(field.name)}</div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:#475569;margin-top:2px">${field.tokens.map(t => this._escapeHtml(t)).join(' ')}</div>
+        </div>
+        <span style="font-family:var(--font-mono);font-size:11px;background:#F1F5F9;color:#64748B;padding:3px 8px;border-radius:6px;white-space:nowrap">Example: ${this._escapeHtml(field.value)}</span>
+      </div>
+      <p style="margin:10px 0 12px;font-size:13.5px">${this._escapeHtml(field.description)}</p>
+      <p style="margin:0;font-size:11px;color:#94A3B8;font-style:italic;line-height:1.5">${this._escapeHtml(ASOS_REFERENCE.attribution_short)}</p>
+    `;
+    // Highlight the active token group
+    document.querySelectorAll('[data-asos-field]').forEach(el => {
+      el.style.background = el.dataset.asosField === fieldId ? '#FEF3C7' : 'none';
+    });
   },
 
   // Long-press handler (Intermediate). Holds for 500 ms → opens overlay.
