@@ -443,3 +443,99 @@ button:focus-visible{outline:3px solid var(--sky-dark);outline-offset:2px;border
   .da-module svg text{font-size:13px}
   .da-slider{height:10px}
 }
+
+/* ============================================================
+   Geostrophic Wind Module (replaces FAA Fig 10-8 hotspot in M3 §s3_1).
+   Animated 4-stage parcel acceleration → geostrophic balance.
+   Color tokens follow project palette; slate/bg-tint/pgf-gray inlined
+   as literals since project doesn't define those tokens.
+   ============================================================ */
+
+.gw-module{
+  max-width:720px;margin:20px auto;background:var(--navy);
+  border-radius:16px;overflow:hidden;font-family:var(--font-body);
+  color:#334155;line-height:1.5;
+  box-shadow:0 10px 40px rgba(12,27,51,.18)
+}
+.gw-module__header{padding:18px 20px 4px;background:var(--navy)}
+.gw-module__title{font-family:var(--font-display);font-weight:900;
+  color:white;font-size:22px;line-height:1.15;letter-spacing:-.01em;margin:0}
+.gw-module__attr{font-family:var(--font-mono);font-size:11px;color:var(--sky);
+  padding:6px 20px 14px;letter-spacing:.02em}
+.gw-module__figure{background:white;padding:14px 12px 12px}
+.gw-module__figure svg{width:100%;height:auto;display:block;user-select:none}
+.gw-module__caption{background:var(--navy);color:#CBD5E1;padding:14px 20px 10px;
+  font-size:14px;line-height:1.5;min-height:64px}
+.gw-caption__stage{font-family:var(--font-mono);font-size:11px;color:var(--sky);
+  letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:4px}
+.gw-caption__text{color:white;font-weight:600}
+.gw-controls{background:var(--navy);padding:12px 16px 18px;
+  border-top:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;gap:12px}
+.gw-controls__row{display:flex;align-items:center;gap:10px}
+.gw-btn{font-family:var(--font-body);font-weight:800;font-size:14px;
+  height:44px;min-width:44px;padding:0 18px;border-radius:10px;border:0;cursor:pointer;
+  background:var(--sky-dark);color:white;display:inline-flex;align-items:center;
+  justify-content:center;gap:8px;transition:filter .12s ease,transform .12s ease}
+.gw-btn:hover{filter:brightness(1.08)}
+.gw-btn:active{transform:translateY(1px)}
+.gw-btn--ghost{background:transparent;color:#CBD5E1;border:1px solid rgba(255,255,255,.18)}
+.gw-btn[aria-pressed="true"]{background:var(--emerald)}
+.gw-stage-readout{margin-left:auto;font-family:var(--font-mono);font-size:12px;color:var(--sky)}
+.gw-slider-wrap{position:relative;padding:6px 4px 2px}
+.gw-module input[type="range"]{-webkit-appearance:none;appearance:none;
+  width:100%;height:32px;background:transparent;cursor:pointer}
+.gw-module input[type="range"]::-webkit-slider-runnable-track{
+  height:6px;background:linear-gradient(90deg,var(--sky-dark),var(--sky));border-radius:999px}
+.gw-module input[type="range"]::-moz-range-track{
+  height:6px;background:linear-gradient(90deg,var(--sky-dark),var(--sky));border-radius:999px}
+.gw-module input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+  height:24px;width:24px;border-radius:50%;background:white;border:3px solid var(--sky-dark);
+  margin-top:-9px;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.gw-module input[type="range"]::-moz-range-thumb{height:24px;width:24px;border-radius:50%;
+  background:white;border:3px solid var(--sky-dark);box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.gw-stage-ticks{display:flex;justify-content:space-between;padding:0 8px;
+  font-family:var(--font-mono);font-size:10px;color:#CBD5E1;letter-spacing:.04em}
+.gw-stage-ticks span{text-align:center;flex:1}
+/* SVG element styles (referenced by inline class= attributes set from JS) */
+.gw-module .contour-line{stroke:#334155;stroke-width:2;fill:none}
+.gw-module .contour-line.dashed{stroke-dasharray:6 5;stroke:#CBD5E1}
+.gw-module .contour-label{font-family:var(--font-mono);font-size:12px;fill:#334155;font-weight:700}
+.gw-module .height-label{font-family:var(--font-display);font-size:11px;font-weight:900;
+  fill:var(--navy);letter-spacing:.06em}
+.gw-module .force-label{font-family:var(--font-display);font-weight:800;font-size:11px;letter-spacing:.04em}
+.gw-module .parcel{stroke:var(--sky-dark);stroke-width:1.2}
+.gw-module .trajectory{stroke:var(--sky-dark);stroke-width:2;stroke-dasharray:1 5;
+  stroke-linecap:round;fill:none}
+.gw-module .steady-box{stroke:#334155;stroke-width:1.5;stroke-dasharray:6 5;fill:none}
+.gw-module .panel-label{font-family:var(--font-display);font-size:10px;font-weight:900;
+  fill:var(--navy);letter-spacing:.04em}
+.gw-module .wind-label{font-family:var(--font-display);font-size:9px;font-weight:900;
+  fill:var(--sky-dark);letter-spacing:.08em}
+.gw-legend{margin-top:12px;padding:10px 12px;background:#F8FAFC;border-radius:10px;
+  display:grid;grid-template-columns:repeat(2,1fr);gap:8px 14px;font-size:11px;color:#334155}
+.gw-legend__item{display:flex;align-items:center;gap:8px}
+.gw-legend__chip{flex:0 0 auto;width:26px;height:14px;border-radius:3px}
+.gw-legend__chip--pgf{background:#475569}
+.gw-legend__chip--cor{background:var(--product)}
+.gw-legend__chip--wind{background:rgba(56,189,248,.35);border:1.5px dashed var(--sky-dark)}
+.gw-legend__chip--parcel{background:radial-gradient(circle at 30% 30%,#fff,#BAE6FD);
+  border:1px solid var(--sky-dark);border-radius:50%;width:16px;height:16px}
+@media (max-width:599px){
+  .gw-module{margin:16px auto;border-radius:12px}
+  .gw-module__header{padding:14px 16px 2px}
+  .gw-module__title{font-size:18px}
+  .gw-module__attr{font-size:10px;padding:6px 16px 12px}
+  .gw-module__caption{padding:12px 16px 8px;font-size:13px}
+  .gw-controls{padding:10px 12px 14px}
+  .gw-btn{font-size:13px;padding:0 14px}
+  .gw-legend{font-size:10px}
+  /* SVG text legibility — class-specific overrides win over the generic
+     svg-text rule. Each named class gets bumped explicitly for the
+     390px viewport. */
+  .gw-module svg text{font-size:13px}
+  .gw-module .contour-label{font-size:13px}
+  .gw-module .height-label{font-size:13px}
+  .gw-module .force-label{font-size:12px}
+  .gw-module .panel-label{font-size:11px}
+  .gw-module .wind-label{font-size:10px}
+}

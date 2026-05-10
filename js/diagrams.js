@@ -98,7 +98,9 @@ const Diagrams = {
         svgContent: this.atmosphereSVG(),
       },
       wind_forces: {
+        // Module renders its own header + FAA attribution strip.
         title: '🌬️ Geostrophic Wind — PGF + Coriolis Balance',
+        selfTitled: true,
         svgContent: this.windForcesSVG(),
       },
       fronts_diagram: {
@@ -124,6 +126,16 @@ const Diagrams = {
     };
     const cfg = configs[key];
     if (!cfg) return '';
+    // Hotspot diagrams that render their own title heading set
+    // selfTitled:true (the conceptual data-self-titled flag — see
+    // CONVENTIONS.md). The wrapper suppresses its own title bar in that
+    // case so we don't double-title the figure. M3 redesign keys
+    // (wind_forces, surface_wind_forces, jet_stream) all set this; older
+    // hotspots (atmosphere_layers, fronts_diagram, cloud_gallery,
+    // pressure_systems) continue to get the default wrapper title.
+    if (cfg.selfTitled === true) {
+      return `<div class="diagram-container" data-self-titled="true" style="background:transparent;box-shadow:none">${cfg.svgContent}</div>`;
+    }
     return `<div class="diagram-container">
       <div class="diagram-header">
         <span style="font-size:14px;color:white;font-family:var(--font-display);font-weight:700">${cfg.title}</span>
@@ -172,18 +184,296 @@ const Diagrams = {
     </div>`;
   },
 
-  // FAA-H-8083-28B Fig 10-8 — geostrophic-wind balance diagram. Two panels:
-  // an air parcel accelerating down the pressure gradient (NET FORCE) on the
-  // left, and the steady-state where Coriolis balances PGF (NO NET FORCE)
-  // and the wind flows parallel to height contours on the right.
+  // M3 §s3_1 — bespoke 4-stage interactive Geostrophic Wind module that
+  // replaced the FAA Fig 10-8 still image. Animated: PGF acts alone (rest)
+  // → parcel accelerates and Coriolis grows → forces nearly balanced → at
+  // steady state PGF and Coriolis balance and the parcel flows parallel
+  // to the contours (geostrophic wind). Pressure-height contour values
+  // (5520 / 5580 / 5640 / 5700 ft) match FAA-H-8083-28B Fig 10-8.
+  // Init logic in _initGeostrophicWindModule (called from
+  // Screens._initDiagram after innerHTML inject).
   windForcesSVG() {
-    return this.renderFaaFigure({
-      src: 'img/awh/awh_p0126_img_001.png',
-      figureNumber: '10-8',
-      title: 'Geostrophic Wind',
-      caption: 'Left panel: an air parcel accelerated by the pressure-gradient force (PGF). Right panel: at steady state above the friction layer, Coriolis force balances PGF and the resultant wind flows parallel to the height contours — geostrophic wind.',
-      alt: 'FAA-H-8083-28B Figure 10-8: geostrophic wind balance — PGF accelerating an air parcel until Coriolis balances it and produces wind parallel to height contours.',
+    return this.renderGeostrophicWindModule();
+  },
+
+  renderGeostrophicWindModule() {
+    return `
+<div class="gw-module" id="gwModule" role="region" aria-label="Geostrophic wind teaching figure">
+  <div class="gw-module__header">
+    <h2 class="gw-module__title">Geostrophic Wind</h2>
+  </div>
+  <div class="gw-module__attr">FAA-H-8083-28B · Fig 10-8 — Geostrophic Wind</div>
+
+  <div class="gw-module__figure">
+    <svg id="gwFigure" viewBox="0 0 600 380" preserveAspectRatio="xMidYMid meet" aria-label="Air parcel accelerating to geostrophic balance">
+      <defs>
+        <radialGradient id="gwParcelGrad" cx="35%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#FFFFFF" />
+          <stop offset="60%" stop-color="#E0F2FE" />
+          <stop offset="100%" stop-color="#7DD3FC" />
+        </radialGradient>
+      </defs>
+
+      <text class="height-label" x="14" y="22">LOWER</text>
+      <text class="height-label" x="14" y="36">HEIGHTS</text>
+      <text class="height-label" x="14" y="332">HIGHER</text>
+      <text class="height-label" x="14" y="346">HEIGHTS</text>
+
+      <line class="contour-line" x1="70" y1="60" x2="590" y2="60" />
+      <text class="contour-label" x="70" y="54">5520</text>
+      <line class="contour-line" x1="70" y1="150" x2="590" y2="150" />
+      <text class="contour-label" x="70" y="144">5580</text>
+      <line class="contour-line" x1="70" y1="240" x2="590" y2="240" />
+      <text class="contour-label" x="70" y="234">5640</text>
+      <line class="contour-line" x1="70" y1="320" x2="590" y2="320" />
+      <text class="contour-label" x="70" y="314">5700</text>
+
+      <rect id="gwSteadyBox" class="steady-box" x="470" y="40" width="120" height="300" rx="2" opacity="0.25" />
+      <text id="gwSteadyLabel" class="panel-label" x="530" y="356" text-anchor="middle" opacity="0.4">NO NET FORCE</text>
+      <text id="gwNetforceLabel" class="panel-label" x="270" y="356" text-anchor="middle" opacity="0.7">NET FORCE ACTING ON PARCEL</text>
+
+      <path id="gwTrajectory" class="trajectory" d="" />
+      <g id="gwStages"></g>
+    </svg>
+
+    <div class="gw-legend" aria-hidden="true">
+      <div class="gw-legend__item"><span class="gw-legend__chip gw-legend__chip--parcel"></span><span><strong>Air parcel</strong></span></div>
+      <div class="gw-legend__item"><span class="gw-legend__chip gw-legend__chip--pgf"></span><span><strong>PGF</strong> · pressure gradient</span></div>
+      <div class="gw-legend__item"><span class="gw-legend__chip gw-legend__chip--wind"></span><span><strong>Resultant wind</strong></span></div>
+      <div class="gw-legend__item"><span class="gw-legend__chip gw-legend__chip--cor"></span><span><strong>Coriolis force</strong></span></div>
+    </div>
+  </div>
+
+  <div class="gw-module__caption" aria-live="polite">
+    <span class="gw-caption__stage" id="gwCapStage">Stage 1 of 4 · 5700 ft</span>
+    <span class="gw-caption__text" id="gwCapText">PGF acts alone — the parcel begins to accelerate from rest toward lower heights.</span>
+  </div>
+
+  <div class="gw-controls">
+    <div class="gw-controls__row">
+      <button class="gw-btn" id="gwPlayBtn" aria-pressed="false" aria-label="Play animation">
+        <svg id="gwPlayIcon" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 2 L12 7 L3 12 Z" fill="currentColor"/></svg>
+        <span id="gwPlayLabel">Play</span>
+      </button>
+      <button class="gw-btn gw-btn--ghost" id="gwResetBtn" aria-label="Reset to stage 1">Reset</button>
+      <span class="gw-stage-readout" id="gwStageReadout">STAGE 1 / 4</span>
+    </div>
+    <div class="gw-slider-wrap">
+      <input type="range" id="gwStageSlider" min="0" max="3" step="1" value="0" aria-label="Step through stages" />
+      <div class="gw-stage-ticks" aria-hidden="true">
+        <span>At rest</span><span>Accel.</span><span>Faster</span><span>Steady</span>
+      </div>
+    </div>
+  </div>
+</div>`;
+  },
+
+  // Interactive init for the Geostrophic Wind module. Idempotent via
+  // dataset.gwInit. Called by Screens._initDiagram for hotspot key
+  // 'wind_forces' after innerHTML injection.
+  _initGeostrophicWindModule() {
+    const root = document.getElementById('gwModule');
+    if (!root || root.dataset.gwInit === 'done') return;
+    root.dataset.gwInit = 'done';
+
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+
+    const stages = [
+      { label: 'Stage 1 of 4 · 5700 ft', text: 'At rest. PGF acts alone — the parcel begins to accelerate toward lower heights.',
+        parcel: { x: 110, y: 320 }, pgf: 36, coriolis: 0, wind: 0, windAngle: 0 },
+      { label: 'Stage 2 of 4 · 5640 ft', text: 'Accelerating. PGF is strong; Coriolis appears and grows as the wind builds.',
+        parcel: { x: 220, y: 240 }, pgf: 56, coriolis: 26, wind: 36, windAngle: -22 },
+      { label: 'Stage 3 of 4 · 5580 ft', text: 'Faster. PGF and Coriolis are nearly balanced; the wind nears its maximum.',
+        parcel: { x: 360, y: 170 }, pgf: 70, coriolis: 52, wind: 56, windAngle: -10 },
+      { label: 'Stage 4 of 4 · 5580 ft', text: 'Steady state. PGF and Coriolis balance exactly — no net force, the parcel flows parallel to the contours (geostrophic wind).',
+        parcel: { x: 530, y: 150 }, pgf: 78, coriolis: 78, wind: 70, windAngle: 0 }
+    ];
+
+    const stagesEl = root.querySelector('#gwStages');
+    const trajectoryEl = root.querySelector('#gwTrajectory');
+    const capStage = root.querySelector('#gwCapStage');
+    const capText = root.querySelector('#gwCapText');
+    const slider = root.querySelector('#gwStageSlider');
+    const playBtn = root.querySelector('#gwPlayBtn');
+    const playLabel = root.querySelector('#gwPlayLabel');
+    const playIcon = root.querySelector('#gwPlayIcon');
+    const resetBtn = root.querySelector('#gwResetBtn');
+    const stageReadout = root.querySelector('#gwStageReadout');
+    const steadyBox = root.querySelector('#gwSteadyBox');
+    const steadyLabel = root.querySelector('#gwSteadyLabel');
+    const netforceLabel = root.querySelector('#gwNetforceLabel');
+
+    // Block-style outlined arrow (FAA figure aesthetic).
+    function buildArrow(opts) {
+      const w = opts.width || 12;
+      const headW = w * 1.9;
+      const headLen = Math.min(18, Math.max(10, opts.length * 0.32));
+      const shaftLen = Math.max(0, opts.length - headLen);
+      const pts = [
+        [0, -w/2], [shaftLen, -w/2], [shaftLen, -headW/2], [opts.length, 0],
+        [shaftLen, headW/2], [shaftLen, w/2], [0, w/2]
+      ].map(p => p.join(',')).join(' ');
+      const g = document.createElementNS(SVG_NS, 'g');
+      g.setAttribute('transform', `translate(${opts.x} ${opts.y}) rotate(${opts.angle})`);
+      const poly = document.createElementNS(SVG_NS, 'polygon');
+      poly.setAttribute('points', pts);
+      poly.setAttribute('fill', opts.color);
+      poly.setAttribute('stroke', opts.stroke || '#0C1B33');
+      poly.setAttribute('stroke-width', '1.2');
+      poly.setAttribute('stroke-linejoin', 'round');
+      g.appendChild(poly);
+      return g;
+    }
+
+    function buildWindArrow(opts) {
+      const w = 11;
+      const headW = w * 1.9;
+      const headLen = Math.min(14, Math.max(8, opts.length * 0.32));
+      const shaftLen = Math.max(0, opts.length - headLen);
+      const pts = [
+        [0, -w/2], [shaftLen, -w/2], [shaftLen, -headW/2], [opts.length, 0],
+        [shaftLen, headW/2], [shaftLen, w/2], [0, w/2]
+      ].map(p => p.join(',')).join(' ');
+      const g = document.createElementNS(SVG_NS, 'g');
+      g.setAttribute('transform', `translate(${opts.x} ${opts.y}) rotate(${opts.angle})`);
+      const poly = document.createElementNS(SVG_NS, 'polygon');
+      poly.setAttribute('points', pts);
+      poly.setAttribute('fill', 'rgba(56, 189, 248, 0.30)');
+      poly.setAttribute('stroke', '#0284C7');
+      poly.setAttribute('stroke-dasharray', '4 3');
+      poly.setAttribute('stroke-width', '1.5');
+      g.appendChild(poly);
+      if (shaftLen > 18) {
+        const t = document.createElementNS(SVG_NS, 'text');
+        t.setAttribute('class', 'wind-label');
+        t.setAttribute('x', shaftLen / 2);
+        t.setAttribute('y', 3);
+        t.setAttribute('text-anchor', 'middle');
+        t.textContent = 'WIND';
+        g.appendChild(t);
+      }
+      return g;
+    }
+
+    // Build all 4 stage groups; toggle visibility per active stage.
+    const stageGroups = stages.map((s, i) => {
+      const g = document.createElementNS(SVG_NS, 'g');
+      g.setAttribute('data-stage', i);
+      g.style.opacity = i === 0 ? '1' : '0.18';
+
+      const parcel = document.createElementNS(SVG_NS, 'circle');
+      parcel.setAttribute('class', 'parcel');
+      parcel.setAttribute('cx', s.parcel.x);
+      parcel.setAttribute('cy', s.parcel.y);
+      parcel.setAttribute('r', 11);
+      parcel.setAttribute('fill', 'url(#gwParcelGrad)');
+      g.appendChild(parcel);
+
+      // PGF arrow — points UP toward lower heights
+      if (s.pgf > 0) {
+        g.appendChild(buildArrow({
+          x: s.parcel.x, y: s.parcel.y - 13,
+          length: s.pgf, angle: -90, color: '#475569', width: 13
+        }));
+        const pgfText = document.createElementNS(SVG_NS, 'text');
+        pgfText.setAttribute('class', 'force-label');
+        pgfText.setAttribute('fill', '#0C1B33');
+        pgfText.setAttribute('x', s.parcel.x);
+        pgfText.setAttribute('y', s.parcel.y - 13 - s.pgf - 6);
+        pgfText.setAttribute('text-anchor', 'middle');
+        pgfText.textContent = 'PGF';
+        g.appendChild(pgfText);
+      }
+      // Coriolis arrow — points DOWN (opposite PGF at steady state)
+      if (s.coriolis > 0) {
+        g.appendChild(buildArrow({
+          x: s.parcel.x, y: s.parcel.y + 13,
+          length: s.coriolis, angle: 90, color: '#7C3AED', stroke: '#4C1D95', width: 13
+        }));
+        const cText = document.createElementNS(SVG_NS, 'text');
+        cText.setAttribute('class', 'force-label');
+        cText.setAttribute('fill', '#7C3AED');
+        cText.setAttribute('x', s.parcel.x);
+        cText.setAttribute('y', s.parcel.y + 13 + s.coriolis + 14);
+        cText.setAttribute('text-anchor', 'middle');
+        cText.textContent = 'CORIOLIS';
+        g.appendChild(cText);
+      }
+      // Wind arrow — horizontal, slight up-tilt during accel
+      if (s.wind > 0) {
+        g.appendChild(buildWindArrow({
+          x: s.parcel.x + 14, y: s.parcel.y,
+          length: s.wind, angle: s.windAngle
+        }));
+      }
+
+      stagesEl.appendChild(g);
+      return g;
     });
+
+    function trajectoryPath(uptoIndex) {
+      if (uptoIndex < 1) return '';
+      const pts = stages.slice(0, uptoIndex + 1).map(s => `${s.parcel.x} ${s.parcel.y}`);
+      return 'M' + pts.join(' L ');
+    }
+
+    let current = 0;
+    let playing = false;
+    let playTimer = null;
+
+    function setStage(i) {
+      current = Math.max(0, Math.min(stages.length - 1, i));
+      stageGroups.forEach((g, idx) => {
+        if (idx < current) g.style.opacity = '0.32';
+        else if (idx === current) g.style.opacity = '1';
+        else g.style.opacity = '0';
+      });
+      trajectoryEl.setAttribute('d', trajectoryPath(current));
+      capStage.textContent = stages[current].label;
+      capText.textContent = stages[current].text;
+      stageReadout.textContent = `STAGE ${current + 1} / ${stages.length}`;
+      if (slider.value != current) slider.value = current;
+      if (current === stages.length - 1) {
+        steadyBox.setAttribute('opacity', '0.85');
+        steadyLabel.setAttribute('opacity', '1');
+        netforceLabel.setAttribute('opacity', '0.35');
+      } else {
+        steadyBox.setAttribute('opacity', '0.2');
+        steadyLabel.setAttribute('opacity', '0.4');
+        netforceLabel.setAttribute('opacity', '0.85');
+      }
+    }
+
+    function setPlaying(on) {
+      playing = on;
+      playBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      playLabel.textContent = on ? 'Pause' : 'Play';
+      playIcon.innerHTML = on
+        ? '<rect x="3" y="2" width="3" height="10" fill="currentColor"/><rect x="8" y="2" width="3" height="10" fill="currentColor"/>'
+        : '<path d="M3 2 L12 7 L3 12 Z" fill="currentColor"/>';
+    }
+    function startPlay() {
+      if (playing) return;
+      setPlaying(true);
+      if (current >= stages.length - 1) setStage(0);
+      const tick = () => {
+        if (!playing) return;
+        if (current >= stages.length - 1) { setPlaying(false); return; }
+        setStage(current + 1);
+        playTimer = setTimeout(tick, 1400);
+      };
+      playTimer = setTimeout(tick, 800);
+    }
+    function stopPlay() {
+      setPlaying(false);
+      if (playTimer) { clearTimeout(playTimer); playTimer = null; }
+    }
+
+    playBtn.addEventListener('click', () => playing ? stopPlay() : startPlay());
+    resetBtn.addEventListener('click', () => { stopPlay(); setStage(0); });
+    slider.addEventListener('input', (e) => { stopPlay(); setStage(parseInt(e.target.value, 10)); });
+
+    setStage(0);
   },
 
   // FAA-H-8083-28B Fig 11-4 — the four-row table of frontal chart symbols and
