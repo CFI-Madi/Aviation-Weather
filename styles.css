@@ -294,3 +294,152 @@ button:focus-visible{outline:3px solid var(--sky-dark);outline-offset:2px;border
 .section-tab:focus-visible,.act-tab:focus-visible{outline:3px solid var(--sky-dark);outline-offset:2px;border-radius:20px}
 /* Generic role=button div/span cards */
 [role="button"]:focus-visible{outline:3px solid var(--sky);outline-offset:3px;border-radius:20px}
+
+/* ============================================================
+   Density Altitude Module (replaces FAA Fig 8-15 + C-1 process
+   diagram in M2 §s2_1). All styles scoped under .da-module.
+   Color tokens follow project palette — color-as-information
+   semantics preserved: good→emerald, bad→rose, accent→amber,
+   ISA reference→sky.
+   ============================================================ */
+
+.da-module{
+  /* Local tokens, all sourced from :root variables. Naming kept close to
+     the original design's --panel-bg / --accent / etc. so the SVG markup
+     can reference them via fill="..." inline values that match. */
+  --da-panel-bg:       var(--navy);
+  --da-panel-bg-2:     #14213D;
+  --da-panel-border:   var(--navy-mid);
+  --da-accent:         var(--amber);
+  --da-accent-strong:  #FCD34D;
+  --da-text:           #E2E8F0;
+  --da-muted:          #94A3B8;
+  --da-good:           var(--emerald);
+  --da-bad:            var(--rose);
+  --da-trace:          var(--rose);
+  --da-caption-bg:     rgba(56,189,248,0.10);
+  --da-caption-border: rgba(56,189,248,0.35);
+  --da-caption-text:   #BAE6FD;
+  --da-chart-paper:    #0F172A;
+  --da-chart-grid:     #1E3A5F;
+  --da-chart-axis:     #475569;
+  --da-chart-line:     #C8D6E6;
+  --da-chart-isa:      var(--sky);
+
+  max-width:880px;margin:20px auto;background:var(--da-panel-bg);color:var(--da-text);
+  border:1px solid var(--da-panel-border);border-radius:16px;overflow:hidden;
+  font-family:var(--font-body);line-height:1.5;
+  box-shadow:0 24px 60px -30px rgba(0,0,0,.8)
+}
+
+/* Header */
+.da-head{display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:20px 26px 14px;border-bottom:1px solid var(--da-panel-border);
+  background:linear-gradient(180deg,#0F2236 0%,var(--da-panel-bg) 100%)}
+.da-eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--da-muted);margin-bottom:4px}
+.da-title{font-family:var(--font-display);font-weight:900;font-size:22px;line-height:1.15;
+  letter-spacing:.01em;color:var(--da-text);margin:0}
+.da-stepper{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.da-stepper-text{font-family:var(--font-mono);font-size:12px;color:var(--da-muted);letter-spacing:.08em}
+.da-dots{display:flex;gap:6px}
+.da-dot{width:26px;height:4px;border-radius:2px;background:var(--da-panel-border);transition:background .2s}
+.da-dot.active{background:var(--da-accent)}
+.da-dot.done{background:var(--da-muted)}
+
+/* Step body */
+.da-step{display:none;padding:22px 26px 18px}
+.da-step.active{display:block}
+.da-step-title{font-family:var(--font-display);font-weight:900;font-size:20px;letter-spacing:.01em;
+  color:var(--da-accent);margin:0 0 4px}
+.da-step-sub{font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--da-muted);margin-bottom:14px}
+.da-figure{background:var(--da-panel-bg-2);border:1px solid var(--da-panel-border);
+  border-radius:12px;padding:14px;margin-bottom:0}
+.da-figure svg{display:block;width:100%;height:auto}
+.da-caption{background:var(--da-caption-bg);border-left:3px solid var(--da-caption-border);
+  color:var(--da-caption-text);padding:10px 14px;font-size:13px;border-radius:0 6px 6px 0;
+  margin:12px 0 18px;font-family:var(--font-mono);letter-spacing:.02em}
+.da-body p{margin:0 0 12px;font-size:14.5px;color:var(--da-text)}
+.da-body p strong{color:var(--da-accent);font-weight:700}
+.da-body .num{font-family:var(--font-mono);color:var(--da-accent-strong);font-weight:600}
+
+/* Step 3 — sliders + readout */
+.da-controls{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0 8px}
+.da-control{background:var(--da-panel-bg-2);border:1px solid var(--da-panel-border);
+  border-radius:10px;padding:12px 14px}
+.da-control-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.da-control-label{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--da-muted)}
+.da-control-value{font-family:var(--font-mono);color:var(--da-accent);font-size:16px;font-weight:600}
+
+/* Slider — desktop default. Touch overrides below at the 599px breakpoint. */
+.da-slider{-webkit-appearance:none;appearance:none;width:100%;height:8px;
+  background:linear-gradient(90deg,#1E3A5F 0%,#2D4A66 100%);border-radius:4px;outline:none;margin:0}
+.da-slider:focus-visible{box-shadow:0 0 0 2px var(--da-accent)}
+.da-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:24px;height:24px;
+  border-radius:50%;background:var(--da-accent);border:2px solid #1A2A3C;cursor:pointer;
+  box-shadow:0 2px 8px rgba(245,158,11,.4)}
+.da-slider::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--da-accent);
+  border:2px solid #1A2A3C;cursor:pointer}
+
+.da-readout{margin-top:12px;
+  background:linear-gradient(135deg,rgba(245,158,11,.10),rgba(245,158,11,.02));
+  border:1px solid rgba(245,158,11,.35);border-radius:10px;padding:14px 16px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px}
+.da-readout-label{font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--da-muted)}
+.da-readout-value{font-family:var(--font-mono);font-size:28px;font-weight:600;
+  color:var(--da-accent-strong);line-height:1}
+.da-readout-value .unit{font-size:14px;color:var(--da-muted);margin-left:4px}
+.da-readout-delta{text-align:right;font-family:var(--font-mono);font-size:11px;
+  color:var(--da-muted);letter-spacing:.06em}
+.da-readout-delta b{color:var(--da-bad);font-weight:600}
+
+.da-preset{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);
+  font-size:11px;color:var(--da-muted);background:transparent;border:1px solid var(--da-panel-border);
+  border-radius:6px;padding:6px 10px;cursor:pointer;margin-left:8px;letter-spacing:.06em;margin-top:6px}
+.da-preset:hover{color:var(--da-accent);border-color:var(--da-accent)}
+.da-preset:focus-visible{outline:2px solid var(--da-accent);outline-offset:2px}
+
+/* Footer / nav */
+.da-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 26px 20px;border-top:1px solid var(--da-panel-border);background:var(--da-panel-bg)}
+.da-btn{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  background:transparent;color:var(--da-text);border:1px solid var(--da-panel-border);
+  border-radius:8px;padding:10px 18px;cursor:pointer;transition:all .15s}
+.da-btn:hover:not(:disabled){border-color:var(--da-accent);color:var(--da-accent)}
+.da-btn:focus-visible{outline:2px solid var(--da-accent);outline-offset:2px}
+.da-btn:disabled{opacity:.35;cursor:not-allowed}
+.da-btn-primary{background:var(--da-accent);color:#1A1208;border-color:var(--da-accent);font-weight:700}
+.da-btn-primary:hover:not(:disabled){background:var(--da-accent-strong);color:#1A1208;border-color:var(--da-accent-strong)}
+.da-btn-done{background:var(--da-good);color:#062017;border-color:var(--da-good);font-weight:700}
+.da-btn-done:hover:not(:disabled){filter:brightness(1.1)}
+.da-progress-mini{flex:1;text-align:center;font-family:var(--font-mono);font-size:11px;
+  color:var(--da-muted);letter-spacing:.12em;text-transform:uppercase}
+
+/* SVG text inherits the project's mono font */
+.da-module svg text{font-family:var(--font-mono)}
+
+/* Mobile (≤ 599px) — required for legibility + touch comfort.
+   1) Per-bar / per-axis SVG text needs to be ≥ ~13px on screen at the 390px
+      viewport. Override the design's inline font-size attributes here
+      (presentation attributes lose to author CSS). All SVG text bumps to a
+      uniform 13px baseline; minor hierarchy loss, big readability gain.
+   2) Slider thumb already sized at 24px desktop; mobile just needs the
+      vertical track padding for thumb-and-track touch comfort. */
+@media (max-width: 599px){
+  .da-module{margin:16px auto;border-radius:14px}
+  .da-head{padding:16px 18px 12px}
+  .da-title{font-size:18px}
+  .da-step{padding:18px 18px 16px}
+  .da-step-title{font-size:17px}
+  .da-controls{grid-template-columns:1fr;gap:10px}
+  .da-readout{flex-direction:column;align-items:flex-start;gap:8px}
+  .da-readout-delta{text-align:left}
+  .da-foot{padding:12px 18px 16px}
+  .da-btn{padding:10px 14px}
+  .da-figure{padding:10px}
+  .da-module svg text{font-size:13px}
+  .da-slider{height:10px}
+}
