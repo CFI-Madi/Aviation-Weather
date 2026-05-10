@@ -1254,8 +1254,12 @@ const Screens = {
     {
       category: 'Weather Decoding',
       tools: [
-        { id: 'metar-quiz',   name: 'METAR Quiz',     icon: '📝', comingSoon: true,
-          comingSoonCopy: 'METAR Quiz coming soon — generates random METARs for you to decode field-by-field, with feedback.' },
+        // metar_quiz uses renderType:'screen' instead of the diagram pattern —
+        // it owns the entire tool_detail screen container (chip pool + drop
+        // zones + per-question state). See Screens.metarQuizPicker / metarQuiz.
+        { id: 'metar_quiz',   name: 'METAR Quiz',     icon: '📝', moduleId: 'm11',
+          desc: 'Decode synthetic METARs field-by-field with three difficulty levels.',
+          renderType: 'screen', renderFn: 'metarQuizPicker' },
         { id: 'taf-quiz',     name: 'TAF Quiz',       icon: '🗒️', comingSoon: true,
           comingSoonCopy: 'TAF Quiz coming soon — generates change-group scenarios (FM/TEMPO/BECMG/PROB/WS) and asks you to interpret them.' },
         { id: 'metar-practice', name: 'METAR Practice', icon: '📋', moduleId: 'm11',
@@ -1372,7 +1376,7 @@ const Screens = {
   tool_detail(params) {
     const toolId = params && params.toolId;
     const tool = toolId ? this._findTool(toolId) : null;
-    if (!tool || tool.comingSoon || !tool.renderFn) {
+    if (!tool || tool.comingSoon) {
       Router.navigate('tools');
       return;
     }
@@ -1383,6 +1387,23 @@ const Screens = {
     if (typeof GameEngine !== 'undefined' && typeof GameEngine.recordToolUsage === 'function') {
       GameEngine.recordToolUsage(toolId);
     }
+
+    // Screen-type tools (renderType:'screen') own the entire tool_detail
+    // container — they render headers, body, actions themselves. Diagram-
+    // type tools (default) get the standard wrapper with a Back button and
+    // a "Reviewed in Module N" tag. METAR Quiz is currently the only
+    // screen-type tool; ASOS Reference (Phase 2 Chunk 5) will be the second.
+    if (tool.renderType === 'screen') {
+      const fn = this[tool.renderFn];
+      if (typeof fn === 'function') {
+        fn.call(this, params);
+      } else {
+        Router.navigate('tools');
+      }
+      return;
+    }
+
+    if (!tool.renderFn) { Router.navigate('tools'); return; }
     const tag = tool.moduleId ? this._moduleTagFor(tool.moduleId) : '';
     const mod = tool.moduleId && typeof MODULES !== 'undefined' ? MODULES.find(m => m.id === tool.moduleId) : null;
     const renderFn = Diagrams[tool.renderFn];
@@ -1403,6 +1424,530 @@ const Screens = {
     if (tool.initFn) {
       setTimeout(() => Diagrams._initToolByKey(tool.renderFn), 100);
     }
+  },
+
+  // ============================================================
+  // METAR QUIZ (Phase 2)
+  // ============================================================
+  // Three difficulty levels, 8 METARs per session, chip-based per-field
+  // input via drag-and-drop, parse-error-driven distractors. Generator +
+  // distractors live in js/metar_quiz.js. The quiz owns the tool_detail
+  // screen container (renderType:'screen' in TOOL_REGISTRY).
+  //
+  // Internal state on Screens._mq (parallel to _qs for module quizzes):
+  //   { difficulty, questions[], current, graded, prevSessionTemplateIds }
+  // The DOM is the source of truth for chip placements during a question;
+  // _mq just tracks session-level progress.
+
+  _mq: null,
+
+  // Difficulty picker (#/tools/metar_quiz with no segment)
+  metarQuizPicker(params) {
+    this._mq = null; // clear any stale session
+
+    const card = (id, title, subtitle, descBullets) => `
+      <button type="button" class="quiz-difficulty-card"
+          onclick="Screens._startMetarQuiz('${id}')"
+          aria-label="Start ${title} session">
+        <div class="quiz-difficulty-card-title">
+          <span aria-hidden="true">${id === 'beginner' ? '🌱' : id === 'intermediate' ? '🌤️' : '🚀'}</span>
+          <span>${title}</span>
+        </div>
+        <div class="quiz-difficulty-card-desc">${subtitle}</div>
+        <ul style="margin:8px 0 0 18px;padding:0;font-size:12px;color:#64748B;line-height:1.6">
+          ${descBullets.map(b => `<li>${b}</li>`).join('')}
+        </ul>
+      </button>`;
+
+    document.getElementById('tool_detail-content').innerHTML = `
+      <div style="padding-bottom:24px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <button onclick="Router.navigate('tools')" aria-label="Back to Study Tools" style="background:#F1F5F9;border:none;border-radius:12px;padding:8px 14px;cursor:pointer;font-family:var(--font-display);font-weight:700;color:#64748B;font-size:13px">← Back</button>
+        </div>
+        <h1 style="font-family:var(--font-display);font-size:26px;font-weight:900;color:var(--navy);margin:0 0 6px;display:flex;align-items:center;gap:10px"><span aria-hidden="true">📝</span><span>METAR Quiz</span></h1>
+        <p style="color:#64748B;font-size:14px;line-height:1.5;margin:0 0 18px">
+          Synthetic METARs decoded field-by-field. 8 METARs per session, no template repeats. Pick a difficulty:
+        </p>
+        ${card('beginner', 'Beginner',
+          'Per-field chip pools beside each slot.',
+          [
+            'Field labels with format hints',
+            '3-4 chips per field — one correct, the rest plausible parse errors',
+            '"Show ASOS Reference" button always visible',
+            'Earns 5 XP per fully-correct decode'
+          ])}
+        ${card('intermediate', 'Intermediate',
+          'One shared chip pool, no format hints.',
+          [
+            'Field labels visible',
+            '~16-20 chips, mixed across all fields',
+            'Long-press a field label to peek at the ASOS Reference',
+            'Earns 10 XP per fully-correct decode'
+          ])}
+        ${card('advanced', 'Advanced',
+          'Large shared pool with traps. No reference card.',
+          [
+            'Placeholder-only field labels',
+            '~24-30 chips including 4-6 trap chips that don\'t belong',
+            'No ASOS Reference access during the quiz',
+            'Earns 20 XP per fully-correct decode'
+          ])}
+      </div>`;
+  },
+
+  // Called from a difficulty card. Initializes _mq and renders the first METAR.
+  _startMetarQuiz(difficulty) {
+    if (typeof MetarQuiz === 'undefined') {
+      console.error('[MetarQuiz] generator not loaded');
+      return;
+    }
+    const prevIds = (GameEngine.state && GameEngine.state.metarQuiz
+                    && GameEngine.state.metarQuiz.lastSessionTemplateIds) || [];
+    const questions = MetarQuiz.generateSession(difficulty, 8, prevIds);
+    this._mq = {
+      difficulty,
+      questions,
+      current: 0,
+      graded: false,
+      prevSessionTemplateIds: prevIds
+    };
+    this._renderMetarQuizQuestion();
+  },
+
+  // Render the current question (called both at session start and via Next).
+  _renderMetarQuizQuestion() {
+    if (!this._mq) return;
+    const mq = this._mq;
+    const q = mq.questions[mq.current];
+    const distractors = MetarQuiz.generateDistractors(q);
+    mq.distractors = distractors;
+    mq.graded = false;
+
+    const isBeginner = mq.difficulty === 'beginner';
+    const isAdvanced = mq.difficulty === 'advanced';
+
+    // Field rendering helpers
+    const labelFor = (field) => {
+      const labels = {
+        wind: 'Wind', visibility: 'Visibility', sky: 'Sky condition',
+        weather: 'Weather', temperature: 'Temperature', dewpoint: 'Dewpoint',
+        altimeter: 'Altimeter'
+      };
+      return labels[field];
+    };
+    const hintFor = (field) => {
+      const hints = {
+        wind: 'Three digits direction + two digits speed in knots; gusts after G.',
+        visibility: 'Whole miles or fraction, suffixed SM (statute miles).',
+        sky: 'Cover code (FEW / SCT / BKN / OVC) + height in hundreds of feet. CLR = none below 12,000 ft.',
+        weather: 'Intensity (- / + / blank) + descriptor (TS / SH / FZ) + phenomenon (RA / SN / BR / etc.). May be empty.',
+        temperature: 'Degrees Celsius. M-prefix means below zero (M05 = -5 °C).',
+        dewpoint: 'Same format as temperature. T - Td spread predicts saturation.',
+        altimeter: 'A + 4 digits = inches of mercury with implied decimal between digits 2 and 3.'
+      };
+      return hints[field];
+    };
+
+    // Header (METAR + progress)
+    const headerHtml = `
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
+        <button onclick="Screens._endMetarSessionConfirm()" aria-label="End session" style="background:#F1F5F9;border:none;border-radius:12px;padding:8px 14px;cursor:pointer;font-family:var(--font-display);font-weight:700;color:#64748B;font-size:13px">← End session</button>
+        <span class="quiz-progress-pill">${mq.current + 1} of ${mq.questions.length} · ${mq.difficulty[0].toUpperCase() + mq.difficulty.slice(1)}</span>
+      </div>
+      <div class="quiz-metar-display">${this._escapeHtml(q.metar)}</div>`;
+
+    // Build pool(s) and field markup
+    let poolsByField, sharedPool;
+    if (isBeginner) {
+      poolsByField = this._buildBeginnerPools(q, distractors);
+    } else {
+      sharedPool = this._buildSharedPool(q, distractors, mq.difficulty);
+    }
+
+    const fieldsOrdered = ['wind', 'visibility', 'sky', 'weather', 'temperature', 'dewpoint', 'altimeter'];
+    const fieldsHtml = fieldsOrdered.map(field => {
+      const isMulti = field === 'sky' || field === 'weather';
+      const correctEntries = field === 'sky' ? q.fields.sky
+                            : field === 'weather' ? q.fields.weather
+                            : null;
+      // Empty-weather case: don't render a slot or pool, just a static note.
+      // Advanced suppresses the field label (placeholder-only style).
+      if (field === 'weather' && correctEntries && correctEntries.length === 0) {
+        return `
+          <div class="quiz-field" data-field-block="weather">
+            ${isAdvanced ? '' : `<span class="quiz-field-label">${labelFor('weather')}</span>`}
+            ${isBeginner ? `<div class="quiz-field-hint">${hintFor('weather')}</div>` : ''}
+            <div class="quiz-no-wx-note">${isAdvanced ? 'Weather: ' : ''}No significant weather in this METAR — leave empty.</div>
+          </div>`;
+      }
+      const labelHtml = isAdvanced
+        ? '' // Advanced: placeholder-only inside the slot
+        : `<span class="quiz-field-label" data-field-label="${field}"
+              ${mq.difficulty === 'intermediate' ? `onmousedown="Screens._maybeLongPress(event,'${field}')" ontouchstart="Screens._maybeLongPress(event,'${field}')"` : ''}
+            >${labelFor(field)}</span>
+            ${isBeginner ? `<div class="quiz-field-hint">${hintFor(field)}</div>` : ''}`;
+      const slotHtml = `
+        <div class="quiz-slot" data-field="${field}" data-multi="${isMulti ? 'true' : 'false'}"
+             ondragover="event.preventDefault();this.classList.add('drag-over')"
+             ondragleave="this.classList.remove('drag-over')"
+             ondrop="Screens._drop(event,this)"
+             aria-label="${labelFor(field)} drop zone">
+          ${isAdvanced ? `<span style="font-family:var(--font-display);font-size:11px;color:#94A3B8;letter-spacing:.06em;text-transform:uppercase">${labelFor(field)}</span>` : ''}
+        </div>`;
+      const poolHtml = isBeginner ? `
+        <div class="quiz-field-pool" data-pool="true" data-pool-field="${field}"
+             ondragover="event.preventDefault()" ondrop="Screens._drop(event,this)">
+          ${this._renderChipsHtml(poolsByField[field] || [])}
+        </div>` : '';
+      return `
+        <div class="quiz-field" data-field-block="${field}">
+          ${labelHtml}
+          ${slotHtml}
+          ${poolHtml}
+        </div>`;
+    }).join('');
+
+    const sharedPoolHtml = !isBeginner ? `
+      <div class="quiz-shared-pool-label">Drag chips into the slots above</div>
+      <div class="quiz-shared-pool" data-pool="true" id="quiz-chip-pool"
+           ondragover="event.preventDefault()" ondrop="Screens._drop(event,this)">
+        ${this._renderChipsHtml(sharedPool || [])}
+      </div>` : '';
+
+    const referenceBtnHtml = isBeginner ? `
+      <button onclick="Screens._openAsosReferenceOverlay()" type="button"
+          style="width:100%;background:white;border:2px dashed #CBD5E1;border-radius:14px;padding:12px;font-family:var(--font-display);font-weight:700;font-size:13px;color:#0284C7;cursor:pointer;margin-bottom:12px">
+        📖 Show ASOS Reference
+      </button>` : '';
+
+    const actionsHtml = `
+      <div class="quiz-actions" id="quiz-actions">
+        <button id="quiz-submit-btn" class="quiz-submit-btn" onclick="Screens._submitMetarQuiz()">Submit</button>
+      </div>`;
+
+    const feedbackHostHtml = `<div id="quiz-feedback-host"></div>`;
+
+    document.getElementById('tool_detail-content').innerHTML = `
+      <div style="padding-bottom:24px">
+        ${headerHtml}
+        ${fieldsHtml}
+        ${sharedPoolHtml}
+        ${referenceBtnHtml}
+        ${actionsHtml}
+        ${feedbackHostHtml}
+      </div>`;
+  },
+
+  // Build per-field chip pools (Beginner). Returns { wind: [chips], ... }.
+  // Each chip: { id, text, isCorrect, sourceField }.
+  _buildBeginnerPools(question, distractors) {
+    const pools = {};
+    const fields = ['wind', 'visibility', 'sky', 'weather', 'temperature', 'dewpoint', 'altimeter'];
+    fields.forEach(field => {
+      // Empty weather: no pool needed (handled separately in render)
+      if (field === 'weather' && question.fields.weather.length === 0) {
+        pools[field] = [];
+        return;
+      }
+      const correct = this._correctChipsFor(field, question);
+      const dist = (distractors[field] || []).slice();
+      // 2-3 distractors per field (Beginner is permissive)
+      const count = correct.length === 0 ? 2 : Math.min(3, dist.length);
+      const picked = this._shuffleArr(dist).slice(0, count).map(d => ({
+        id: this._chipId(),
+        text: d.text,
+        isCorrect: false,
+        category: d.category,
+        sourceField: field
+      }));
+      pools[field] = this._shuffleArr([...correct, ...picked]);
+    });
+    return pools;
+  },
+
+  // Build a shared pool (Intermediate / Advanced). Returns a single array.
+  _buildSharedPool(question, distractors, difficulty) {
+    const out = [];
+    const fields = ['wind', 'visibility', 'sky', 'weather', 'temperature', 'dewpoint', 'altimeter'];
+    fields.forEach(field => {
+      // All correct chips for this field (sky/weather can be multi-correct)
+      out.push(...this._correctChipsFor(field, question));
+      // Per-field distractors. Counts chosen so the total pool size
+      // (7 correct + 7 fields × N distractors + multi-slot extras + traps)
+      // lands in the proposed range:
+      //   Intermediate: ~16-20 total (no traps; 2 distractors/field)
+      //   Advanced:     ~24-30 total (incl. 4-6 traps; 2 distractors/field)
+      const dist = (distractors[field] || []).slice();
+      const distCount = 2;
+      const picked = this._shuffleArr(dist).slice(0, distCount);
+      picked.forEach(d => out.push({
+        id: this._chipId(),
+        text: d.text,
+        isCorrect: false,
+        category: d.category,
+        sourceField: field
+      }));
+    });
+    // Advanced: add 4-6 traps
+    if (difficulty === 'advanced' && distractors.trap) {
+      distractors.trap.forEach(d => out.push({
+        id: this._chipId(),
+        text: d.text,
+        isCorrect: false,
+        category: 'trap',
+        sourceField: null
+      }));
+    }
+    return this._shuffleArr(out);
+  },
+
+  // Correct chips for a single field. Returns array; multi-slot fields
+  // (sky, weather) can return 0-3 entries.
+  _correctChipsFor(field, question) {
+    const f = question.fields[field];
+    if (!f) return [];
+    if (Array.isArray(f)) {
+      return f.map(entry => ({
+        id: this._chipId(),
+        text: entry.value,
+        isCorrect: true,
+        sourceField: field
+      }));
+    }
+    return [{ id: this._chipId(), text: f.value, isCorrect: true, sourceField: field }];
+  },
+
+  // Render an array of chip objects as draggable HTML.
+  _renderChipsHtml(chips) {
+    return chips.map(c => `
+      <div class="quiz-chip" draggable="true" data-chip-id="${c.id}" data-correct="${c.isCorrect}"
+           data-category="${c.category || ''}" data-source-field="${c.sourceField || ''}"
+           ondragstart="Screens._ds(event,this)" ondragend="Screens._de(event)"
+           ontouchstart="Screens._ts(event,this)" ontouchmove="Screens._tm(event)" ontouchend="Screens._te(event)">${this._escapeHtml(c.text)}</div>`).join('');
+  },
+
+  // Submit + grade the current question. Locks the placements; renders
+  // per-slot feedback. Score capture and persistence land in Chunk 6.
+  _submitMetarQuiz() {
+    if (!this._mq || this._mq.graded) return;
+    const mq = this._mq;
+    const q = mq.questions[mq.current];
+
+    // Read placements from DOM
+    const fields = ['wind', 'visibility', 'sky', 'weather', 'temperature', 'dewpoint', 'altimeter'];
+    let totalFields = 0, correctFields = 0;
+    const fieldResults = {};
+
+    fields.forEach(field => {
+      const slot = document.querySelector(`.quiz-slot[data-field="${field}"]`);
+      if (!slot) {
+        // Empty-weather case: no slot; auto-correct iff weather field is empty
+        if (field === 'weather' && q.fields.weather.length === 0) {
+          totalFields++;
+          correctFields++;
+          fieldResults.weather = { correct: true, expected: [], placed: [] };
+        }
+        return;
+      }
+      const placedChips = Array.from(slot.querySelectorAll('.quiz-chip'));
+      const placedTexts = placedChips.map(c => c.textContent);
+      let expected;
+      if (field === 'sky') expected = q.fields.sky.map(s => s.value);
+      else if (field === 'weather') expected = q.fields.weather.map(w => w.value);
+      else expected = [q.fields[field].value];
+
+      const placedSorted = placedTexts.slice().sort();
+      const expectedSorted = expected.slice().sort();
+      const ok = placedSorted.length === expectedSorted.length
+              && placedSorted.every((t, i) => t === expectedSorted[i]);
+
+      totalFields++;
+      if (ok) correctFields++;
+      fieldResults[field] = { correct: ok, expected, placed: placedTexts };
+
+      // Apply state class to slot
+      slot.classList.remove('drag-over');
+      slot.classList.add(ok ? 'correct-drop' : 'wrong-drop');
+    });
+
+    mq.graded = true;
+    mq.lastResult = { totalFields, correctFields, fieldResults };
+
+    // Disable further chip movement (lock all chips by removing draggable)
+    document.querySelectorAll('.quiz-chip').forEach(c => {
+      c.setAttribute('draggable', 'false');
+      c.style.cursor = 'default';
+      c.style.opacity = '0.85';
+      c.removeAttribute('ondragstart');
+      c.removeAttribute('ontouchstart');
+    });
+    // Disable drop targets
+    document.querySelectorAll('.quiz-slot, [data-pool="true"]').forEach(t => {
+      t.removeAttribute('ondrop');
+      t.removeAttribute('ondragover');
+    });
+
+    // Render per-slot feedback inline below each slot
+    fields.forEach(field => {
+      const result = fieldResults[field];
+      if (!result) return;
+      const block = document.querySelector(`[data-field-block="${field}"]`);
+      if (!block) return;
+      let fb = block.querySelector('.quiz-slot-feedback');
+      if (!fb) {
+        fb = document.createElement('div');
+        fb.className = 'quiz-slot-feedback';
+        block.appendChild(fb);
+      }
+      if (result.correct) {
+        fb.innerHTML = `<span style="color:#10B981;font-weight:700">✓ Correct</span>`;
+      } else {
+        const expectedStr = result.expected.length === 0
+          ? '(leave empty)'
+          : result.expected.map(e => `<strong>${this._escapeHtml(e)}</strong>`).join(', ');
+        fb.innerHTML = `<span style="color:#EF4444;font-weight:700">✗ </span>Correct answer: ${expectedStr}`;
+      }
+    });
+
+    // Replace actions with Try Again / Next METAR / End session
+    const isLast = mq.current === mq.questions.length - 1;
+    const actionsHost = document.getElementById('quiz-actions');
+    if (actionsHost) {
+      actionsHost.innerHTML = `
+        <button class="quiz-secondary-btn" onclick="Screens._tryAgainMetar()">Try again</button>
+        <button class="quiz-submit-btn" onclick="Screens._nextMetar()">${isLast ? 'See results' : 'Next METAR'}</button>`;
+    }
+
+    // Render result summary above feedback
+    const host = document.getElementById('quiz-feedback-host');
+    if (host) {
+      const allCorrect = correctFields === totalFields;
+      host.innerHTML = `
+        <div style="margin-top:14px;padding:14px;border-radius:14px;background:${allCorrect ? 'var(--emerald-light)' : '#FFF7ED'};border-left:4px solid ${allCorrect ? 'var(--emerald)' : '#F59E0B'}">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:15px;color:${allCorrect ? '#065F46' : '#9A3412'}">
+            ${allCorrect ? 'All fields correct' : `${correctFields} of ${totalFields} fields correct`}
+          </div>
+        </div>`;
+    }
+  },
+
+  // Try Again: re-render the same question with the same chip pool, fresh DOM.
+  _tryAgainMetar() {
+    if (!this._mq) return;
+    this._renderMetarQuizQuestion();
+  },
+
+  // Next METAR: advance current; if past last, show end-of-session results.
+  _nextMetar() {
+    if (!this._mq) return;
+    if (this._mq.current >= this._mq.questions.length - 1) {
+      this._showMetarSessionResults();
+      return;
+    }
+    this._mq.current++;
+    this._renderMetarQuizQuestion();
+  },
+
+  _endMetarSessionConfirm() {
+    // For now, just end. Confirmation prompt UX deferred (FOLLOWUPS).
+    if (!this._mq) { Router.navigate('tools'); return; }
+    this._showMetarSessionResults();
+  },
+
+  // End-of-session results screen. Persistence wires up in Chunk 6.
+  _showMetarSessionResults() {
+    if (!this._mq) return;
+    const mq = this._mq;
+    const total = mq.questions.length;
+    // Without per-question scoring (Chunk 6), we just show a "session complete" view.
+    document.getElementById('tool_detail-content').innerHTML = `
+      <div style="padding-bottom:24px">
+        <h1 style="font-family:var(--font-display);font-size:24px;font-weight:900;color:var(--navy);margin:0 0 6px">Session complete</h1>
+        <p style="color:#64748B;font-size:14px;margin:0 0 20px">
+          ${total} METARs, ${mq.difficulty[0].toUpperCase() + mq.difficulty.slice(1)} difficulty.
+        </p>
+        <button onclick="Router.navigate('tool_detail',{toolId:'metar_quiz'})" class="quiz-submit-btn" style="border-radius:14px;padding:14px;font-family:var(--font-display);font-weight:800">Pick another difficulty</button>
+        <button onclick="Router.navigate('tools')" class="quiz-secondary-btn" style="margin-top:10px;border-radius:14px;padding:14px;font-family:var(--font-display);font-weight:800;width:100%;border:none;cursor:pointer">Back to Study Tools</button>
+      </div>`;
+    this._mq = null;
+  },
+
+  // ASOS Reference overlay — content lands in Chunk 5; for now stub with a
+  // placeholder so the Beginner button is reachable and the modal pattern
+  // works end-to-end.
+  _openAsosReferenceOverlay() {
+    let overlay = document.getElementById('asos-reference-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'asos-reference-overlay';
+      overlay.className = 'quiz-overlay';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      overlay.setAttribute('aria-label', 'ASOS Quick Reference');
+      document.body.appendChild(overlay);
+    }
+    overlay.innerHTML = `
+      <div class="quiz-overlay-card" style="position:relative">
+        <button class="quiz-overlay-close" onclick="Screens._closeAsosReferenceOverlay()" aria-label="Close reference">×</button>
+        <h2 style="font-family:var(--font-display);font-size:20px;font-weight:900;color:var(--navy);margin:0 0 6px">ASOS Quick Reference</h2>
+        <p style="font-size:13px;color:#64748B;margin:0 0 14px">Reference card content lands in Chunk 5 of Phase 2.</p>
+      </div>`;
+    overlay.style.display = 'flex';
+    // Trap escape + Android back button → close overlay (verified in Chunk 5)
+    this._asosOverlayKeyHandler = (e) => {
+      if (e.key === 'Escape') this._closeAsosReferenceOverlay();
+    };
+    document.addEventListener('keydown', this._asosOverlayKeyHandler);
+  },
+
+  _closeAsosReferenceOverlay() {
+    const overlay = document.getElementById('asos-reference-overlay');
+    if (overlay) overlay.style.display = 'none';
+    if (this._asosOverlayKeyHandler) {
+      document.removeEventListener('keydown', this._asosOverlayKeyHandler);
+      this._asosOverlayKeyHandler = null;
+    }
+  },
+
+  // Long-press handler (Intermediate). Holds for 500 ms → opens overlay.
+  _maybeLongPress(e, field) {
+    if (this._lpTimer) clearTimeout(this._lpTimer);
+    this._lpTimer = setTimeout(() => {
+      this._openAsosReferenceOverlay();
+      this._lpTimer = null;
+    }, 500);
+    const cancel = () => {
+      if (this._lpTimer) { clearTimeout(this._lpTimer); this._lpTimer = null; }
+    };
+    document.addEventListener('mouseup', cancel, { once: true });
+    document.addEventListener('touchend', cancel, { once: true });
+    document.addEventListener('touchmove', cancel, { once: true });
+  },
+
+  // Tiny utilities
+  _chipId() {
+    this._chipCounter = (this._chipCounter || 0) + 1;
+    return `c${this._chipCounter}`;
+  },
+  _shuffleArr(arr) {
+    return arr.slice().sort(() => Math.random() - 0.5);
+  },
+  _escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  },
+
+  // Stub for Chunk 5 — full quiz screen entry by deep route. Phase 2 Chunk 8
+  // wires the routing for `#/tools/metar_quiz/<difficulty>`. For Chunk 4,
+  // the picker is reachable via the existing 1-segment `#/tools/metar_quiz`
+  // and the user starts a session via the picker buttons.
+  metarQuiz(params) {
+    // Chunk 8 will wire the difficulty deep-link here.
+    this.metarQuizPicker(params);
   },
 
   // ===== ACHIEVEMENTS =====
