@@ -1212,6 +1212,24 @@ const Screens = {
       </div>`;
   },
 
+  // ===== STUDY TOOLS =====
+  // Chunk 1 stub. The full landing page lands in Chunk 2; this stub makes the
+  // tab-tap and #/tools URL resolve without crashing.
+  tools() {
+    document.getElementById('tools-content').innerHTML = `
+      <h1 style="font-family:var(--font-display);font-size:26px;font-weight:900;color:var(--navy);margin-bottom:4px">Study Tools</h1>
+      <p style="color:#64748B;font-size:14px;margin-bottom:24px">Calculators, decoders, and quiz tools — one tap from anywhere.</p>
+      <div class="card" style="padding:20px;text-align:center;color:#64748B;font-size:14px">
+        Tools landing coming online — building it out in the next commit.
+      </div>`;
+  },
+
+  // Chunk 1 placeholder — Chunk 3 wires up the actual tool detail screen.
+  // For now, route falls back to the landing if a user lands here directly.
+  tool_detail() {
+    Router.navigate('tools');
+  },
+
   // ===== ACHIEVEMENTS =====
   achievements() {
     const s = GameEngine.state;
