@@ -616,15 +616,9 @@ const Screens = {
     if (!sec.diagram) return;
     if (sec.diagram.type === 'process') return;
     const k = sec.diagram.svgKey || sec.diagram.key || sec.diagram.type || '';
-    setTimeout(() => {
-      if (k === 'density_altitude') Diagrams.calcDA();
-      if (k === 'lapse_rate_graph') Diagrams.updateLapseGraph();
-      if (k === 'wave_cyclone') Diagrams.showCycloneStage(0);
-      if (k === 'microburst_approach') Diagrams.showMicroburstPhase(0);
-      if (k === 'icing_severity') Diagrams.calcIcingRisk();
-      if (k === 'fog_formation') Diagrams.calcFogRisk();
-      if (k === 'flight_category_calc') Diagrams.calcFlightCategory();
-    }, 100);
+    // Delegate to Diagrams._initToolByKey so the tool_detail screen and the
+    // lesson-embedded path share one init dispatch table.
+    setTimeout(() => Diagrams._initToolByKey(k), 100);
   },
 
   // ===== QUIZ =====
@@ -1336,9 +1330,40 @@ const Screens = {
       </button>`;
   },
 
-  // Chunk 2 placeholder — Chunk 3 wires up the actual tool detail screen.
-  tool_detail() {
-    Router.navigate('tools');
+  tool_detail(params) {
+    const toolId = params && params.toolId;
+    const tool = toolId ? this._findTool(toolId) : null;
+    if (!tool || tool.comingSoon || !tool.renderFn) {
+      Router.navigate('tools');
+      return;
+    }
+    // Record this tool open so future "Recently used" surfacing has data.
+    // Storage default initialises recentToolsUsed[] in chunk 4 — guard for
+    // the case where chunk 4 hasn't applied yet so chunk 3 isn't blocked
+    // on chunk 4 (commits land in order anyway).
+    if (typeof GameEngine !== 'undefined' && typeof GameEngine.recordToolUsage === 'function') {
+      GameEngine.recordToolUsage(toolId);
+    }
+    const tag = tool.moduleId ? this._moduleTagFor(tool.moduleId) : '';
+    const mod = tool.moduleId && typeof MODULES !== 'undefined' ? MODULES.find(m => m.id === tool.moduleId) : null;
+    const renderFn = Diagrams[tool.renderFn];
+    const toolHtml = (typeof renderFn === 'function') ? renderFn.call(Diagrams) : '<div style="padding:20px;color:#94A3B8">Tool render unavailable.</div>';
+
+    document.getElementById('tool_detail-content').innerHTML = `
+      <div style="padding-bottom:24px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <button onclick="Router.navigate('tools')" aria-label="Back to Study Tools" style="background:#F1F5F9;border:none;border-radius:12px;padding:8px 14px;cursor:pointer;font-family:var(--font-display);font-weight:700;color:#64748B;font-size:13px">← Back</button>
+        </div>
+        <h1 style="font-family:var(--font-display);font-size:26px;font-weight:900;color:var(--navy);margin:0 0 6px;display:flex;align-items:center;gap:10px"><span aria-hidden="true">${tool.icon}</span><span>${tool.name}</span></h1>
+        ${tool.moduleId ? `<button onclick="Router.navigate('lesson',{moduleId:'${tool.moduleId}'})" class="study-tool-detail-tag" style="background:var(--sky-light);color:var(--sky-dark);font-family:var(--font-display);font-weight:700;font-size:12px;padding:5px 12px;border-radius:99px;border:none;cursor:pointer;margin-bottom:16px;line-height:1.4">${tag} →</button>` : ''}
+        <div class="study-tool-detail-host">${toolHtml}</div>
+        ${tool.moduleId && mod ? `<p style="font-size:12px;color:#64748B;line-height:1.6;margin:18px 6px 0;font-family:var(--font-body)">Working with this calculator standalone? You can also find it in <a href="#/lesson/${tool.moduleId}" style="color:var(--sky-dark);font-weight:700;text-decoration:none">Module ${tool.moduleId.replace(/^m/,'')}: ${mod.title}</a>, which adds context on when and how to use it.</p>` : ''}
+      </div>`;
+    // Run the matching init pass for calculators that need a first-render
+    // value (the picker tools self-initialise from the registry data).
+    if (tool.initFn) {
+      setTimeout(() => Diagrams._initToolByKey(tool.renderFn), 100);
+    }
   },
 
   // ===== ACHIEVEMENTS =====
