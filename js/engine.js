@@ -86,6 +86,18 @@ const GameEngine = {
   getModuleProgress(moduleId) {
     return { ...this._defaultModuleProgress(), ...(this.state.moduleProgress[moduleId] || {}) };
   },
+  // Tool usage tracking — records each tool detail open in reverse-chrono
+  // order, capped at 10. If the same toolId is opened again, its previous
+  // entry is removed before the new one is unshifted so the list dedupes.
+  // Reserved for a future "Recently used" row on Study Tools landing.
+  recordToolUsage(toolId) {
+    if (!toolId) return;
+    if (!Array.isArray(this.state.recentToolsUsed)) this.state.recentToolsUsed = [];
+    this.state.recentToolsUsed = this.state.recentToolsUsed.filter(e => e && e.toolId !== toolId);
+    this.state.recentToolsUsed.unshift({ toolId, timestamp: Date.now() });
+    if (this.state.recentToolsUsed.length > 10) this.state.recentToolsUsed.length = 10;
+    this.save();
+  },
   recordStudyTarget(target) {
     if (!target || !target.moduleId) return;
     this.state.lastStudyTarget = {
