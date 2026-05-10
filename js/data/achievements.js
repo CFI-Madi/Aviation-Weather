@@ -56,6 +56,17 @@ const ACHIEVEMENTS=[
   {id:'comeback_kid',title:'Comeback Kid',desc:'Retake a failed quiz and pass it',emoji:'💪',color:'#F59E0B',bg:'#FEF3C7',condition:s=>{const h=s.quizHistory||[];const mods=new Set(h.map(e=>e.moduleId));for(const mid of mods){const attempts=h.filter(e=>e.moduleId===mid);let hadFail=false;for(const a of attempts){if(a.score<70)hadFail=true;else if(hadFail&&a.score>=70)return true;}}return false;}},
   {id:'weak_area_cleared',title:'Weak Area Cleared',desc:'Bring a module from below 70% to above 80% on retake',emoji:'📈',color:'#0EA5E9',bg:'#F0F9FF',condition:s=>{const h=s.quizHistory||[];const mods=new Set(h.map(e=>e.moduleId));for(const mid of mods){const attempts=h.filter(e=>e.moduleId===mid);let hadWeak=false;for(const a of attempts){if(a.score<70)hadWeak=true;else if(hadWeak&&a.score>80)return true;}}return false;}},
   {id:'no_stone_unturned',title:'No Stone Unturned',desc:'Complete the checkride with a score above 80%',emoji:'🏆',color:'#DC2626',bg:'#FEF2F2',condition:s=>(s.checkrideScores||[]).some(r=>(r.pct||0)>=80)},
+  // METAR Quiz (Phase 2) — conditions read state.metarQuiz with defensive
+  // ?? 0 fallbacks because users who upgraded mid-Phase-2 may have written
+  // saved state before the storage default merge added the metarQuiz key.
+  {id:'metar_quiz_first_attempt',title:'First Decode',desc:'Submit your first METAR Quiz attempt',emoji:'📝',color:'#0284C7',bg:'#E0F2FE',condition:s=>{const m=s.metarQuiz||{};return ((m.beginner&&m.beginner.attempts)||0)+((m.intermediate&&m.intermediate.attempts)||0)+((m.advanced&&m.advanced.attempts)||0)>=1;}},
+  {id:'metar_quiz_first_correct',title:'First Clean Decode',desc:'Score a fully-correct METAR decode',emoji:'✅',color:'#10B981',bg:'#D1FAE5',condition:s=>((s.metarQuiz||{}).lifetimeFullyCorrect||0)>=1},
+  {id:'metar_beginner_mastery',title:'METAR Beginner Mastery',desc:'10 fully-correct Beginner decodes',emoji:'🌱',color:'#22C55E',bg:'#DCFCE7',condition:s=>(((s.metarQuiz||{}).beginner||{}).fullyCorrect||0)>=10},
+  {id:'metar_intermediate_mastery',title:'METAR Intermediate Mastery',desc:'10 fully-correct Intermediate decodes',emoji:'🌤️',color:'#0284C7',bg:'#E0F2FE',condition:s=>(((s.metarQuiz||{}).intermediate||{}).fullyCorrect||0)>=10},
+  {id:'metar_advanced_mastery',title:'METAR Advanced Mastery',desc:'10 fully-correct Advanced decodes',emoji:'🚀',color:'#7C3AED',bg:'#F5F3FF',condition:s=>(((s.metarQuiz||{}).advanced||{}).fullyCorrect||0)>=10},
+  {id:'metar_decoder_streak',title:'Decoder Streak',desc:'5 fully-correct decodes in a row at any difficulty',emoji:'🔥',color:'#F97316',bg:'#FFF7ED',condition:s=>((s.metarQuiz||{}).bestStreak||0)>=5},
+  {id:'metar_decoder_veteran',title:'Decoder Veteran',desc:'50 fully-correct decodes (lifetime)',emoji:'🎖️',color:'#EAB308',bg:'#FEF9C3',condition:s=>((s.metarQuiz||{}).lifetimeFullyCorrect||0)>=50},
+  {id:'metar_decoder_master',title:'Decoder Master',desc:'100 fully-correct decodes (lifetime)',emoji:'🏆',color:'#DC2626',bg:'#FEF2F2',condition:s=>((s.metarQuiz||{}).lifetimeFullyCorrect||0)>=100},
 ];
 const DAILY_CHALLENGES=[
   { id:'dc_01', moduleId:'m1',  sectionId:null,   q: 'The standard lapse rate is:', opts: ['1°C/1,000 ft','2°C/1,000 ft','3°C/1,000 ft','5°C/1,000 ft'], correct: 1, ref: 'AWH Ch. 4' },
