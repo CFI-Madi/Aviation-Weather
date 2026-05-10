@@ -603,13 +603,47 @@ const Screens = {
   _renderDiagram(sec) {
     if (!sec.diagram) return '';
     const d = sec.diagram;
+    let html = '';
     // Foundations pattern: hotspot/slider with svgKey
-    if (d.svgKey) return Diagrams.render(d.type, d.svgKey);
+    if (d.svgKey) html = Diagrams.render(d.type, d.svgKey);
     // Hazard pattern: interactive with explicit key
-    if (d.key) return Diagrams.render(d.type, d.key);
+    else if (d.key) html = Diagrams.render(d.type, d.key);
     // Operational products: type is the render key
-    if (d.type) return Diagrams.render(d.type, d.type);
-    return '';
+    else if (d.type) html = Diagrams.render(d.type, d.type);
+    if (html) {
+      const footer = this._embeddedToolFooter(d);
+      if (footer) html += footer;
+    }
+    return html;
+  },
+
+  // Returns an "Also available in Study Tools" footer if the section's
+  // diagram corresponds to a registered tool. Six tools, six places — but
+  // keeping the dispatch here means the per-tool footer copy lives in one
+  // file instead of six section bodies. M2's density-altitude section is a
+  // special case: it embeds the FAA process image rather than the slider
+  // calc, so the footer there is more invitation than reminder ("try real
+  // numbers" vs the standard "also available standalone" copy).
+  _embeddedToolFooter(d) {
+    const key = d.svgKey || d.key || d.type || '';
+    // (key → toolId, copy)
+    const map = {
+      'density_altitude':       { toolId: 'density-altitude',
+        copy: 'Want to try real numbers? The standalone <strong>Density Altitude</strong> calculator is in <a href="#/tools/density-altitude">Study Tools</a>.' },
+      'icing_severity':         { toolId: 'icing-severity',
+        copy: 'Also available in <a href="#/tools/icing-severity">Study Tools → Icing Severity</a> for standalone exploration.' },
+      'fog_formation':          { toolId: 'fog-formation',
+        copy: 'Also available in <a href="#/tools/fog-formation">Study Tools → Fog Formation</a> for standalone exploration.' },
+      'metar_decoder':          { toolId: 'metar-practice',
+        copy: 'Also available in <a href="#/tools/metar-practice">Study Tools → METAR Practice</a> — same 10 examples, one tap from anywhere.' },
+      'taf_decoder':            { toolId: 'taf-practice',
+        copy: 'Also available in <a href="#/tools/taf-practice">Study Tools → TAF Practice</a> — same 8 examples, one tap from anywhere.' },
+      'flight_category_calc':   { toolId: 'flight-category',
+        copy: 'Also available in <a href="#/tools/flight-category">Study Tools → Flight Category</a> for standalone exploration.' }
+    };
+    const entry = map[key];
+    if (!entry) return '';
+    return `<p class="embedded-tool-footer" style="font-size:12px;color:#64748B;line-height:1.55;margin:10px 6px 0;font-family:var(--font-body)">${entry.copy}</p>`;
   },
 
   _initDiagram(sec) {
