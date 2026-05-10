@@ -115,6 +115,50 @@ h1,h2,h3{font-family:var(--font-display)}
 .drag-target.drag-over{border-color:var(--sky-dark);background:var(--sky-light)}
 .drag-target.correct-drop{border-color:var(--emerald);background:var(--emerald-light)}
 .drag-target.wrong-drop{border-color:var(--rose);background:var(--rose-light)}
+
+/* ===== METAR Quiz (Phase 2) ===== */
+/* Parallel to .drag-item / .drag-target but with quiz-specific state classes
+   and tighter sizing. Mono font matches the .metar-token chip family used
+   in METAR Practice / TAF Practice — keeps the visual language consistent
+   across decoding tools. */
+.quiz-chip{display:inline-block;padding:7px 12px;border-radius:10px;background:white;border:2px solid #E2E8F0;cursor:grab;font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--navy);margin:3px;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.05);user-select:none;white-space:nowrap}
+.quiz-chip:hover{border-color:var(--sky-dark);transform:translateY(-1px)}
+.quiz-chip.dragging{opacity:.5}
+.quiz-slot{min-height:44px;border:2px dashed #CBD5E1;border-radius:12px;padding:5px 8px;display:flex;align-items:center;flex-wrap:wrap;gap:4px;background:#F8FAFC;transition:all .2s}
+.quiz-slot.drag-over{border-color:var(--sky-dark);background:var(--sky-light)}
+.quiz-slot.correct-drop{border-color:var(--emerald);background:var(--emerald-light)}
+.quiz-slot.wrong-drop{border-color:var(--rose);background:var(--rose-light)}
+.quiz-field{margin-bottom:14px}
+.quiz-field-label{font-family:var(--font-display);font-size:13px;font-weight:800;color:var(--navy);margin-bottom:6px;display:block;letter-spacing:.01em}
+.quiz-field-hint{font-family:var(--font-body);font-size:11px;color:#64748B;margin:-4px 0 6px;font-weight:500;font-style:italic}
+.quiz-field-pool{margin-top:6px;padding:6px;border-radius:10px;background:#F1F5F9;display:flex;flex-wrap:wrap;align-items:center;min-height:36px}
+.quiz-shared-pool{margin-top:18px;padding:12px;border-radius:14px;background:#F1F5F9;display:flex;flex-wrap:wrap;gap:4px;min-height:60px;border:2px solid #E2E8F0}
+.quiz-shared-pool-label{display:block;font-family:var(--font-display);font-size:11px;font-weight:700;color:#64748B;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.quiz-metar-display{font-family:var(--font-mono);font-size:14px;font-weight:700;color:white;background:var(--navy);padding:14px 16px;border-radius:14px;margin-bottom:16px;word-break:break-all;line-height:1.6;letter-spacing:.01em}
+.quiz-no-wx-note{font-style:italic;color:#64748B;font-size:12px;padding:8px 12px;background:#F1F5F9;border-radius:10px}
+.quiz-actions{display:flex;gap:8px;margin-top:16px}
+.quiz-actions button{flex:1;border:none;border-radius:14px;padding:13px;font-family:var(--font-display);font-weight:800;font-size:14px;cursor:pointer;transition:opacity .15s}
+.quiz-actions button:disabled{opacity:.5;cursor:not-allowed}
+.quiz-submit-btn{background:var(--sky-dark);color:white}
+.quiz-submit-btn:hover{background:#0369A1}
+.quiz-secondary-btn{background:#F1F5F9;color:var(--navy)}
+.quiz-secondary-btn:hover{background:#E2E8F0}
+.quiz-difficulty-card{display:block;width:100%;text-align:left;background:white;border:2px solid #E2E8F0;border-radius:16px;padding:16px;margin-bottom:12px;cursor:pointer;transition:all .15s;font-family:var(--font-body)}
+.quiz-difficulty-card:hover{border-color:var(--sky-dark);transform:translateY(-1px)}
+.quiz-difficulty-card-title{font-family:var(--font-display);font-weight:800;font-size:16px;color:var(--navy);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.quiz-difficulty-card-desc{font-size:13px;color:#64748B;line-height:1.5}
+.quiz-slot-feedback{font-size:11.5px;color:#64748B;margin-top:4px;padding:0 8px;line-height:1.5}
+.quiz-slot-feedback strong{color:var(--navy);font-weight:700}
+.quiz-progress-pill{display:inline-block;padding:4px 10px;background:#F1F5F9;border-radius:99px;font-family:var(--font-display);font-weight:700;font-size:11px;color:#64748B;letter-spacing:.04em}
+.quiz-overlay{position:fixed;inset:0;z-index:300;background:rgba(12,27,51,.6);display:flex;align-items:flex-end;justify-content:center;padding:0}
+.quiz-overlay-card{background:white;width:100%;max-width:720px;max-height:88vh;border-radius:20px 20px 0 0;padding:18px 18px 24px;overflow-y:auto;box-shadow:0 -8px 32px rgba(0,0,0,.2)}
+.quiz-overlay-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:#F1F5F9;border:none;cursor:pointer;font-size:16px;color:#64748B;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800}
+@media (max-width: 599px){
+  .quiz-chip{font-size:12.5px;padding:6px 10px}
+  .quiz-slot{min-height:42px}
+  .quiz-shared-pool{padding:10px}
+  .quiz-metar-display{font-size:12.5px;padding:12px}
+}
 .metar-token{display:inline-block;padding:4px 10px;border-radius:8px;font-family:var(--font-mono);font-size:13px;font-weight:700;cursor:pointer;margin:3px;transition:all .15s;border:2px solid transparent}
 .metar-token:hover{transform:translateY(-2px)}
 .metar-token.selected{border-color:var(--product);box-shadow:0 0 0 3px rgba(124,58,237,.2)}

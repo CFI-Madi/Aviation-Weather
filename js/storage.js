@@ -25,7 +25,27 @@ const Storage = {
       // Convention: additive defaultState changes don't bump the storage key —
       // the load()-time spread merge initialises the field for existing users.
       // See CONVENTIONS.md for the storage-version policy.
-      recentToolsUsed: []
+      recentToolsUsed: [],
+
+      // Phase 2 — METAR Quiz scoring + persistence.
+      // metarQuiz holds aggregate scoring stats per difficulty, plus a
+      // session-level streak (across difficulties) and a list of the
+      // last session's template ids (passed to MetarQuiz.generateSession
+      // so back-to-back sessions don't repeat the same 8 templates).
+      metarQuiz: {
+        beginner:     { attempts: 0, fullyCorrect: 0, totalFieldsCorrect: 0, totalFieldsAttempted: 0 },
+        intermediate: { attempts: 0, fullyCorrect: 0, totalFieldsCorrect: 0, totalFieldsAttempted: 0 },
+        advanced:     { attempts: 0, fullyCorrect: 0, totalFieldsCorrect: 0, totalFieldsAttempted: 0 },
+        currentStreak: 0,
+        bestStreak: 0,
+        lifetimeFullyCorrect: 0,
+        lastSessionTemplateIds: []
+      },
+      // Mid-session METAR Quiz state — separate from quizInProgress because
+      // the shape differs (chip pool + question array vs question index +
+      // resolved map). Held-out tracking via lastSessionTemplateIds is in
+      // metarQuiz above so it persists past clearMetarQuizProgress.
+      metarQuizInProgress: null
     };
   },
   load() {

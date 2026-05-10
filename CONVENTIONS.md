@@ -81,3 +81,51 @@ standalone vs lesson contexts is not allowed.
 init calls (e.g. `calcDA()`, `calcFlightCategory()`). Both
 `Screens._initDiagram` (lesson-embedded path) and `Screens.tool_detail`
 (standalone path) call it. Don't duplicate the switch.
+
+## Drag-and-drop UI
+
+Drag-and-drop UI uses the in-house shim in `js/screens.js` (the
+`_di`/`_ds`/`_de`/`_ts`/`_tm`/`_te`/`_drop`/`_dropChipInto` family).
+Do not introduce DnD libraries (SortableJS, react-dnd, dnd-kit, etc.)
+without explicit need. The shim handles HTML5 drag, touch, multi-slot
+drop zones (`data-multi="true"`), pool return-home (`data-pool="true"`),
+and single-slot replace + evict — adding a library duplicates that
+surface area and pulls a vendored dependency into the otherwise
+build-free codebase.
+
+When the shim doesn't fit a new use case, extend it (the multi-slot
+addition in Phase 2 was about 30 lines) rather than wrapping it in
+something heavier.
+
+## Content data vs app configuration
+
+Content data lives in `js/data/`. App configuration (cache versions,
+feature flags, tool registry, RANKS, LEVELS) lives in `js/config.js`.
+Don't mix the two — content drives lessons, quizzes, decoding examples;
+configuration drives behaviour and presentation.
+
+**Current state caveat:** `js/data/config.js` mixes both today (RANKS +
+LEVELS + LEVEL_META alongside METAR_LIBRARY + TAF_LIBRARY), and
+TOOL_REGISTRY lives inside `js/screens.js`. Splitting these is a
+follow-up refactor; see [FOLLOWUPS.md](FOLLOWUPS.md). New work should
+respect the convention going forward — put new content tables in
+`js/data/` and any new config (e.g. `js/data/asos_reference.js` is
+content; future flags would go to `js/config.js`).
+
+## Investigation vs plan
+
+When investigation surfaces a better path than the plan specified,
+propose the deviation and stop for sign-off. Don't silently follow a
+plan when better information has appeared, and don't silently deviate
+without flagging.
+
+Examples of "better information":
+- A plan-suggested library that turns out to duplicate working in-house
+  code (Phase 2's SortableJS suggestion vs the existing DnD shim).
+- A plan-suggested file location that conflicts with another convention
+  (e.g. plan says "put X in js/data/config.js" but the
+  content-vs-config convention puts it elsewhere).
+- A plan-suggested data shape that breaks an existing rehydration path.
+
+When in doubt, raise it before building. A 3-minute proposal beats a
+3-hour rewrite.
