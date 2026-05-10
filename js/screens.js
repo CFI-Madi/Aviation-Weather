@@ -930,13 +930,80 @@ const Screens = {
     <button id="quiz-next-btn" onclick="Screens._nextQ()" style="display:none;width:100%;margin-top:12px;background:${mod.color};color:white;border:none;border-radius:16px;padding:16px;font-family:var(--font-display);font-weight:800;font-size:16px;cursor:pointer">Next</button>`;
   },
 
+  // ───── Drag-and-drop shim ──────────────────────────────────────────────
+  // Hand-rolled HTML5 DnD + touch shim. See CONVENTIONS.md ("Drag-and-drop
+  // UI uses the in-house shim in screens.js"). Used by:
+  //   - module quizzes (q_m4_8 etc.)  — legacy append behavior
+  //   - METAR Quiz (Phase 2)          — replace + return-to-pool / multi-slot
+  //
+  // Behavior gated by drop-target attributes:
+  //   data-multi="true"      → multi-slot zone (append, allow multiple chips)
+  //   data-pool="true"       → chip pool (append on drop, used as the "return
+  //                            home" for chips evicted from single-slot zones)
+  //   no special attribute   → single-slot zone:
+  //                            - if a [data-pool="true"] exists in the DOM,
+  //                              evict any existing chips back to the pool
+  //                              before placing the new chip (replace semantics)
+  //                            - if no pool exists (legacy module quizzes),
+  //                              fall back to plain appendChild (current
+  //                              behavior — multiple chips per slot allowed)
+  //
+  // _di tracks the chip currently being dragged. _tc is the visual touch
+  // clone that follows the finger.
+
   _di:null,_tc:null,
-  _ds(e,el){this._di=el;el.classList.add('dragging');e.dataTransfer.effectAllowed='move';},
+  _ds(e,el){this._di=el;el.classList.add('dragging');if(e.dataTransfer)e.dataTransfer.effectAllowed='move';},
   _de(){if(this._di)this._di.classList.remove('dragging');},
   _ts(e,el){this._di=el;this._tc=el.cloneNode(true);this._tc.style.cssText='position:fixed;pointer-events:none;z-index:9999;opacity:.8';document.body.appendChild(this._tc);},
   _tm(e){e.preventDefault();if(!this._tc)return;const t=e.touches[0];this._tc.style.left=(t.clientX-30)+'px';this._tc.style.top=(t.clientY-20)+'px';},
-  _te(e){if(this._tc){document.body.removeChild(this._tc);this._tc=null;}const t=e.changedTouches[0];const target=document.elementFromPoint(t.clientX,t.clientY)?.closest('.drag-target');if(target&&this._di){target.appendChild(this._di);target.classList.remove('drag-over');}this._di=null;},
-  _drop(e,target){e.preventDefault();target.classList.remove('drag-over');if(this._di)target.appendChild(this._di);},
+  _te(e){
+    if(this._tc){document.body.removeChild(this._tc);this._tc=null;}
+    const t=e.changedTouches[0];
+    const point=document.elementFromPoint(t.clientX,t.clientY);
+    const target=point&&point.closest('.drag-target, [data-pool="true"]');
+    if(target&&this._di){
+      this._dropChipInto(target);
+      target.classList.remove('drag-over');
+    }
+    this._di=null;
+  },
+  _drop(e,target){
+    e.preventDefault();
+    target.classList.remove('drag-over');
+    if(this._di) this._dropChipInto(target);
+  },
+
+  // Unified drop semantics — see comment block above.
+  _dropChipInto(target) {
+    if (!this._di) return;
+    const isPool = target.dataset && target.dataset.pool === 'true';
+    const isMulti = target.dataset && target.dataset.multi === 'true';
+    const pool = document.querySelector('[data-pool="true"]');
+
+    // Drop into pool — chip returns home (or stays home).
+    if (isPool) {
+      target.appendChild(this._di);
+      return;
+    }
+
+    // Multi-slot: append; no-op if already a child.
+    if (isMulti) {
+      if (this._di.parentNode === target) return;
+      target.appendChild(this._di);
+      return;
+    }
+
+    // Single-slot: if a pool exists, evict any existing chips back to it
+    // before placing the new chip. Without a pool (legacy module quizzes),
+    // fall back to plain append so existing flows aren't disturbed.
+    if (pool) {
+      const evict = Array.from(target.children).filter(c =>
+        c !== this._di && (c.classList.contains('drag-item') || c.classList.contains('quiz-chip'))
+      );
+      evict.forEach(c => pool.appendChild(c));
+    }
+    target.appendChild(this._di);
+  },
 
   _checkDD() {
     if (!this._qs || this._isQuizQuestionResolved()) return;
