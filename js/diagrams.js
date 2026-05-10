@@ -1872,11 +1872,204 @@ const Diagrams = {
 </div>`;
   },
 
-  // Stub — full interactive init lands in Chunk 3.
+  // Interactive init — called by Screens._initDiagram after the module's
+  // HTML is injected. Idempotent: if already initialised on this DOM tree,
+  // returns early. Wiring:
+  //   - Back / Next / Done navigation through 3 steps (with stepper dots)
+  //   - Step 3 chart: axis ticks + iso-DA diagonals + ISA reference line
+  //   - Two sliders driving a live red trace + numeric DA readout
+  //   - "↺ KJQF · 35°C" preset button
+  //   - densityAltitudeComplete custom event on the final Done click
+  //     (Chunk 4 wires this into the engine progress hook)
   _initDaModule() {
-    // Populated in the next chunk: step navigation, axis ticks, iso-DA
-    // diagonal lines, ISA reference line, slider live trace, KJQF preset,
-    // and the densityAltitudeComplete event hook on the final Done click.
+    const root = document.getElementById('daModule');
+    if (!root || root.dataset.daInit === 'done') return;
+    root.dataset.daInit = 'done';
+
+    /* Step navigation */
+    let stepIdx = 0;
+    const steps = root.querySelectorAll('.da-step');
+    const dots  = root.querySelectorAll('.da-dot');
+    const backBtn = root.querySelector('#daBackBtn');
+    const nextBtn = root.querySelector('#daNextBtn');
+    const stepperText = root.querySelector('#daStepperText');
+    const progress = root.querySelector('#daProgress');
+
+    const renderStep = () => {
+      steps.forEach((s, i) => s.classList.toggle('active', i === stepIdx));
+      dots.forEach((d, i) => {
+        d.classList.toggle('active', i === stepIdx);
+        d.classList.toggle('done', i < stepIdx);
+      });
+      stepperText.textContent = `Step ${stepIdx+1} of 3`;
+      progress.textContent    = `Step ${stepIdx+1} of 3`;
+      backBtn.disabled = stepIdx === 0;
+      if (stepIdx === steps.length - 1) {
+        nextBtn.textContent = 'Done ✓';
+        nextBtn.classList.remove('da-btn-primary');
+        nextBtn.classList.add('da-btn-done');
+      } else {
+        nextBtn.textContent = 'Next →';
+        nextBtn.classList.add('da-btn-primary');
+        nextBtn.classList.remove('da-btn-done');
+      }
+    };
+
+    backBtn.addEventListener('click', () => {
+      if (stepIdx > 0) { stepIdx--; renderStep(); }
+    });
+    nextBtn.addEventListener('click', () => {
+      if (stepIdx < steps.length - 1) {
+        stepIdx++;
+        renderStep();
+      } else {
+        // Completion. Chunk 4 hooks the markStudied/progress side effect.
+        root.dispatchEvent(new CustomEvent('densityAltitudeComplete', {
+          bubbles: true,
+          detail: { module: 'density-altitude', completedAt: Date.now() }
+        }));
+        nextBtn.disabled = true;
+        nextBtn.textContent = 'Completed';
+      }
+    });
+
+    /* Step 3 chart — coordinate mapping */
+    const CHART = { x0: 80, x1: 720, y0: 20, y1: 420,
+                    tMin: -20, tMax: 40, paMin: 0, paMax: 15000 };
+    const tToX  = t  => CHART.x0 + (t - CHART.tMin) / (CHART.tMax - CHART.tMin) * (CHART.x1 - CHART.x0);
+    const paToY = pa => CHART.y1 - (pa - CHART.paMin) / (CHART.paMax - CHART.paMin) * (CHART.y1 - CHART.y0);
+    // ISA temperature at a given pressure altitude (°C): standard lapse 1.98°C / 1000 ft
+    const isaTemp = pa => 15 - 0.00198 * pa;
+    // Density altitude approximation: DA ≈ PA + 120·(OAT − ISA(PA))
+    // Accurate within ~150 ft over the chart range — teaching-grade only.
+    const densityAlt = (pa, oat) => Math.round(pa + 120 * (oat - isaTemp(pa)));
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+
+    /* X-axis ticks every 10°C */
+    const xTicks = root.querySelector('#xTicks');
+    for (let t = CHART.tMin; t <= CHART.tMax; t += 10) {
+      const x = tToX(t);
+      const tick = document.createElementNS(SVG_NS, 'line');
+      tick.setAttribute('x1', x); tick.setAttribute('x2', x);
+      tick.setAttribute('y1', CHART.y1); tick.setAttribute('y2', CHART.y1 + 5);
+      tick.setAttribute('stroke', '#475569');
+      xTicks.appendChild(tick);
+      const lbl = document.createElementNS(SVG_NS, 'text');
+      lbl.setAttribute('x', x); lbl.setAttribute('y', CHART.y1 + 18);
+      lbl.textContent = t + '°';
+      xTicks.appendChild(lbl);
+    }
+
+    /* Y-axis ticks every 1000 ft, labels every 2000 ft */
+    const yTicks = root.querySelector('#yTicks');
+    for (let pa = 0; pa <= 15000; pa += 1000) {
+      const y = paToY(pa);
+      const tick = document.createElementNS(SVG_NS, 'line');
+      tick.setAttribute('x1', CHART.x0 - 5); tick.setAttribute('x2', CHART.x0);
+      tick.setAttribute('y1', y); tick.setAttribute('y2', y);
+      tick.setAttribute('stroke', '#475569');
+      yTicks.appendChild(tick);
+      if (pa % 2000 === 0) {
+        const lbl = document.createElementNS(SVG_NS, 'text');
+        lbl.setAttribute('x', CHART.x0 - 8); lbl.setAttribute('y', y + 3);
+        lbl.textContent = pa === 0 ? 'SL' : pa.toLocaleString();
+        yTicks.appendChild(lbl);
+      }
+    }
+
+    /* Iso-DA diagonal lines (every 1000 ft from -2k to +15k).
+       For DA = PA + 120·(t − ISA(PA)), with ISA(PA) = 15 − 0.00198·PA:
+         PA·(1 − 0.2376) = DA + 120·t − 1800
+         PA = (DA + 120·t − 1800) / 0.7624 */
+    const isoLines  = root.querySelector('#daIsoLines');
+    const isoLabels = root.querySelector('#daIsoLabels');
+    for (let da = -2000; da <= 15000; da += 1000) {
+      const paAtTmin = (da + 120 * CHART.tMin - 1800) / 0.7624;
+      const paAtTmax = (da + 120 * CHART.tMax - 1800) / 0.7624;
+      const line = document.createElementNS(SVG_NS, 'line');
+      line.setAttribute('x1', tToX(CHART.tMin));
+      line.setAttribute('y1', paToY(paAtTmin));
+      line.setAttribute('x2', tToX(CHART.tMax));
+      line.setAttribute('y2', paToY(paAtTmax));
+      if (da % 5000 === 0 && da !== 0) {
+        line.setAttribute('stroke', '#9FB6CF');
+        line.setAttribute('stroke-width', '1.2');
+      } else if (da === 0) {
+        line.setAttribute('stroke', '#DBE6F0');
+        line.setAttribute('stroke-width', '1.2');
+      }
+      isoLines.appendChild(line);
+      // Label near the right edge
+      if (da >= 0 && da <= 15000 && da % 1000 === 0) {
+        const paAt = (da + 120 * 35 - 1800) / 0.7624;
+        if (paAt > 0 && paAt < 15000) {
+          const lbl = document.createElementNS(SVG_NS, 'text');
+          lbl.setAttribute('x', tToX(35) + 4);
+          lbl.setAttribute('y', paToY(paAt) - 2);
+          lbl.textContent = da === 0 ? 'SL' : (da/1000) + 'k';
+          isoLabels.appendChild(lbl);
+        }
+      }
+    }
+
+    /* ISA reference line — (15°C, 0 ft) → (-14.7°C, 15000 ft) */
+    const isaLineSeg = root.querySelector('#isaLineSeg');
+    const isaLabel   = root.querySelector('#isaLabel');
+    isaLineSeg.setAttribute('x1', tToX(15));
+    isaLineSeg.setAttribute('y1', paToY(0));
+    isaLineSeg.setAttribute('x2', tToX(-14.7));
+    isaLineSeg.setAttribute('y2', paToY(15000));
+    isaLabel.setAttribute('transform',
+      `translate(${tToX(0) - 14},${paToY(7500)}) rotate(-78)`);
+
+    /* Live trace driven by sliders */
+    const paSlider = root.querySelector('#paSlider');
+    const oatSlider = root.querySelector('#oatSlider');
+    const paLabel = root.querySelector('#paValueLabel');
+    const oatLabel = root.querySelector('#oatValueLabel');
+    const daValue = root.querySelector('#daValue');
+    const daDelta = root.querySelector('#daDelta');
+    const traceV = root.querySelector('#traceV');
+    const traceH = root.querySelector('#traceH');
+    const tracePt = root.querySelector('#tracePt');
+    const traceLabelG = root.querySelector('#traceLabel');
+    const traceLabelText = root.querySelector('#traceLabelText');
+
+    const updateTrace = () => {
+      const pa = +paSlider.value;
+      const oat = +oatSlider.value;
+      const da = densityAlt(pa, oat);
+      paLabel.textContent  = pa.toLocaleString() + ' ft';
+      oatLabel.textContent = oat + '°C';
+      daValue.textContent  = Math.max(0, da).toLocaleString();
+      const delta = da - pa;
+      daDelta.textContent = (delta >= 0 ? '+' : '') + delta.toLocaleString() + ' ft';
+      const x = tToX(oat), y = paToY(pa);
+      traceV.setAttribute('x1', x); traceV.setAttribute('x2', x);
+      traceV.setAttribute('y1', CHART.y1); traceV.setAttribute('y2', y);
+      traceH.setAttribute('x1', CHART.x0); traceH.setAttribute('x2', x);
+      traceH.setAttribute('y1', y); traceH.setAttribute('y2', y);
+      tracePt.setAttribute('cx', x); tracePt.setAttribute('cy', y);
+      // Nudge label to stay inside the chart
+      let lx = x + 8, ly = y;
+      if (lx + 120 > CHART.x1) lx = x - 128;
+      if (ly - 32 < CHART.y0) ly = y + 38;
+      traceLabelG.setAttribute('transform', `translate(${lx},${ly})`);
+      traceLabelText.textContent = `DA = ${Math.max(0, da).toLocaleString()} ft`;
+    };
+    paSlider.addEventListener('input', updateTrace);
+    oatSlider.addEventListener('input', updateTrace);
+
+    /* KJQF preset */
+    root.querySelector('#daPresetBtn').addEventListener('click', () => {
+      paSlider.value = 705;
+      oatSlider.value = 35;
+      updateTrace();
+    });
+
+    /* Initial render */
+    updateTrace();
+    renderStep();
   },
 
   // ===== PROCESS DIAGRAMS =====
@@ -1983,26 +2176,13 @@ const Diagrams = {
       ]
     },
 
-    density_altitude: {
-      title: 'Density Altitude & Aircraft Performance',
-      steps: [
-        {
-          label: 'Step 1 — High Density Altitude Degrades Aircraft Performance',
-          description: 'Both panels show the same aircraft on the same runway — only density altitude differs. TOP: Sea-level density altitude — takeoff roll 1,300 ft, rate of climb 1,500 ft/min. BOTTOM: 5,000 ft density altitude — takeoff roll grows to 1,800 ft (+38%) and climb rate drops to 1,000 ft/min (–33%). Less dense air means less engine power, less propeller thrust, and less aerodynamic lift.',
-          svg: `<div style="background:#111827"><img src="img/awh/density_altitude_01.png" alt="Figure 8-15. High Density Altitude Effects on Flight" style="width:100%;display:block;max-height:310px;object-fit:contain"><div style="padding:5px 14px 6px;font-size:11px;font-weight:700;color:#38BDF8;font-family:var(--font-display);border-top:1px solid #1e3a5f">&#9658; TOP: sea-level density altitude (1,300 ft roll, 1,500 fpm climb). BOTTOM: 5,000 ft density altitude (1,800 ft roll, 1,000 fpm climb)</div></div>`
-        },
-        {
-          label: 'Step 2 — Hot + High = Longest Roll and Shallowest Climb',
-          description: 'High temperature and high elevation compound each other. Every 10°C above standard temperature adds roughly 1,000 ft to density altitude. A 95°F afternoon at a 5,000 ft airport can produce a density altitude exceeding 9,000 ft. Always compute density altitude from POH charts before flight — obstacles that are safe at sea level can become traps at high density altitude.',
-          svg: `<div style="background:#111827"><img src="img/awh/density_altitude_01.png" alt="Figure 8-15. High Density Altitude Effects on Flight" style="width:100%;display:block;max-height:310px;object-fit:contain"><div style="padding:5px 14px 6px;font-size:11px;font-weight:700;color:#38BDF8;font-family:var(--font-display);border-top:1px solid #1e3a5f">&#9658; Note the shallower climb path in the bottom panel — terrain and obstacles that cleared easily at sea level may not be cleared</div></div>`
-        },
-        {
-          label: 'Step 3 — Computing Density Altitude from OAT and Pressure Altitude',
-          description: 'Set your altimeter to 29.92 to get pressure altitude, then use outside air temperature (OAT) to find density altitude on this chart. Locate your pressure altitude on the Y-axis, trace horizontally to your OAT on the X-axis, then read density altitude from the diagonal lines. On a hot day at a high airport, density altitude can exceed pressure altitude by several thousand feet.',
-          svg: `<div style="background:#111827"><img src="img/awh/density_altitude_02.png" alt="Figure C-1. Density Altitude Computation Chart" style="width:100%;display:block;max-height:310px;object-fit:contain"><div style="padding:5px 14px 6px;font-size:11px;font-weight:700;color:#38BDF8;font-family:var(--font-display);border-top:1px solid #1e3a5f">&#9658; Y-axis = pressure altitude. X-axis = OAT. Trace horizontally to OAT, read density altitude from diagonal lines</div></div>`
-        }
-      ]
-    },
+    // density_altitude was removed in the M2 §s2_1 redesign — that key now
+    // routes to Diagrams.renderDaModule() / _initDaModule() via the
+    // dispatch in Diagrams.render(). The two FAA images
+    // (img/awh/density_altitude_01.png, _02.png) remain in sw.js APP_SHELL
+    // because they may still be referenced elsewhere (concept maps, FAA
+    // validation cross-refs, future features); per the user's "no
+    // APP_SHELL changes" rule they stay cached.
 
     orographic_effect: {
       title: 'Orographic Lift & Mountain Wave',
