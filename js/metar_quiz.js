@@ -386,5 +386,321 @@ const MetarQuiz = {
   },
   _pad4(n) {
     return String(Math.abs(Math.round(n))).padStart(4, '0');
+  },
+
+  // ════════════════════════════════════════════════════════════════════════
+  // DISTRACTOR GENERATION
+  // ════════════════════════════════════════════════════════════════════════
+  // generateDistractors(question) returns a per-field map of plausible
+  // misparses of the source METAR's own characters. Each entry is
+  // { text, category } where category is a key from
+  // METAR_QUIZ_DISTRACTOR_CATEGORIES (loaded from
+  // js/data/metar_quiz_distractors.js).
+  //
+  // The runtime uses these candidates as the raw pool; difficulty-specific
+  // selection (Beginner: small per-field; Intermediate: shared; Advanced:
+  // shared with traps) happens in the UI layer (Chunk 4).
+
+  generateDistractors(question) {
+    const f = question.fields;
+    return {
+      wind:        this._distractWind(f.wind),
+      visibility:  this._distractVisibility(f.visibility),
+      sky:         this._distractSky(f.sky),
+      weather:     this._distractWeather(f.weather),
+      temperature: this._distractTemp(f.temperature, f.dewpoint, false),
+      dewpoint:    this._distractTemp(f.dewpoint, f.temperature, true),
+      altimeter:   this._distractAltimeter(f.altimeter),
+      // Trap chips that don't belong to any field; the UI uses these only
+      // at Advanced difficulty. Filtered against correct values below.
+      trap:        this._distractTraps(f)
+    };
+  },
+
+  // ── Wind ─────────────────────────────────────────────────────────────────
+
+  _distractWind(field) {
+    const tok = field.token;
+    const out = [];
+
+    if (tok === '00000KT') {
+      out.push({ text: '0° at 0 kt', category: 'literal_zero' });
+      out.push({ text: 'Variable at 0 kt', category: 'calm_as_vrb' });
+      return out;
+    }
+
+    if (tok.startsWith('VRB')) {
+      const spd = parseInt(tok.slice(3, 5), 10);
+      out.push({ text: `0° at ${spd} kt`, category: 'vrb_as_zero' });
+      out.push({ text: `360° at ${spd} kt`, category: 'vrb_as_north' });
+      return out;
+    }
+
+    // Standard form: DDDFFKT or DDDFFGFFKT
+    const dir = parseInt(tok.slice(0, 3), 10);
+    const spdStr = tok.slice(3, 5);
+    const spd = parseInt(spdStr, 10);
+    const hasGust = tok.includes('G');
+    const gust = hasGust ? parseInt(tok.slice(tok.indexOf('G') + 1, tok.indexOf('KT')), 10) : null;
+
+    // Truncate direction to first 2 digits (220 → 22)
+    out.push({ text: `${this._pad2(Math.floor(dir / 10))}° at ${spd} kt`, category: 'truncate_direction' });
+    // Speed digits read as the direction
+    out.push({ text: `${this._pad3(spd)}° at ${dir % 100} kt`, category: 'speed_as_direction' });
+    // Drop trailing zero (220 → 22°) — meaningful only if direction ends in 0
+    if (dir % 10 === 0) {
+      out.push({ text: `${dir / 10}° at ${spd} kt`, category: 'drop_trailing_zero' });
+    }
+    // Gust value misread as the sustained
+    if (hasGust) {
+      out.push({ text: `${this._pad3(dir)}° at ${gust} kt sustained, no gust`, category: 'gust_as_speed' });
+    }
+    // Direction extended into speed digits (5-digit reading)
+    out.push({ text: `${dir}${spdStr}° at 0 kt`, category: 'over_extend_direction' });
+
+    return this._dedup(out);
+  },
+
+  // ── Visibility ───────────────────────────────────────────────────────────
+
+  _distractVisibility(field) {
+    const tok = field.token;
+    const out = [];
+
+    // Whole-number form e.g. "10SM", "5SM"
+    const wholeM = tok.match(/^(\d+)SM$/);
+    if (wholeM) {
+      const n = parseInt(wholeM[1], 10);
+      if (n >= 10) {
+        out.push({ text: `${String(n).slice(0, 1)} SM`, category: 'truncate_first_digit' });
+      }
+      out.push({ text: `${n} km`, category: 'wrong_unit_km' });
+      out.push({ text: `${n} NM`, category: 'wrong_unit_nm' });
+      return this._dedup(out);
+    }
+
+    // Fraction form e.g. "1/4SM"
+    const fracM = tok.match(/^(\d)\/(\d)SM$/);
+    if (fracM) {
+      const num = parseInt(fracM[1], 10);
+      const den = parseInt(fracM[2], 10);
+      out.push({ text: `${num} SM`, category: 'drop_fraction' });
+      out.push({ text: `${num}/${den} km`, category: 'wrong_unit_km' });
+      out.push({ text: `${num}/${den} ft`, category: 'treat_as_sky_height' });
+      // wrong_fraction_parse: invert the fraction
+      out.push({ text: `${den}/${num} SM`, category: 'wrong_phenomenon' });
+      return this._dedup(out);
+    }
+
+    return out;
+  },
+
+  // ── Sky ──────────────────────────────────────────────────────────────────
+
+  _distractSky(skyList) {
+    const out = [];
+    skyList.forEach((entry, idx) => {
+      const tok = entry.token;
+      if (tok === 'CLR' || tok === 'SKC') {
+        out.push({ text: 'Few at 5,000 ft', category: 'wrong_clear' });
+        out.push({ text: 'Scattered at 12,000 ft', category: 'wrong_clear' });
+        return;
+      }
+      const m = tok.match(/^(FEW|SCT|BKN|OVC)(\d{3})(CB|TCU)?$/);
+      if (!m) return;
+      const cover = m[1];
+      const altHundreds = parseInt(m[2], 10);
+      const suffix = m[3];
+      const cw = { FEW: 'Few', SCT: 'Scattered', BKN: 'Broken', OVC: 'Overcast' };
+      const altFt = altHundreds * 100;
+      const cbStr = suffix === 'CB' ? ' with cumulonimbus'
+        : suffix === 'TCU' ? ' (towering cumulus)' : '';
+
+      // No height multiplication — raw altitude digits used as feet
+      out.push({ text: `${cw[cover]} at ${altHundreds} ft${cbStr}`, category: 'no_height_multiplication' });
+      // Multiply by 10 only
+      out.push({ text: `${cw[cover]} at ${altHundreds * 10} ft${cbStr}`, category: 'multiply_by_10_only' });
+      // Multiply by 1000
+      out.push({ text: `${cw[cover]} at ${(altHundreds * 1000).toLocaleString()} ft${cbStr}`, category: 'multiply_by_1000' });
+      // Wrong layer type at the correct altitude
+      const wrongCover = { FEW: 'SCT', SCT: 'BKN', BKN: 'OVC', OVC: 'BKN' }[cover];
+      out.push({ text: `${cw[wrongCover]} at ${altFt.toLocaleString()} ft${cbStr}`, category: 'wrong_layer_type' });
+      // Cross-layer altitude (from another layer in the same METAR)
+      if (skyList.length > 1) {
+        for (let j = 0; j < skyList.length; j++) {
+          if (j === idx) continue;
+          const om = skyList[j].token.match(/^(FEW|SCT|BKN|OVC)(\d{3})/);
+          if (om) {
+            const otherFt = parseInt(om[2], 10) * 100;
+            out.push({ text: `${cw[cover]} at ${otherFt.toLocaleString()} ft${cbStr}`, category: 'cross_layer_swap' });
+          }
+        }
+      }
+    });
+    return this._dedup(out);
+  },
+
+  // ── Weather ──────────────────────────────────────────────────────────────
+
+  _distractWeather(wxList) {
+    const out = [];
+    wxList.forEach(entry => {
+      const tok = entry.token;
+
+      if (tok === 'BR') {
+        out.push({ text: 'Fog', category: 'wrong_phenomenon' });
+        out.push({ text: 'Light drizzle', category: 'wrong_phenomenon' });
+        out.push({ text: 'Haze', category: 'wrong_phenomenon' });
+        return;
+      }
+      if (tok === 'HZ') {
+        out.push({ text: 'Mist', category: 'wrong_phenomenon' });
+        out.push({ text: 'Smoke', category: 'wrong_phenomenon' });
+        return;
+      }
+      if (tok === 'FG') {
+        out.push({ text: 'Mist', category: 'wrong_phenomenon' });
+        out.push({ text: 'Freezing fog', category: 'temp_confusion' });
+        return;
+      }
+      if (tok === 'FZFG') {
+        out.push({ text: 'Fog', category: 'strip_freezing' });
+        out.push({ text: 'Freezing rain', category: 'wrong_phenomenon' });
+        return;
+      }
+
+      // Intensity-prefixed phenomena: "-RA", "+RA", "RA", "-TSRA", etc.
+      const intensityM = tok.match(/^([-+])?(.+)$/);
+      const prefix = intensityM[1] || '';
+      const rest = intensityM[2];
+
+      if (prefix) {
+        // Strip intensity (- or +) → moderate
+        out.push({ text: this._weatherValue(rest), category: 'strip_intensity' });
+        // Wrong intensity (flip - and +)
+        const opp = prefix === '-' ? '+' : '-';
+        out.push({ text: this._weatherValue(opp + rest), category: 'wrong_intensity' });
+      } else if (!rest.startsWith('FZ')) {
+        // No prefix means moderate — distractors: light or heavy
+        out.push({ text: this._weatherValue('-' + rest), category: 'wrong_intensity' });
+        out.push({ text: this._weatherValue('+' + rest), category: 'wrong_intensity' });
+      }
+
+      // TSRA → strip TS → "moderate rain"; or strip RA → "thunderstorm"
+      if (rest === 'TSRA') {
+        out.push({ text: 'Moderate rain', category: 'strip_descriptor' });
+        out.push({ text: 'Thunderstorm', category: 'strip_phenomenon' });
+      }
+      // FZRA → strip FZ → "moderate rain"; wrong precip → ice pellets
+      if (rest === 'FZRA') {
+        out.push({ text: 'Moderate rain', category: 'strip_freezing' });
+        out.push({ text: 'Ice pellets', category: 'wrong_phenomenon' });
+      }
+      // SN family → wrong phenomenon (PL, hail-style)
+      if (rest === 'SN' || tok === '-SN' || tok === '+SN') {
+        out.push({ text: 'Ice pellets', category: 'wrong_phenomenon' });
+        out.push({ text: 'Light freezing rain', category: 'wrong_phenomenon' });
+      }
+      // PL → wrong phenomenon
+      if (tok === 'PL') {
+        out.push({ text: 'Light snow', category: 'wrong_phenomenon' });
+        out.push({ text: 'Hail', category: 'wrong_phenomenon' });
+      }
+    });
+    return this._dedup(out);
+  },
+
+  // ── Temperature / Dewpoint ──────────────────────────────────────────────
+
+  _distractTemp(field, partner, isDewpoint) {
+    const tok = field.token;
+    const out = [];
+    const isM = tok.startsWith('M');
+    const num = parseInt(isM ? tok.slice(1) : tok, 10);
+    const c = isM ? -num : num;
+
+    if (isM) {
+      // Missed minus sign — sub-zero read as positive
+      out.push({ text: `${num} °C`, category: 'missed_m_sign' });
+      // Treated digits as tens (M05 → -50)
+      if (num < 10) {
+        out.push({ text: `${-num * 10} °C`, category: 'treated_as_tens' });
+      }
+    } else {
+      // Added a minus sign that isn't there
+      if (num > 0) {
+        out.push({ text: `-${num} °C`, category: 'added_m_sign' });
+      }
+    }
+
+    // Always-available: wrong-unit Fahrenheit reading. Same numeric value,
+    // wrong unit. Works at every temperature including 0 °C / 0 °C
+    // (saturation, where most other distractors collapse).
+    out.push({ text: `${c} °F`, category: 'wrong_unit_f' });
+
+    // Swap with partner field
+    if (partner && partner.value !== field.value) {
+      out.push({ text: partner.value, category: 'swap_t_d' });
+    }
+
+    return this._dedup(out);
+  },
+
+  // ── Altimeter ────────────────────────────────────────────────────────────
+
+  _distractAltimeter(field) {
+    const tok = field.token;            // "A2990"
+    const n = parseInt(tok.slice(1), 10); // 2990
+    const inHg = n / 100;
+    const out = [];
+
+    out.push({ text: `${n} inHg`, category: 'no_decimal' });
+    out.push({ text: `${(n / 10).toFixed(1)} inHg`, category: 'decimal_wrong_place' });
+    out.push({ text: `${(n / 1000).toFixed(3)} inHg`, category: 'decimal_wrong_place' });
+    out.push({ text: tok, category: 'raw_token' });
+    out.push({ text: `${inHg.toFixed(2)} hPa`, category: 'as_hpa' });
+
+    return this._dedup(out);
+  },
+
+  // ── Trap chips (global; Advanced only) ──────────────────────────────────
+
+  _distractTraps(fields) {
+    // A pool of plausible-looking values that don't appear in this METAR.
+    // Filtered against the question's correct values below so we never
+    // accidentally surface a "trap" that's actually correct for some field.
+    const pool = [
+      'Variable at 3 kt', 'Calm', '180° at 5 kt', '270° at 12 kt',
+      '6 SM', '1/2 SM', '7 SM',
+      'Sky clear', 'Few at 8,000 ft', 'Scattered at 12,000 ft', 'Broken at 4,500 ft',
+      'Light rain', 'Moderate snow', 'Mist', 'Haze', 'Light drizzle',
+      '5 °C', '-3 °C', '15 °C', '0 °C',
+      '29.92 inHg', '30.05 inHg'
+    ];
+
+    // Collect every correct value for this question to filter against
+    const correctSet = new Set();
+    [fields.wind, fields.visibility, fields.temperature, fields.dewpoint, fields.altimeter]
+      .forEach(f => correctSet.add(f.value));
+    fields.sky.forEach(s => correctSet.add(s.value));
+    fields.weather.forEach(w => correctSet.add(w.value));
+
+    const filtered = pool.filter(t => !correctSet.has(t));
+    // Shuffle and take 4-6
+    const shuffled = filtered.slice().sort(() => Math.random() - 0.5);
+    const n = this._rollInt(4, 6);
+    return shuffled.slice(0, n).map(text => ({ text, category: 'trap' }));
+  },
+
+  // Remove duplicate distractors (same text) — different categories may
+  // converge on the same text for some inputs (e.g., 220° at 8 kt yields
+  // "22° at 8 kt" via both truncate_direction and drop_trailing_zero).
+  _dedup(arr) {
+    const seen = new Set();
+    return arr.filter(d => {
+      if (seen.has(d.text)) return false;
+      seen.add(d.text);
+      return true;
+    });
   }
 };
