@@ -126,6 +126,12 @@ const Diagrams = {
         title: '🌬️ Surface Wind Forces — Friction at Work',
         selfTitled: true,
         svgContent: this.surfaceWindForcesSVG(),
+      },
+      thunderstorm_lifecycle: {
+        // Module renders its own header + FAA attribution strip.
+        title: '⛈️ Single-Cell Thunderstorm Lifecycle',
+        selfTitled: true,
+        svgContent: this.tsLifecycleSVG(),
       }
     };
     const cfg = configs[key];
@@ -1677,6 +1683,542 @@ const Diagrams = {
     document.getElementById('org-text').textContent = d.text;
   },
 
+  // M6 §s6_2 — bespoke single-cell thunderstorm lifecycle module (replaces
+  // FAA Fig 22-2 PROCESS_DIAGRAMS carousel). Live cross-section morphs one
+  // cell through Towering Cumulus → Mature → Dissipating across 90 minutes
+  // (30 min/stage). Play/pause + scrubber + trigger selector (sun / front /
+  // mountain) set at T+0. Stage transition banners fire at the 30 and 60
+  // minute boundaries. Cloud SVG paths are hand-authored cauliflower
+  // silhouettes (single closed paths with cubic-bezier bumps of varying
+  // size — not stacked uniform ellipses) with bold #0C1B33 outlines and
+  // gradient fills, matching the cel-shaded FAA reference style. Stage 1's
+  // towering-cumulus path is shared verbatim with the ingredients module's
+  // success-state result-panel cloud (Diagrams.tsTowCumulusPath) — visual
+  // continuity across the two M6 modules is required.
+  tsLifecycleSVG() { return this.renderTsLifecycleModule(); },
+
+  // Shared towering-cumulus silhouette path. Used by stage 1 of the
+  // lifecycle module AND the all-three-on success state of the ingredients
+  // module. Returns SVG path 'd' attribute for a cauliflower-edged cumulus
+  // ~140px wide × ~210px tall, base centered at (cx, baseY) with the cloud
+  // billowing upward to (cx, baseY-210). Bump sizes vary on purpose to
+  // avoid the stacked-ellipse marshmallow look.
+  tsTowCumulusPath(cx, baseY) {
+    const x = cx, y = baseY;
+    // Wide bumps with narrow-range neck values (x±70..78) so the cauliflower
+    // edges merge into a continuous billowing silhouette rather than stacked
+    // discrete lobes. Bump control points pull to x±94..104 for visible
+    // bulges. Slight left/right asymmetry keeps it organic.
+    return [
+      // Base: slightly undulating
+      `M ${x-68} ${y-2}`,
+      `L ${x-30} ${y}`, `L ${x+8} ${y-1}`, `L ${x+38} ${y}`, `L ${x+68} ${y-2}`,
+      // Right side: 5 wide cauliflower bumps going UP
+      `C ${x+96} ${y-8}, ${x+100} ${y-34}, ${x+78} ${y-46}`,
+      `C ${x+98} ${y-58}, ${x+104} ${y-86}, ${x+76} ${y-98}`,
+      `C ${x+96} ${y-110}, ${x+98} ${y-138}, ${x+72} ${y-150}`,
+      `C ${x+90} ${y-164}, ${x+92} ${y-186}, ${x+66} ${y-196}`,
+      // Top: 3 cauliflower peaks (highest in middle)
+      `C ${x+76} ${y-214}, ${x+50} ${y-220}, ${x+30} ${y-208}`,    // top-right peak
+      `C ${x+22} ${y-228}, ${x-8} ${y-230}, ${x-22} ${y-214}`,     // center peak (highest)
+      `C ${x-36} ${y-222}, ${x-62} ${y-218}, ${x-58} ${y-200}`,    // top-left peak
+      // Left side: 4 wide cauliflower bumps going DOWN (asymmetric vs right)
+      `C ${x-86} ${y-188}, ${x-92} ${y-164}, ${x-72} ${y-148}`,
+      `C ${x-96} ${y-138}, ${x-100} ${y-110}, ${x-78} ${y-98}`,
+      `C ${x-104} ${y-86}, ${x-100} ${y-58}, ${x-78} ${y-46}`,
+      `C ${x-100} ${y-34}, ${x-96} ${y-8}, ${x-68} ${y-2}`,
+      `Z`
+    ].join(' ');
+  },
+
+  // Mature stage: tall column from y=500 (10k ft) up through the troposphere,
+  // with a CLEARLY DISTINCT flat-bottomed anvil flaring outward at the top.
+  // Single closed silhouette path so the column-and-anvil look like one cloud
+  // body. Anvil bottom is flat at y=200 (~32k ft) and the top peaks around
+  // y=140 (~38k ft); column tucks in slightly below the anvil.
+  tsMatureCloudPath(cx) {
+    const x = cx;
+    const yb = 500;  // column base (10,000 ft)
+    // Necks vary between x+70..x+78 (narrow range to keep silhouette continuous)
+    // and bumps pull control points to x+90..x+102 for pronounced cauliflower
+    // edges. Asymmetry between right and left sides keeps it from looking
+    // mirrored.
+    return [
+      `M ${x-60} ${yb}`,
+      `L ${x-22} ${yb-1}`, `L ${x+22} ${yb}`, `L ${x+60} ${yb-1}`,
+      // Right column: 6 cauliflower bumps merging into a wavy edge
+      `C ${x+90} ${yb-8}, ${x+96} ${yb-34}, ${x+74} ${yb-46}`,
+      `C ${x+96} ${yb-58}, ${x+102} ${yb-86}, ${x+76} ${yb-98}`,
+      `C ${x+98} ${yb-110}, ${x+98} ${yb-138}, ${x+72} ${yb-150}`,
+      `C ${x+92} ${yb-164}, ${x+96} ${yb-188}, ${x+74} ${yb-202}`,
+      `C ${x+92} ${yb-218}, ${x+90} ${yb-244}, ${x+70} ${yb-258}`,
+      `C ${x+86} ${yb-274}, ${x+82} ${yb-296}, ${x+72} ${yb-302}`,
+      // Anvil right wing — flat-ish bottom flares far out, top rises and curves over
+      `L ${x+200} ${yb-298}`,                                            // flat bottom flares right
+      `C ${x+248} ${yb-300}, ${x+264} ${yb-312}, ${x+254} ${yb-326}`,    // anvil right tip rises
+      `C ${x+248} ${yb-344}, ${x+208} ${yb-356}, ${x+174} ${yb-346}`,    // top right peak
+      `C ${x+144} ${yb-360}, ${x+106} ${yb-354}, ${x+78} ${yb-348}`,
+      `C ${x+44} ${yb-362}, ${x+10} ${yb-358}, ${x-12} ${yb-348}`,       // top center peak
+      `C ${x-46} ${yb-358}, ${x-84} ${yb-352}, ${x-104} ${yb-346}`,
+      `C ${x-144} ${yb-358}, ${x-184} ${yb-352}, ${x-204} ${yb-338}`,
+      `C ${x-244} ${yb-338}, ${x-260} ${yb-322}, ${x-248} ${yb-312}`,    // anvil left tip
+      `C ${x-258} ${yb-302}, ${x-244} ${yb-298}, ${x-200} ${yb-298}`,    // back to flat bottom
+      `L ${x-72} ${yb-302}`,
+      // Left column bumps going down (slight asymmetry vs right)
+      `C ${x-84} ${yb-296}, ${x-88} ${yb-274}, ${x-72} ${yb-258}`,
+      `C ${x-92} ${yb-244}, ${x-94} ${yb-218}, ${x-74} ${yb-202}`,
+      `C ${x-96} ${yb-188}, ${x-94} ${yb-164}, ${x-72} ${yb-150}`,
+      `C ${x-100} ${yb-138}, ${x-100} ${yb-110}, ${x-76} ${yb-98}`,
+      `C ${x-100} ${yb-86}, ${x-94} ${yb-58}, ${x-74} ${yb-46}`,
+      `C ${x-94} ${yb-34}, ${x-92} ${yb-8}, ${x-60} ${yb-1}`,
+      `Z`
+    ].join(' ');
+  },
+
+  // Dissipating stage: a wider, spread-out anvil with a thinned, fragmented
+  // column underneath. Single closed silhouette.
+  tsDissipatingCloudPath(cx) {
+    const x = cx;
+    return [
+      // Wispy base around y=440 (~14k ft) — column has lifted off the ground
+      `M ${x-40} 440`,
+      `L ${x-12} 442`, `L ${x+18} 440`, `L ${x+40} 442`,
+      // Right side thinning column going up
+      `C ${x+62} 432, ${x+66} 408, ${x+50} 396`,
+      `C ${x+74} 380, ${x+72} 352, ${x+54} 336`,
+      `C ${x+78} 318, ${x+76} 292, ${x+58} 276`,
+      `C ${x+82} 256, ${x+78} 230, ${x+58} 218`,
+      // Anvil right wing — much wider than mature, flat bottom flares far
+      `L ${x+260} 214`,
+      `C ${x+320} 220, ${x+340} 210, ${x+332} 198`,
+      // Anvil top: feathery, multiple wispy peaks
+      `C ${x+320} 178, ${x+280} 174, ${x+250} 184`,
+      `C ${x+220} 168, ${x+180} 174, ${x+150} 188`,
+      `C ${x+120} 174, ${x+80} 170, ${x+50} 184`,
+      `C ${x+20} 168, ${x-20} 170, ${x-50} 184`,
+      `C ${x-80} 170, ${x-120} 174, ${x-150} 188`,
+      `C ${x-180} 174, ${x-220} 170, ${x-250} 184`,
+      `C ${x-280} 174, ${x-320} 178, ${x-332} 198`,
+      `C ${x-340} 210, ${x-320} 220, ${x-260} 214`,
+      // Back to column left
+      `L ${x-58} 218`,
+      `C ${x-78} 230, ${x-82} 256, ${x-58} 276`,
+      `C ${x-76} 292, ${x-78} 318, ${x-54} 336`,
+      `C ${x-72} 352, ${x-74} 380, ${x-50} 396`,
+      `C ${x-66} 408, ${x-62} 432, ${x-40} 440`,
+      `Z`
+    ].join(' ');
+  },
+
+  renderTsLifecycleModule() {
+    // Build cloud paths once. cx=380 is the center column on the 760-wide canvas.
+    const towCumulus = this.tsTowCumulusPath(380, 570);
+    const matureCloud = this.tsMatureCloudPath(380);
+    const dissipatingCloud = this.tsDissipatingCloudPath(380);
+
+    return `
+<div class="tslc-module" id="tslcModule" role="region" aria-label="Single-cell thunderstorm lifecycle teaching figure">
+  <header class="tslc-module__header">
+    <h2 class="tslc-module__title">Single-Cell Thunderstorm Lifecycle</h2>
+  </header>
+  <div class="tslc-module__attr">FAA-H-8083-28B · Chapter 22 — Air-mass Thunderstorm Lifecycle</div>
+
+  <div class="tslc-figure-wrap">
+    <div class="tslc-scene" id="tslcScene">
+      <div class="tslc-hud" aria-live="polite">
+        <div class="tslc-hud__time" id="tslcHudTime">T+00 min</div>
+        <div class="tslc-hud__stage" id="tslcHudStage">Towering Cumulus</div>
+      </div>
+      <div class="tslc-banner" id="tslcBanner" role="status" aria-live="polite">
+        <span id="tslcBannerText"></span>
+        <span class="tslc-banner__cite" id="tslcBannerCite"></span>
+      </div>
+
+      <svg viewBox="0 0 760 720" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Cross-section of a single-cell thunderstorm" id="tslcSvg">
+        <defs>
+          <marker id="tslcArrowUp" viewBox="0 0 10 10" refX="5" refY="2" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 1 9 L 5 1 L 9 9 Z" fill="#F59E0B"/>
+          </marker>
+          <marker id="tslcArrowDown" viewBox="0 0 10 10" refX="5" refY="2" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 1 9 L 5 1 L 9 9 Z" fill="#F59E0B"/>
+          </marker>
+          <marker id="tslcArrowAnvil" viewBox="0 0 10 10" refX="5" refY="2" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 1 9 L 5 1 L 9 9 Z" fill="#FFFFFF"/>
+          </marker>
+          <linearGradient id="tslcSky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0C1B33"/>
+            <stop offset="55%" stop-color="#3a6db0"/>
+            <stop offset="92%" stop-color="#87bce8"/>
+            <stop offset="100%" stop-color="#bfdcef"/>
+          </linearGradient>
+          <linearGradient id="tslcCloud" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#FFFFFF"/>
+            <stop offset="55%" stop-color="#F1F5FB"/>
+            <stop offset="100%" stop-color="#C4D2E2"/>
+          </linearGradient>
+          <linearGradient id="tslcAnvilFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#F8FBFF"/>
+            <stop offset="100%" stop-color="#D6DEE9"/>
+          </linearGradient>
+          <linearGradient id="tslcShaft" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#9AAECB" stop-opacity="0.15"/>
+            <stop offset="60%" stop-color="#6E84A3" stop-opacity="0.55"/>
+            <stop offset="100%" stop-color="#5A6E8C" stop-opacity="0.7"/>
+          </linearGradient>
+          <linearGradient id="tslcGround" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#5fa84e"/>
+            <stop offset="100%" stop-color="#3f7a35"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Sky gradient -->
+        <rect x="0" y="0" width="760" height="640" fill="url(#tslcSky)"/>
+
+        <!-- Ground -->
+        <rect x="0" y="640" width="760" height="80" fill="url(#tslcGround)"/>
+        <path d="M 0 640 Q 60 634, 120 640 T 240 640 T 360 640 T 480 640 T 600 640 T 760 640 L 760 644 L 0 644 Z" fill="#4d8a3f" opacity="0.55"/>
+
+        <!-- Height grid -->
+        <g>
+          <line class="tslc-grid-line" x1="96"  y1="80"  x2="672" y2="80"/>
+          <line class="tslc-grid-line" x1="96"  y1="220" x2="672" y2="220"/>
+          <line class="tslc-grid-line" x1="96"  y1="360" x2="672" y2="360"/>
+          <line class="tslc-grid-line" x1="96"  y1="500" x2="672" y2="500"/>
+          <text class="tslc-grid-label" x="92"  y="84"  text-anchor="end">40,000 ft.</text>
+          <text class="tslc-grid-label" x="92"  y="224" text-anchor="end">30,000 ft.</text>
+          <text class="tslc-grid-label" x="92"  y="364" text-anchor="end">20,000 ft.</text>
+          <text class="tslc-grid-label" x="92"  y="504" text-anchor="end">10,000 ft.</text>
+          <text class="tslc-grid-label" x="676" y="84"  text-anchor="start">12.2 km</text>
+          <text class="tslc-grid-label" x="676" y="224" text-anchor="start">9.1 km</text>
+          <text class="tslc-grid-label" x="676" y="364" text-anchor="start">6.1 km</text>
+          <text class="tslc-grid-label" x="676" y="504" text-anchor="start">3.0 km</text>
+        </g>
+
+        <!-- Freezing level -->
+        <g>
+          <path class="tslc-freeze-line" d="M 96 504 Q 380 510, 672 504"/>
+          <text class="tslc-freeze-label" x="112" y="498">32°F</text>
+          <text class="tslc-freeze-label" x="656" y="498" text-anchor="end">0°C</text>
+        </g>
+
+        <!-- ===== STAGE 1: TOWERING CUMULUS ===== -->
+        <g class="tslc-stage-group" id="tslcStage1" opacity="1">
+          <path d="${towCumulus}" fill="url(#tslcCloud)" stroke="#0C1B33" stroke-width="2.5" stroke-linejoin="round"/>
+          <!-- 3 updraft arrows entering base -->
+          <path class="tslc-arrow-line tslc-arrow-up" d="M 320 632 L 320 568" marker-end="url(#tslcArrowUp)"/>
+          <path class="tslc-arrow-line tslc-arrow-up" d="M 380 632 L 380 552" marker-end="url(#tslcArrowUp)"/>
+          <path class="tslc-arrow-line tslc-arrow-up" d="M 440 632 L 440 568" marker-end="url(#tslcArrowUp)"/>
+        </g>
+
+        <!-- ===== STAGE 2: MATURE ===== -->
+        <g class="tslc-stage-group" id="tslcStage2" opacity="0">
+          <!-- Precipitation shaft on right (trailing) edge of cell — drawn BEHIND cloud body -->
+          <g class="tslc-precip-shaft">
+            <path d="M 410 500 Q 432 560, 446 640 L 366 640 Q 380 560, 386 500 Z" fill="url(#tslcShaft)"/>
+            <g stroke="#5A6E8C" stroke-width="1.4" opacity="0.55" fill="none" stroke-linecap="round">
+              <path d="M 388 520 L 392 638"/>
+              <path d="M 400 510 L 408 638"/>
+              <path d="M 415 530 L 422 638"/>
+              <path d="M 428 540 L 436 638"/>
+            </g>
+          </g>
+          <!-- Lightning bolt -->
+          <path class="tslc-lightning" d="M 396 580 L 386 604 L 394 604 L 386 622 L 408 596 L 398 596 L 408 580 Z"/>
+          <!-- Mature cloud silhouette: column + flat-bottomed anvil -->
+          <path d="${matureCloud}" fill="url(#tslcCloud)" stroke="#0C1B33" stroke-width="2.5" stroke-linejoin="round"/>
+          <!-- Anvil overlay: flat-bottom suggestion + ice-crystal wisps on top -->
+          <g opacity="0.35">
+            <path d="M 180 198 Q 220 196, 260 200 T 380 200 T 500 200 T 580 198" stroke="#0C1B33" stroke-width="1" fill="none"/>
+            <path d="M 220 178 Q 280 174, 340 176 T 460 176 T 540 178" stroke="#94A3B8" stroke-width="1" fill="none" stroke-dasharray="4 4"/>
+          </g>
+          <!-- Updraft arrows on left (leading edge) -->
+          <path class="tslc-arrow-line tslc-arrow-up" d="M 314 632 L 326 234" marker-end="url(#tslcArrowUp)"/>
+          <path class="tslc-arrow-line tslc-arrow-up" d="M 360 632 L 360 210" marker-end="url(#tslcArrowUp)"/>
+          <!-- Downdraft arrows in shaft (right) -->
+          <path class="tslc-arrow-line tslc-arrow-down" d="M 410 250 L 410 632" marker-end="url(#tslcArrowDown)"/>
+          <path class="tslc-arrow-line tslc-arrow-down" d="M 440 290 L 440 632" marker-end="url(#tslcArrowDown)"/>
+          <!-- Anvil spread arrows -->
+          <path class="tslc-arrow-line tslc-arrow-anvil" d="M 360 175 L 232 175" marker-end="url(#tslcArrowAnvil)"/>
+          <path class="tslc-arrow-line tslc-arrow-anvil" d="M 400 175 L 528 175" marker-end="url(#tslcArrowAnvil)"/>
+        </g>
+
+        <!-- ===== STAGE 3: DISSIPATING ===== -->
+        <g class="tslc-stage-group" id="tslcStage3" opacity="0">
+          <!-- Light residual rain shaft -->
+          <g class="tslc-precip-shaft" opacity="0.45">
+            <path d="M 320 360 Q 340 500, 380 640 L 460 640 Q 470 500, 460 360 Z" fill="url(#tslcShaft)"/>
+          </g>
+          <!-- Dissipating silhouette: spread anvil + thinning column -->
+          <path d="${dissipatingCloud}" fill="url(#tslcAnvilFill)" stroke="#0C1B33" stroke-width="2.5" stroke-linejoin="round"/>
+          <!-- Wispy ice-crystal trails on the underside -->
+          <g opacity="0.5">
+            <path d="M 80 220 Q 160 232, 240 222 T 400 222 T 560 222 T 700 220" stroke="#7d92ad" stroke-width="1.2" fill="none" stroke-dasharray="3 5"/>
+            <path d="M 120 240 Q 200 248, 280 238 T 440 238 T 600 238 T 680 240" stroke="#94A3B8" stroke-width="1" fill="none" stroke-dasharray="2 6"/>
+          </g>
+          <!-- Downdraft arrows throughout -->
+          <path class="tslc-arrow-line tslc-arrow-down" d="M 320 240 L 320 540" marker-end="url(#tslcArrowDown)"/>
+          <path class="tslc-arrow-line tslc-arrow-down" d="M 380 220 L 380 560" marker-end="url(#tslcArrowDown)"/>
+          <path class="tslc-arrow-line tslc-arrow-down" d="M 440 240 L 440 540" marker-end="url(#tslcArrowDown)"/>
+          <!-- Anvil thin spreading horizontal -->
+          <path class="tslc-arrow-line tslc-arrow-anvil" d="M 280 120 L 160 120" marker-end="url(#tslcArrowAnvil)" opacity="0.85"/>
+          <path class="tslc-arrow-line tslc-arrow-anvil" d="M 480 120 L 600 120" marker-end="url(#tslcArrowAnvil)" opacity="0.85"/>
+        </g>
+
+        <!-- Trigger icon (bottom-left, set at T+0) -->
+        <g id="tslcTriggerIcon" transform="translate(124, 600)" aria-hidden="true">
+          <circle cx="0" cy="0" r="22" fill="rgba(255,255,255,0.92)" stroke="#0C1B33" stroke-width="1.5"/>
+          <g id="tslcTriggerGlyph"></g>
+        </g>
+
+        <!-- Horizontal extent indicator -->
+        <g id="tslcExtent" transform="translate(0, 690)">
+          <line class="tslc-extent-arrow" id="tslcExtentLine" x1="320" y1="0" x2="440" y2="0" marker-start="url(#tslcArrowAnvil)" marker-end="url(#tslcArrowAnvil)"/>
+          <text class="tslc-extent-label" id="tslcExtentMain" x="380" y="-6" text-anchor="middle">3–5 mi</text>
+          <text class="tslc-extent-sub" id="tslcExtentSub" x="380" y="14" text-anchor="middle">5–8 km</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="tslc-controls">
+    <div class="tslc-controls__row" role="group" aria-label="Playback">
+      <button class="tslc-btn tslc-btn--play" id="tslcPlayBtn" aria-label="Play">
+        <span id="tslcPlayIcon">▶</span>
+        <span id="tslcPlayLabel">Play</span>
+      </button>
+      <button class="tslc-btn tslc-btn--ghost" id="tslcRestartBtn" aria-label="Restart at T+0">↺ Restart</button>
+    </div>
+
+    <div class="tslc-scrub-row">
+      <input class="tslc-slider" id="tslcScrub" type="range" min="0" max="90" step="0.1" value="0" aria-label="Stage scrubber, minutes elapsed">
+      <div class="tslc-scrub-labels" aria-hidden="true">
+        <span>Towering Cumulus</span><span>Mature</span><span>Dissipating</span>
+      </div>
+    </div>
+
+    <div class="tslc-trigger" aria-label="Trigger selector">
+      <span class="tslc-trigger__label">Trigger:</span>
+      <div class="tslc-trigger__group" role="radiogroup" aria-label="What initiated the cell">
+        <button class="tslc-trigger__btn" data-trigger="sun" aria-pressed="true" aria-label="Daytime heating">☀</button>
+        <button class="tslc-trigger__btn" data-trigger="front" aria-pressed="false" aria-label="Frontal lifting">▲</button>
+        <button class="tslc-trigger__btn" data-trigger="mountain" aria-pressed="false" aria-label="Orographic lifting">⛰</button>
+      </div>
+      <span class="tslc-trigger__hint" id="tslcTriggerHint">Pause at T+0 to change</span>
+    </div>
+  </div>
+
+  <p class="tslc-caption" id="tslcCaption">
+    <span id="tslcCaptionText">Warm, moist air rises and condenses into a building cumulus tower. The cell is dominated by updrafts, and no precipitation has yet reached the surface.</span>
+    <span class="tslc-caption__cite" id="tslcCaptionCite">FAA-H-8083-28B · Chapter 22 — Towering Cumulus Stage</span>
+  </p>
+</div>`;
+  },
+
+  // Interactive init for the lifecycle module. Idempotent via dataset.tslcInit.
+  // Called by Screens._initDiagram for hotspot key 'thunderstorm_lifecycle'
+  // after innerHTML inject. Total: 90 min, 30 min/stage. Banners fire at the
+  // 30/60 min boundaries when playing forward across them.
+  _initTsLifecycleModule() {
+    const root = document.getElementById('tslcModule');
+    if (!root || root.dataset.tslcInit === 'done') return;
+    root.dataset.tslcInit = 'done';
+
+    const DURATION = 90;
+    const SECONDS_PER_MIN = 0.6; // ~54 sec wall clock total
+    const FADE_RAMP = 6;
+
+    const stage1 = root.querySelector('#tslcStage1');
+    const stage2 = root.querySelector('#tslcStage2');
+    const stage3 = root.querySelector('#tslcStage3');
+    const hudTime = root.querySelector('#tslcHudTime');
+    const hudStage = root.querySelector('#tslcHudStage');
+    const banner = root.querySelector('#tslcBanner');
+    const bannerText = root.querySelector('#tslcBannerText');
+    const bannerCite = root.querySelector('#tslcBannerCite');
+    const captionText = root.querySelector('#tslcCaptionText');
+    const captionCite = root.querySelector('#tslcCaptionCite');
+    const playBtn = root.querySelector('#tslcPlayBtn');
+    const playIcon = root.querySelector('#tslcPlayIcon');
+    const playLabel = root.querySelector('#tslcPlayLabel');
+    const restartBtn = root.querySelector('#tslcRestartBtn');
+    const scrub = root.querySelector('#tslcScrub');
+    const extentLine = root.querySelector('#tslcExtentLine');
+    const extentMain = root.querySelector('#tslcExtentMain');
+    const extentSub = root.querySelector('#tslcExtentSub');
+    const triggerBtns = root.querySelectorAll('.tslc-trigger__btn');
+    const triggerGlyph = root.querySelector('#tslcTriggerGlyph');
+    const triggerHint = root.querySelector('#tslcTriggerHint');
+
+    const state = { t: 0, playing: false, lastTick: 0, trigger: 'sun',
+                    bannerSeen: { mature: false, dissipate: false } };
+
+    const STAGES = {
+      cumulus: {
+        label: 'Towering Cumulus',
+        caption: 'Warm, moist air rises and condenses into a building cumulus tower. The cell is dominated by updrafts, and no precipitation has yet reached the surface.',
+        cite: 'FAA-H-8083-28B · Chapter 22 — Towering Cumulus Stage',
+        extent: { x1: 320, x2: 440, label: '3–5 mi', sub: '5–8 km' }
+      },
+      mature: {
+        label: 'Mature Stage',
+        caption: 'Updraft and downdraft now coexist. Precipitation reaches the surface, the anvil spreads aloft, and the cell is at peak intensity — the period of greatest hazard.',
+        cite: 'FAA-H-8083-28B · Chapter 22 — Mature Stage',
+        extent: { x1: 220, x2: 540, label: '5–10 mi', sub: '8–16 km' }
+      },
+      dissipating: {
+        label: 'Dissipating Stage',
+        caption: 'The downdraft has overwhelmed the updraft, cutting off the moisture supply. The cell is collapsing — the anvil spreads and thins as the cloud body subsides.',
+        cite: 'FAA-H-8083-28B · Chapter 22 — Dissipating Stage',
+        extent: { x1: 240, x2: 520, label: '5–7 mi', sub: '8–11 km' }
+      }
+    };
+
+    const TRIGGER_GLYPHS = {
+      sun:      `<g><circle cx="0" cy="0" r="7" fill="#F59E0B"/><g stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round"><line x1="0" y1="-12" x2="0" y2="-16"/><line x1="0" y1="12" x2="0" y2="16"/><line x1="-12" y1="0" x2="-16" y2="0"/><line x1="12" y1="0" x2="16" y2="0"/><line x1="-9" y1="-9" x2="-12" y2="-12"/><line x1="9" y1="-9" x2="12" y2="-12"/><line x1="-9" y1="9" x2="-12" y2="12"/><line x1="9" y1="9" x2="12" y2="12"/></g></g>`,
+      front:    `<g><path d="M -12 6 L 0 -10 L 12 6 Z" fill="#0284C7" stroke="#0C1B33" stroke-width="1.2" stroke-linejoin="round"/><path d="M -12 9 L 12 9" stroke="#0284C7" stroke-width="2.4" stroke-linecap="round"/></g>`,
+      mountain: `<g><path d="M -14 10 L -4 -6 L 2 2 L 8 -10 L 16 10 Z" fill="#475569" stroke="#0C1B33" stroke-width="1.2" stroke-linejoin="round"/><path d="M -7 -1 L -4 -6 L -1 -1 Z" fill="#ffffff"/><path d="M 5 -4 L 8 -10 L 11 -4 Z" fill="#ffffff"/></g>`
+    };
+
+    function setTrigger(name) {
+      state.trigger = name;
+      triggerGlyph.innerHTML = TRIGGER_GLYPHS[name] || TRIGGER_GLYPHS.sun;
+      triggerBtns.forEach(b => b.setAttribute('aria-pressed', b.getAttribute('data-trigger') === name ? 'true' : 'false'));
+    }
+
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+    function lerp(a, b, t) { return a + (b - a) * t; }
+    function smoothstep(a, b, x) {
+      if (b === a) return x >= b ? 1 : 0;
+      const t = clamp((x - a) / (b - a), 0, 1);
+      return t * t * (3 - 2 * t);
+    }
+
+    function interpolatedExtent(t) {
+      const c = STAGES.cumulus.extent, m = STAGES.mature.extent, d = STAGES.dissipating.extent;
+      if (t <= 30) {
+        const u = smoothstep(30 - FADE_RAMP, 30, t);
+        return { x1: lerp(c.x1, m.x1, u), x2: lerp(c.x2, m.x2, u),
+                 label: u < 0.5 ? c.label : m.label, sub: u < 0.5 ? c.sub : m.sub };
+      } else if (t <= 60) {
+        const u2 = smoothstep(60 - FADE_RAMP, 60, t);
+        return { x1: lerp(m.x1, d.x1, u2), x2: lerp(m.x2, d.x2, u2),
+                 label: u2 < 0.5 ? m.label : d.label, sub: u2 < 0.5 ? m.sub : d.sub };
+      }
+      return d;
+    }
+
+    function showBanner(msg, cite) {
+      bannerText.textContent = msg;
+      bannerCite.textContent = cite;
+      banner.classList.add('--show');
+      clearTimeout(banner._hideTimer);
+      banner._hideTimer = setTimeout(() => banner.classList.remove('--show'), 3000);
+    }
+
+    function render(t) {
+      state.t = clamp(t, 0, DURATION);
+      const minStr = (state.t < 10 ? '0' : '') + Math.floor(state.t);
+      hudTime.textContent = 'T+' + minStr + ' min';
+
+      let a1 = 1, a2 = 0, a3 = 0;
+      if (state.t < 30) {
+        const f12 = smoothstep(30 - FADE_RAMP, 30, state.t);
+        a1 = 1 - f12; a2 = f12;
+      } else if (state.t < 60) {
+        const f23 = smoothstep(60 - FADE_RAMP, 60, state.t);
+        a1 = 0; a2 = 1 - f23; a3 = f23;
+      } else {
+        a1 = 0; a2 = 0; a3 = 1;
+      }
+      stage1.setAttribute('opacity', a1.toFixed(3));
+      stage2.setAttribute('opacity', a2.toFixed(3));
+      stage3.setAttribute('opacity', a3.toFixed(3));
+
+      const current = state.t < 30 ? STAGES.cumulus : (state.t < 60 ? STAGES.mature : STAGES.dissipating);
+      hudStage.textContent = current.label;
+      captionText.textContent = current.caption;
+      captionCite.textContent = current.cite;
+
+      const ext = interpolatedExtent(state.t);
+      extentLine.setAttribute('x1', ext.x1);
+      extentLine.setAttribute('x2', ext.x2);
+      extentMain.textContent = ext.label;
+      extentSub.textContent = ext.sub;
+
+      if (state.playing && state.t >= 30 && state.t < 30.5 && !state.bannerSeen.mature) {
+        showBanner('Precipitation reaches the surface — mature stage begins', 'FAA-H-8083-28B · Chapter 22');
+        state.bannerSeen.mature = true;
+      }
+      if (state.playing && state.t >= 60 && state.t < 60.5 && !state.bannerSeen.dissipate) {
+        showBanner('Downdraft cuts off updraft — cell begins to collapse', 'FAA-H-8083-28B · Chapter 22');
+        state.bannerSeen.dissipate = true;
+      }
+
+      const canChange = !state.playing && state.t === 0;
+      triggerBtns.forEach(b => { b.disabled = !canChange; });
+      if (triggerHint) triggerHint.style.opacity = canChange ? '0' : '0.65';
+    }
+
+    function tick(now) {
+      if (!state.playing) return;
+      const dt = (now - state.lastTick) / 1000;
+      state.lastTick = now;
+      const advance = dt / SECONDS_PER_MIN;
+      let nt = state.t + advance;
+      if (nt >= DURATION) { nt = DURATION; render(nt); scrub.value = nt; pause(); return; }
+      render(nt);
+      scrub.value = nt;
+      requestAnimationFrame(tick);
+    }
+
+    function play() {
+      if (state.t >= DURATION) restart();
+      state.playing = true;
+      state.lastTick = performance.now();
+      playIcon.textContent = '❚❚';
+      playLabel.textContent = 'Pause';
+      playBtn.setAttribute('aria-label', 'Pause');
+      requestAnimationFrame(tick);
+      render(state.t);
+    }
+
+    function pause() {
+      state.playing = false;
+      playIcon.textContent = '▶';
+      playLabel.textContent = 'Play';
+      playBtn.setAttribute('aria-label', 'Play');
+      render(state.t);
+    }
+
+    function restart() {
+      state.bannerSeen.mature = false;
+      state.bannerSeen.dissipate = false;
+      banner.classList.remove('--show');
+      state.t = 0;
+      scrub.value = 0;
+      render(0);
+    }
+
+    playBtn.addEventListener('click', () => { state.playing ? pause() : play(); });
+    restartBtn.addEventListener('click', () => { pause(); restart(); });
+    scrub.addEventListener('input', () => {
+      pause();
+      const v = parseFloat(scrub.value);
+      if (v < 30) state.bannerSeen.mature = false;
+      if (v < 60) state.bannerSeen.dissipate = false;
+      render(v);
+    });
+    triggerBtns.forEach(b => {
+      b.addEventListener('click', () => {
+        if (state.playing || state.t !== 0) return;
+        setTrigger(b.getAttribute('data-trigger'));
+      });
+    });
+
+    setTrigger('sun');
+    render(0);
+  },
+
   // ===== ACT 2 DIAGRAMS =====
   // Pass 2c redraw: ONE unified triangle with three labeled sides instead of
   // three separate triangles. The original SVG implied the three ingredients
@@ -3091,31 +3633,14 @@ const Diagrams = {
       ]
     },
 
-    thunderstorm_lifecycle: {
-      title: 'Thunderstorm Cell Life Cycle',
-      steps: [
-        {
-          label: 'Step 1 — Three Required Ingredients',
-          description: 'Three ingredients must all be present simultaneously: (1) Water vapor — the fuel that powers latent heat release and storm growth, (2) Unstable air — the atmosphere must be conditionally unstable so a lifted parcel accelerates upward on its own, (3) A lifting mechanism — fronts, orographic lift, surface heating, or low-level convergence. Remove any one and no thunderstorm develops.',
-          svg: `<div style="background:#111827;text-align:center"><img src="img/awh/thunderstorm_lifecycle_01.png" alt="Figure 22-1. Necessary Ingredients for Thunderstorm Formation" style="width:100%;display:block;max-height:310px;object-fit:contain"></div>`
-        },
-        {
-          label: 'Step 2 — Stage 1: Towering Cumulus (Building Phase)',
-          description: 'A single powerful updraft lifts moisture to great heights — cloud tops may reach 20,000–40,000 ft. No precipitation reaches the surface yet: all precipitation is suspended in the updraft. The cloud is bright white and cauliflower-shaped. This stage lasts 10–20 minutes. Updraft speeds can exceed 3,000 ft/min — dangerous to fly near even before lightning begins.',
-          svg: `<div style="background:#111827"><img src="img/awh/thunderstorm_lifecycle_02.png" alt="Figure 22-2. Thunderstorm Cell Life Cycle" style="width:100%;display:block;max-height:310px;object-fit:contain"><div style="padding:5px 14px 6px;font-size:11px;font-weight:700;color:#38BDF8;font-family:var(--font-display);border-top:1px solid #1e3a5f">&#9658; TOWERING CUMULUS STAGE (left panel) — strong updraft only, cloud all white, no precipitation reaching the surface</div></div>`
-        },
-        {
-          label: 'Step 3 — Stage 2: Mature Stage (Most Hazardous)',
-          description: 'First precipitation reaching the surface marks the mature stage. Strong updrafts AND downdrafts coexist in the same cell. The anvil top forms at the tropopause. ALL thunderstorm hazards are now active: lightning, large hail, severe turbulence, structural icing, low-level wind shear, and microbursts. The FAA recommends avoiding by at least 20 nm.',
-          svg: `<div style="background:#111827"><img src="img/awh/thunderstorm_lifecycle_02.png" alt="Figure 22-2. Thunderstorm Cell Life Cycle" style="width:100%;display:block;max-height:310px;object-fit:contain"><div style="padding:5px 14px 6px;font-size:11px;font-weight:700;color:#38BDF8;font-family:var(--font-display);border-top:1px solid #1e3a5f">&#9658; MATURE STAGE (center panel) — updraft AND downdraft coexist, anvil forms, ALL hazards present simultaneously</div></div>`
-        },
-        {
-          label: 'Step 4 — Stage 3: Dissipating Stage',
-          description: 'The downdraft cuts off the inflow of warm moist air, starving the updraft. Precipitation weakens. The anvil top and cirrus remnant spread downwind. The cell may take 30–60 minutes to fully dissipate. New cells may be triggered along the cold outflow boundary — a dissipating storm can spawn new ones along its gust front.',
-          svg: `<div style="background:#111827"><img src="img/awh/thunderstorm_lifecycle_02.png" alt="Figure 22-2. Thunderstorm Cell Life Cycle" style="width:100%;display:block;max-height:310px;object-fit:contain"><div style="padding:5px 14px 6px;font-size:11px;font-weight:700;color:#38BDF8;font-family:var(--font-display);border-top:1px solid #1e3a5f">&#9658; DISSIPATING STAGE (right panel) — downdraft dominant, updraft cut off, precipitation weakening, anvil spreading</div></div>`
-        }
-      ]
-    },
+    // thunderstorm_lifecycle was removed in the M6 §s6_2 redesign — that key
+    // now routes to Diagrams.tsLifecycleSVG() / _initTsLifecycleModule() via
+    // renderHotspot() in Diagrams.render(). The two FAA images
+    // (img/awh/thunderstorm_lifecycle_01.png, _02.png) remain in sw.js
+    // APP_SHELL because they may still be referenced elsewhere (concept maps,
+    // FAA validation cross-refs); per the DA-module precedent they stay
+    // cached.
+
 
     // density_altitude was removed in the M2 §s2_1 redesign — that key now
     // routes to Diagrams.renderDaModule() / _initDaModule() via the
