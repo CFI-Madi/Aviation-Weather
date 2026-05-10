@@ -1472,7 +1472,12 @@ const Screens = {
 
   _mq: null,
 
-  // Difficulty picker (#/tools/metar_quiz with no segment).
+  // Difficulty picker / session entry — single dispatch point for all the
+  // METAR Quiz routes:
+  //   #/tools/metar_quiz                     → render picker
+  //   #/tools/metar_quiz/beginner            → start Beginner session
+  //   #/tools/metar_quiz/intermediate        → start Intermediate session
+  //   #/tools/metar_quiz/advanced            → start Advanced session
   // resumeMetarQuiz() sets _mqResumeIntent so the picker short-circuits and
   // renders the in-progress question instead of the difficulty cards.
   metarQuizPicker(params) {
@@ -1481,11 +1486,20 @@ const Screens = {
       this._renderMetarQuizQuestion();
       return;
     }
+    // Deep route: `#/tools/metar_quiz/<difficulty>` lands here with
+    // params.difficulty set. Dispatch to _startMetarQuiz which handles
+    // resume prompts when an in-progress session for the same difficulty
+    // already exists.
+    if (params && params.difficulty
+        && ['beginner','intermediate','advanced'].includes(params.difficulty)) {
+      this._startMetarQuiz(params.difficulty);
+      return;
+    }
     this._mq = null; // clear any stale session
 
     const card = (id, title, subtitle, descBullets) => `
       <button type="button" class="quiz-difficulty-card"
-          onclick="Screens._startMetarQuiz('${id}')"
+          onclick="Router.navigate('tool_detail',{toolId:'metar_quiz',difficulty:'${id}'})"
           aria-label="Start ${title} session">
         <div class="quiz-difficulty-card-title">
           <span aria-hidden="true">${id === 'beginner' ? '🌱' : id === 'intermediate' ? '🌤️' : '🚀'}</span>

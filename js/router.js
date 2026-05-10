@@ -24,7 +24,13 @@ const Router = {
       case 'case_studies': return '#/cases';
       case 'case_detail':  return params.caseId ? `#/case/${params.caseId}` : '#/cases';
       case 'tools':        return '#/tools';
-      case 'tool_detail':  return params.toolId ? `#/tools/${params.toolId}` : '#/tools';
+      // tool_detail accepts an optional second segment. Phase 2 uses it for
+      // METAR Quiz difficulty (e.g. #/tools/metar_quiz/beginner). Other
+      // screen-type tools may use it later for analogous deep-routing.
+      case 'tool_detail':
+        if (!params.toolId) return '#/tools';
+        if (params.difficulty) return `#/tools/${params.toolId}/${params.difficulty}`;
+        return `#/tools/${params.toolId}`;
       default:             return '#/dashboard';
     }
   },
@@ -41,9 +47,20 @@ const Router = {
     if (seg==='achievements') return {screen:'achievements',params:{}};
     if (seg==='cases')        return {screen:'case_studies',params:{}};
     if (seg==='tools') {
-      // /tools or /tools/<toolId>. Validate the toolId against the registry
-      // resolved at render time; an unknown id falls back to the landing.
-      if (p1) return {screen:'tool_detail',params:{toolId:p1}};
+      // /tools, /tools/<toolId>, or /tools/<toolId>/<arg>.
+      // Validate the toolId against the registry resolved at render time;
+      // an unknown id falls back to the landing.
+      if (p1) {
+        const params = { toolId: p1 };
+        // Second segment is currently used by METAR Quiz for difficulty
+        // (`#/tools/metar_quiz/beginner` etc.). Validate against the known
+        // set; unknown values just drop the param so the picker shows.
+        const arg = parts[2];
+        if (arg && p1 === 'metar_quiz' && ['beginner','intermediate','advanced'].includes(arg)) {
+          params.difficulty = arg;
+        }
+        return {screen:'tool_detail', params};
+      }
       return {screen:'tools',params:{}};
     }
     if (seg==='lesson') {
