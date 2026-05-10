@@ -1142,19 +1142,6 @@ const Screens = {
             </div>
           </div>
 
-          <!-- Live Weather card -->
-          <div class="card" style="padding:0;overflow:hidden;cursor:pointer" onclick="Router.navigate('metar_live')" role="button" tabindex="0" aria-label="Open Live Weather" onkeydown="if(event.key==='Enter'||event.key===' ')Router.navigate('metar_live')">
-            <div style="display:flex;align-items:center;gap:16px;padding:18px">
-              <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#DBEAFE,#93C5FD);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0">WX</div>
-              <div style="flex:1;min-width:0">
-                <div style="font-family:var(--font-display);font-weight:800;font-size:17px;color:var(--navy)">Live Weather</div>
-                <div style="font-size:13px;color:#64748B;margin-top:2px">METAR study guide and category review</div>
-                <div style="font-size:11px;color:#94A3B8;margin-top:4px">Open a stable study-only weather reference</div>
-              </div>
-              <div style="color:#CBD5E1;font-size:20px;flex-shrink:0">&gt;</div>
-            </div>
-          </div>
-
           <!-- Case Studies card -->
           <div class="card" style="padding:0;overflow:hidden;cursor:pointer" onclick="Router.navigate('case_studies')" role="button" tabindex="0" aria-label="Open Case Studies" onkeydown="if(event.key==='Enter'||event.key===' ')Router.navigate('case_studies')">
             <div style="display:flex;align-items:center;gap:16px;padding:18px">
@@ -1388,52 +1375,6 @@ const Screens = {
           <div style="font-size:12px;color:#94A3B8;margin-top:4px;line-height:1.4">${a.desc}</div>
           ${earned?`<div style="margin-top:8px;font-size:11px;font-weight:800;color:${a.color};text-transform:uppercase">Earned</div>`:''}
         </div>`;}).join('')}
-      </div>`;
-  },
-
-  // ============================================================
-  // LIVE METAR SCREEN
-  // ============================================================
-  metar_live() {
-    document.getElementById('metar_live-content').innerHTML = `
-      <div style="padding:20px 16px 100px">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
-          <button onclick="Router.navigate('more')" aria-label="Back to More" style="background:#F1F5F9;border:none;border-radius:12px;padding:8px 14px;cursor:pointer;font-family:var(--font-display);font-weight:700;color:#64748B">Back</button>
-          <div>
-            <h1 style="font-family:var(--font-display);font-weight:900;font-size:22px;color:var(--navy);margin:0">Live Weather</h1>
-            <p style="font-size:12px;color:#64748B;margin:2px 0 0">METAR study help and category review</p>
-          </div>
-        </div>
-        <div class="card" style="padding:18px;margin-bottom:16px">
-          <div style="font-family:var(--font-display);font-weight:900;font-size:16px;color:var(--navy);margin-bottom:8px">Live weather temporarily unavailable</div>
-          <div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:14px">We have paused live airport pulls while the weather feed is being cleaned up. You can still review METAR categories and jump into the decoder lesson below.</div>
-          <button onclick="Router.navigate('lesson',{moduleId:'m11'})" style="background:var(--navy);color:white;border:none;border-radius:12px;padding:10px 16px;font-family:var(--font-display);font-weight:800;font-size:14px;cursor:pointer">Open M11 METAR Practice</button>
-        </div>
-        <div class="card" style="padding:18px;margin-bottom:16px">
-          <div style="font-size:11px;color:#94A3B8;font-weight:800;text-transform:uppercase;margin-bottom:8px">Flight Categories</div>
-          <div style="display:grid;gap:10px">
-            ${[
-              ['VFR', '#10B981', 'Ceiling above 3,000 ft and visibility above 5 SM'],
-              ['MVFR', '#3B82F6', 'Ceiling 1,000-3,000 ft or visibility 3-5 SM'],
-              ['IFR', '#EF4444', 'Ceiling 500-1,000 ft or visibility 1-3 SM'],
-              ['LIFR', '#7C3AED', 'Ceiling below 500 ft or visibility below 1 SM']
-            ].map(([cat, color, detail]) => `
-              <div style="background:#F8FAFC;border-radius:14px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px">
-                <span style="min-width:52px;background:${color};color:white;border-radius:999px;padding:4px 10px;font-size:11px;font-weight:800;text-align:center">${cat}</span>
-                <div style="font-size:12px;color:#475569;line-height:1.5">${detail}</div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-        <div class="card" style="padding:18px">
-          <div style="font-size:11px;color:#94A3B8;font-weight:800;text-transform:uppercase;margin-bottom:8px">Study Flow</div>
-          <div style="display:grid;gap:8px;font-size:13px;color:#475569;line-height:1.6">
-            <div>1. Read wind first.</div>
-            <div>2. Check visibility and any obscurations.</div>
-            <div>3. Find the lowest broken, overcast, or vertical visibility layer.</div>
-            <div>4. Compare what you see to the category guide above.</div>
-          </div>
-        </div>
       </div>`;
   },
 

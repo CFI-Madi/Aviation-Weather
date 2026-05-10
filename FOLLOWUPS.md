@@ -40,4 +40,17 @@ no clean extraction was available at the time of the redraw. Low priority
 
 ---
 
+## Live AWC fetch — deferred to Study Tools Phase 4
+
+The "Live Weather" screen and More-tab card retired in the Study Tools
+Phase 1 redesign (commit chunk 6 of `feat/study-tools-phase1`). Live AWC
+airport-METAR fetching is planned for Phase 4 of the same redesign,
+integrated into the upcoming **METAR Quiz** and **TAF Quiz** tools at
+their higher difficulty levels (real airport data instead of synthetic
+generators). The Phase-1 stub copy ("Live weather temporarily
+unavailable") was a holding pattern; the feature returns under a quiz
+banner where it has a clearer pedagogical home.
+
+---
+
 (future entries land below this line)

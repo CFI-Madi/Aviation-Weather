@@ -24,7 +24,6 @@ const Router = {
       // replaced by Study Tools in the bottom nav. Direct #/more URLs still
       // resolve until Screens.more() is removed in the final cleanup chunk.
       case 'more':         return '#/more';
-      case 'metar_live':   return '#/metar';
       case 'achievements': return '#/achievements';
       case 'case_studies': return '#/cases';
       case 'case_detail':  return params.caseId ? `#/case/${params.caseId}` : '#/cases';
@@ -44,7 +43,6 @@ const Router = {
     if (seg==='checkride')    return {screen:'checkride',params:{}};
     if (seg==='logbook')      return {screen:'logbook',params:{}};
     if (seg==='more')         return {screen:'more',params:{}};
-    if (seg==='metar')        return {screen:'metar_live',params:{}};
     if (seg==='achievements') return {screen:'achievements',params:{}};
     if (seg==='cases')        return {screen:'case_studies',params:{}};
     if (seg==='tools') {
@@ -84,10 +82,10 @@ const Router = {
     // 'tool_detail' highlights the Study Tools tab. The other entries highlight
     // 'more' for now — they'll be remapped during the final cleanup chunk once
     // achievements/case_studies have settled into Logbook + Settings.
-    const secondary = ['achievements','case_studies','case_detail','metar_live','quiz','lesson','checkride_results','tool_detail'];
+    const secondary = ['achievements','case_studies','case_detail','quiz','lesson','checkride_results','tool_detail'];
     let navId = screen;
     if (screen === 'tool_detail') navId = 'tools';
-    else if (['achievements','case_studies','case_detail','metar_live','quiz','lesson','checkride_results'].includes(screen)) navId = 'more';
+    else if (['achievements','case_studies','case_detail','quiz','lesson','checkride_results'].includes(screen)) navId = 'more';
     const btn = document.getElementById(`nav-${navId}`);
     if (btn) { btn.classList.add('active'); btn.setAttribute('aria-current','page'); }
   },
