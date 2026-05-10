@@ -113,6 +113,79 @@ const GameEngine = {
     };
     this.save();
   },
+  // Returns an array of resumable activities sorted most-recent first.
+  // Phase 2 Chunk 6: dashboard shows a multi-row list when 2+ are present
+  // (the user-approved adjustment item 5).
+  // Each entry:
+  //   { type, title, subtitle, actionLabel, resumeAction, timestamp }
+  // resumeAction is a JS expression string evaluated by the dashboard
+  // onclick handler — `Router.navigate(...)` for module quiz / lesson,
+  // `Screens.resumeMetarQuiz()` for the METAR Quiz session.
+  getResumeTargets() {
+    const out = [];
+
+    // Module quiz mid-session (state.quizInProgress)
+    const qip = this.state.quizInProgress;
+    if (qip && qip.moduleId && Number.isInteger(qip.current) && qip.current > 0) {
+      const mod = (typeof MODULES !== 'undefined') ? MODULES.find(m => m.id === qip.moduleId) : null;
+      const total = mod && Array.isArray(mod.quiz) ? mod.quiz.filter(Boolean).length : 0;
+      if (mod && total > 0 && qip.current < total) {
+        out.push({
+          type: 'module_quiz',
+          title: `Resume ${mod.title} quiz`,
+          subtitle: `question ${qip.current + 1} of ${total}`,
+          actionLabel: 'Resume',
+          resumeAction: `Router.navigate('quiz',{moduleId:'${mod.id}'})`,
+          timestamp: qip.savedAt || 0
+        });
+      }
+    }
+
+    // METAR Quiz mid-session (state.metarQuizInProgress)
+    const mqip = this.state.metarQuizInProgress;
+    if (mqip && mqip.difficulty && Array.isArray(mqip.questions) && mqip.questions.length > 0) {
+      const total = mqip.questions.length;
+      const cur = Math.min(Math.max(0, mqip.current || 0), total - 1);
+      if (cur < total) {
+        const diffLabel = mqip.difficulty[0].toUpperCase() + mqip.difficulty.slice(1);
+        out.push({
+          type: 'metar_quiz',
+          title: 'Resume METAR Quiz',
+          subtitle: `${diffLabel}, ${cur + 1} of ${total}`,
+          actionLabel: 'Resume',
+          resumeAction: 'Screens.resumeMetarQuiz()',
+          timestamp: mqip.savedAt || 0
+        });
+      }
+    }
+
+    // Lesson resume from state.lastStudyTarget. Module quiz is captured by
+    // type:'quiz' and superseded by quizInProgress above when mid-session;
+    // here we only emit the lesson variant.
+    const ls = this.state.lastStudyTarget;
+    if (ls && ls.moduleId && ls.type !== 'quiz') {
+      const mod = (typeof MODULES !== 'undefined') ? MODULES.find(m => m.id === ls.moduleId) : null;
+      if (mod) {
+        const sectionIdx = Number.isInteger(ls.sectionIdx) ? ls.sectionIdx : 0;
+        const sectionTitle = mod.sections[sectionIdx] && mod.sections[sectionIdx].title
+          ? mod.sections[sectionIdx].title
+          : 'Lesson';
+        const ts = ls.savedAt ? new Date(ls.savedAt).getTime() : 0;
+        out.push({
+          type: 'lesson',
+          title: 'Resume lesson',
+          subtitle: `${mod.title} · ${sectionTitle}`,
+          actionLabel: 'Resume',
+          resumeAction: `Router.navigate('lesson',{moduleId:'${mod.id}'})`,
+          timestamp: ts
+        });
+      }
+    }
+
+    out.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    return out;
+  },
+
   getResumeTarget() {
     const target = this.state.lastStudyTarget;
     if (!target || !target.moduleId) return null;
@@ -454,11 +527,83 @@ const GameEngine = {
   },
   saveQuizProgress(data) {
     // data: { moduleId, current, score, wrongIds, answered, resolved }
-    this.state.quizInProgress = data;
+    // Stamp the save time so the dashboard Resume CTA can sort by recency
+    // (added in Phase 2 Chunk 6 alongside the parallel METAR-quiz save path).
+    this.state.quizInProgress = { ...data, savedAt: Date.now() };
     this.save();
   },
   clearQuizProgress() {
     this.state.quizInProgress = null;
+    this.save();
+  },
+
+  // ───── METAR Quiz persistence (Phase 2 Chunk 6) ─────
+  // Mid-session state lives in state.metarQuizInProgress with shape:
+  //   { difficulty, questions, current, savedAt }
+  // Resume drops the user at the start of `current` (no chip placements) —
+  // the question list is preserved so the same 8 METARs play out, and the
+  // score state on state.metarQuiz reflects everything submitted so far.
+  saveMetarQuizProgress(data) {
+    this.state.metarQuizInProgress = { ...data, savedAt: Date.now() };
+    this.save();
+  },
+  clearMetarQuizProgress() {
+    this.state.metarQuizInProgress = null;
+    this.save();
+  },
+
+  // Record one METAR quiz submit. Updates aggregate stats, awards XP
+  // (proportional partial credit), and triggers the achievements pass.
+  // Called from Screens._submitMetarQuiz once per question.
+  recordMetarQuizAttempt(difficulty, totalFields, correctFields) {
+    if (!this.state.metarQuiz) {
+      // Defensive: storage default merge guarantees this exists, but if a
+      // pre-Phase-2 load somehow skipped it, init now.
+      this.state.metarQuiz = {
+        beginner:     { attempts: 0, fullyCorrect: 0, totalFieldsCorrect: 0, totalFieldsAttempted: 0 },
+        intermediate: { attempts: 0, fullyCorrect: 0, totalFieldsCorrect: 0, totalFieldsAttempted: 0 },
+        advanced:     { attempts: 0, fullyCorrect: 0, totalFieldsCorrect: 0, totalFieldsAttempted: 0 },
+        currentStreak: 0, bestStreak: 0, lifetimeFullyCorrect: 0,
+        lastSessionTemplateIds: []
+      };
+    }
+    const mq = this.state.metarQuiz;
+    const bucket = mq[difficulty];
+    if (!bucket) return; // unknown difficulty — bail
+
+    bucket.attempts = (bucket.attempts || 0) + 1;
+    bucket.totalFieldsCorrect = (bucket.totalFieldsCorrect || 0) + correctFields;
+    bucket.totalFieldsAttempted = (bucket.totalFieldsAttempted || 0) + totalFields;
+
+    const fullyCorrect = (totalFields > 0) && (correctFields === totalFields);
+    if (fullyCorrect) {
+      bucket.fullyCorrect = (bucket.fullyCorrect || 0) + 1;
+      mq.lifetimeFullyCorrect = (mq.lifetimeFullyCorrect || 0) + 1;
+      mq.currentStreak = (mq.currentStreak || 0) + 1;
+      if (mq.currentStreak > (mq.bestStreak || 0)) mq.bestStreak = mq.currentStreak;
+    } else {
+      mq.currentStreak = 0;
+    }
+
+    // Partial-credit XP, rounded down. Beginner full = 5; Inter = 10; Adv = 20.
+    const xpFull = { beginner: 5, intermediate: 10, advanced: 20 }[difficulty] || 0;
+    const xp = totalFields > 0 ? Math.floor((xpFull * correctFields) / totalFields) : 0;
+    if (xp > 0) {
+      this.addXP(xp, fullyCorrect ? 'METAR decoded' : 'METAR partial');
+    } else {
+      // addXP also runs save() + checkAchievements; if we awarded zero
+      // XP, do those manually so the attempts/correct counters persist.
+      this.save();
+      this.checkAchievements();
+    }
+  },
+
+  // Persist the templates used in the just-finished session so the next
+  // session held-out list excludes them. Called from
+  // Screens._showMetarSessionResults when the session ends naturally.
+  recordMetarQuizSessionEnd(templateIds) {
+    if (!this.state.metarQuiz) return;
+    this.state.metarQuiz.lastSessionTemplateIds = Array.isArray(templateIds) ? templateIds.slice() : [];
     this.save();
   },
   completeQuiz(moduleId, score, wrongQIds) {

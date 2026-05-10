@@ -79,15 +79,42 @@ const Screens = {
           : ''}
       </div>
 
-      <div class="card" style="padding:18px;margin-bottom:16px;border-left:4px solid ${resumeTarget ? rank.color : '#CBD5E1'}">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-          <div style="min-width:0">
-            <div style="font-family:var(--font-display);font-weight:900;font-size:16px;color:var(--navy)">Resume</div>
-            <div style="font-size:13px;color:#64748B;margin-top:4px">${resumeTarget ? `${resumeTarget.title} - ${resumeTarget.subtitle}` : 'No recent lesson yet. Jump back in from Modules when you are ready.'}</div>
-          </div>
-          <button onclick="Screens.resumeStudy()" style="background:${resumeTarget ? 'var(--navy)' : '#E2E8F0'};color:${resumeTarget ? 'white' : '#475569'};border:none;border-radius:12px;padding:10px 16px;font-family:var(--font-display);font-weight:800;font-size:14px;cursor:pointer;flex-shrink:0">${resumeTarget ? (resumeTarget.actionLabel || 'Resume') : 'Open modules'}</button>
-        </div>
-      </div>
+      ${(() => {
+        // Phase 2 Chunk 6: when 2+ resumable activities exist, show all of
+        // them as a list (most-recent first). Single-resumable and zero-
+        // resumable cases keep the original single-row card. Backward
+        // compat: getResumeTarget() (singular) still returns the lesson
+        // resume for `Screens.resumeStudy()`.
+        const targets = (typeof GameEngine.getResumeTargets === 'function')
+          ? GameEngine.getResumeTargets() : [];
+        if (targets.length >= 2) {
+          return `
+            <div class="card" style="padding:18px;margin-bottom:16px;border-left:4px solid ${rank.color}">
+              <div style="font-family:var(--font-display);font-weight:900;font-size:16px;color:var(--navy);margin-bottom:10px">Resume</div>
+              <div style="display:grid;gap:10px">
+                ${targets.map(t => `
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;background:#F8FAFC;border-radius:12px">
+                    <div style="min-width:0;flex:1">
+                      <div style="font-family:var(--font-display);font-weight:800;font-size:14px;color:var(--navy)">${t.title}</div>
+                      <div style="font-size:12px;color:#64748B;margin-top:2px">${t.subtitle}</div>
+                    </div>
+                    <button onclick="${t.resumeAction}" style="background:var(--navy);color:white;border:none;border-radius:10px;padding:8px 14px;font-family:var(--font-display);font-weight:800;font-size:13px;cursor:pointer;flex-shrink:0">${t.actionLabel || 'Resume'}</button>
+                  </div>`).join('')}
+              </div>
+            </div>`;
+        }
+        // 0 or 1 resumable: original single-card layout
+        return `
+          <div class="card" style="padding:18px;margin-bottom:16px;border-left:4px solid ${resumeTarget ? rank.color : '#CBD5E1'}">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+              <div style="min-width:0">
+                <div style="font-family:var(--font-display);font-weight:900;font-size:16px;color:var(--navy)">Resume</div>
+                <div style="font-size:13px;color:#64748B;margin-top:4px">${resumeTarget ? `${resumeTarget.title} - ${resumeTarget.subtitle}` : 'No recent lesson yet. Jump back in from Modules when you are ready.'}</div>
+              </div>
+              <button onclick="${targets.length === 1 ? targets[0].resumeAction : 'Screens.resumeStudy()'}" style="background:${resumeTarget || targets.length === 1 ? 'var(--navy)' : '#E2E8F0'};color:${resumeTarget || targets.length === 1 ? 'white' : '#475569'};border:none;border-radius:12px;padding:10px 16px;font-family:var(--font-display);font-weight:800;font-size:14px;cursor:pointer;flex-shrink:0">${targets.length === 1 ? (targets[0].actionLabel || 'Resume') : (resumeTarget ? (resumeTarget.actionLabel || 'Resume') : 'Open modules')}</button>
+            </div>
+          </div>`;
+      })()}
 
       <div class="card" style="padding:18px;margin-bottom:16px">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px">
@@ -1445,8 +1472,15 @@ const Screens = {
 
   _mq: null,
 
-  // Difficulty picker (#/tools/metar_quiz with no segment)
+  // Difficulty picker (#/tools/metar_quiz with no segment).
+  // resumeMetarQuiz() sets _mqResumeIntent so the picker short-circuits and
+  // renders the in-progress question instead of the difficulty cards.
   metarQuizPicker(params) {
+    if (this._mqResumeIntent && this._mq) {
+      this._mqResumeIntent = false;
+      this._renderMetarQuizQuestion();
+      return;
+    }
     this._mq = null; // clear any stale session
 
     const card = (id, title, subtitle, descBullets) => `
@@ -1500,11 +1534,24 @@ const Screens = {
   },
 
   // Called from a difficulty card. Initializes _mq and renders the first METAR.
+  // If a mid-session save exists for the same difficulty, prompts the user to
+  // resume vs start over (parallel to module quiz's resume prompt).
   _startMetarQuiz(difficulty) {
     if (typeof MetarQuiz === 'undefined') {
       console.error('[MetarQuiz] generator not loaded');
       return;
     }
+
+    const saved = GameEngine.state && GameEngine.state.metarQuizInProgress;
+    if (saved && saved.difficulty === difficulty
+        && Array.isArray(saved.questions) && saved.questions.length > 0
+        && saved.current < saved.questions.length) {
+      this._showMetarQuizResumePrompt(saved);
+      return;
+    }
+    // No resumable session: clear stale state from a different difficulty (if any),
+    // generate a fresh session, save, render.
+    if (saved && saved.difficulty !== difficulty) GameEngine.clearMetarQuizProgress();
     const prevIds = (GameEngine.state && GameEngine.state.metarQuiz
                     && GameEngine.state.metarQuiz.lastSessionTemplateIds) || [];
     const questions = MetarQuiz.generateSession(difficulty, 8, prevIds);
@@ -1515,7 +1562,57 @@ const Screens = {
       graded: false,
       prevSessionTemplateIds: prevIds
     };
+    GameEngine.saveMetarQuizProgress({ difficulty, questions, current: 0 });
     this._renderMetarQuizQuestion();
+  },
+
+  // Resume prompt — Continue / Start over.
+  _showMetarQuizResumePrompt(saved) {
+    const total = saved.questions.length;
+    const cur = saved.current + 1;
+    const diffLabel = saved.difficulty[0].toUpperCase() + saved.difficulty.slice(1);
+    document.getElementById('tool_detail-content').innerHTML = `
+      <div style="padding-bottom:24px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <button onclick="Router.navigate('tool_detail',{toolId:'metar_quiz'})" aria-label="Back to picker" style="background:#F1F5F9;border:none;border-radius:12px;padding:8px 14px;cursor:pointer;font-family:var(--font-display);font-weight:700;color:#64748B;font-size:13px">← Back</button>
+        </div>
+        <h1 style="font-family:var(--font-display);font-size:24px;font-weight:900;color:var(--navy);margin:0 0 6px">Resume METAR Quiz?</h1>
+        <p style="color:#64748B;font-size:14px;margin:0 0 20px">
+          You have a ${diffLabel} session in progress at question ${cur} of ${total}.
+        </p>
+        <div class="quiz-actions">
+          <button class="quiz-secondary-btn" onclick="Screens._discardMetarSession('${saved.difficulty}')">Start over</button>
+          <button class="quiz-submit-btn" onclick="Screens.resumeMetarQuiz()">Continue session</button>
+        </div>
+      </div>`;
+  },
+
+  // Resume the saved session (called from dashboard or from the resume prompt).
+  // Builds _mq + sets a resume intent flag, then navigates. The picker
+  // short-circuits when the flag is set and renders the in-progress
+  // question directly. URL stays at #/tools/metar_quiz.
+  resumeMetarQuiz() {
+    const saved = GameEngine.state && GameEngine.state.metarQuizInProgress;
+    if (!saved || !Array.isArray(saved.questions) || saved.questions.length === 0) {
+      Router.navigate('tool_detail', { toolId: 'metar_quiz' });
+      return;
+    }
+    this._mq = {
+      difficulty: saved.difficulty,
+      questions: saved.questions,
+      current: Math.min(saved.current || 0, saved.questions.length - 1),
+      graded: false,
+      prevSessionTemplateIds: (GameEngine.state.metarQuiz
+                              && GameEngine.state.metarQuiz.lastSessionTemplateIds) || []
+    };
+    this._mqResumeIntent = true;
+    Router.navigate('tool_detail', { toolId: 'metar_quiz' });
+  },
+
+  // Discard the saved mid-session and start a fresh one.
+  _discardMetarSession(difficulty) {
+    GameEngine.clearMetarQuizProgress();
+    this._startMetarQuiz(difficulty);
   },
 
   // Render the current question (called both at session start and via Next).
@@ -1777,6 +1874,10 @@ const Screens = {
     mq.graded = true;
     mq.lastResult = { totalFields, correctFields, fieldResults };
 
+    // Record the attempt — updates state.metarQuiz aggregate stats, awards
+    // proportional partial-credit XP, triggers achievements pass.
+    GameEngine.recordMetarQuizAttempt(mq.difficulty, totalFields, correctFields);
+
     // Disable further chip movement (lock all chips by removing draggable)
     document.querySelectorAll('.quiz-chip').forEach(c => {
       c.setAttribute('draggable', 'false');
@@ -1842,6 +1943,7 @@ const Screens = {
   },
 
   // Next METAR: advance current; if past last, show end-of-session results.
+  // Persists the new current index so a refresh resumes at the right spot.
   _nextMetar() {
     if (!this._mq) return;
     if (this._mq.current >= this._mq.questions.length - 1) {
@@ -1849,6 +1951,11 @@ const Screens = {
       return;
     }
     this._mq.current++;
+    GameEngine.saveMetarQuizProgress({
+      difficulty: this._mq.difficulty,
+      questions: this._mq.questions,
+      current: this._mq.current
+    });
     this._renderMetarQuizQuestion();
   },
 
@@ -1858,18 +1965,46 @@ const Screens = {
     this._showMetarSessionResults();
   },
 
-  // End-of-session results screen. Persistence wires up in Chunk 6.
+  // End-of-session results screen. Clears mid-session state, captures the
+  // session's template ids into lastSessionTemplateIds (so the NEXT session
+  // held-out check excludes them — back-to-back sessions don't repeat), and
+  // shows a session summary.
   _showMetarSessionResults() {
     if (!this._mq) return;
     const mq = this._mq;
     const total = mq.questions.length;
-    // Without per-question scoring (Chunk 6), we just show a "session complete" view.
+
+    // Persist the templates used so the next session can hold them out.
+    const templateIds = mq.questions.map(q => q.template);
+    GameEngine.recordMetarQuizSessionEnd(templateIds);
+    GameEngine.clearMetarQuizProgress();
+
+    // Pull aggregate-this-session numbers from state.metarQuiz. The recorded
+    // attempts since the start of this session are: count of submits this
+    // session ≤ total. Compute "fully correct" by reading the bucket delta.
+    // (We don't track session-start snapshot, so summary is per-difficulty
+    // aggregate plus a generic "session complete" line.)
+    const bucket = (GameEngine.state.metarQuiz && GameEngine.state.metarQuiz[mq.difficulty]) || {};
+    const lifetimeFC = (GameEngine.state.metarQuiz && GameEngine.state.metarQuiz.lifetimeFullyCorrect) || 0;
+
     document.getElementById('tool_detail-content').innerHTML = `
       <div style="padding-bottom:24px">
         <h1 style="font-family:var(--font-display);font-size:24px;font-weight:900;color:var(--navy);margin:0 0 6px">Session complete</h1>
         <p style="color:#64748B;font-size:14px;margin:0 0 20px">
-          ${total} METARs, ${mq.difficulty[0].toUpperCase() + mq.difficulty.slice(1)} difficulty.
+          ${total} METARs at ${mq.difficulty[0].toUpperCase() + mq.difficulty.slice(1)} difficulty.
         </p>
+        <div class="card" style="padding:14px;margin-bottom:16px;background:#F8FAFC">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div>
+              <div style="font-family:var(--font-display);font-size:11px;color:#64748B;letter-spacing:.06em;text-transform:uppercase">${mq.difficulty[0].toUpperCase() + mq.difficulty.slice(1)} fully-correct (lifetime)</div>
+              <div style="font-family:var(--font-mono);font-size:24px;font-weight:700;color:var(--navy)">${bucket.fullyCorrect || 0}</div>
+            </div>
+            <div>
+              <div style="font-family:var(--font-display);font-size:11px;color:#64748B;letter-spacing:.06em;text-transform:uppercase">All-difficulty fully-correct</div>
+              <div style="font-family:var(--font-mono);font-size:24px;font-weight:700;color:var(--navy)">${lifetimeFC}</div>
+            </div>
+          </div>
+        </div>
         <button onclick="Router.navigate('tool_detail',{toolId:'metar_quiz'})" class="quiz-submit-btn" style="border-radius:14px;padding:14px;font-family:var(--font-display);font-weight:800">Pick another difficulty</button>
         <button onclick="Router.navigate('tools')" class="quiz-secondary-btn" style="margin-top:10px;border-radius:14px;padding:14px;font-family:var(--font-display);font-weight:800;width:100%;border:none;cursor:pointer">Back to Study Tools</button>
       </div>`;
