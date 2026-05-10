@@ -7,6 +7,10 @@ const GameEngine = {
   init() {
     this.state = Storage.load();
     this.updateStreak();
+    // Settings gear visibility is gated on firstLaunchSeen; sync it whenever
+    // engine state is (re-)loaded so the gear appears post-onboarding without
+    // a page reload.
+    if (typeof Settings !== 'undefined' && Settings.syncGearVisibility) Settings.syncGearVisibility();
   },
   save() { Storage.save(this.state); },
   _defaultModuleProgress() {

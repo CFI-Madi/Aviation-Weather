@@ -1085,10 +1085,8 @@ const Screens = {
           </div>
           <div style="font-size:14px;color:var(--navy);font-weight:600;margin-bottom:10px">${q.question}</div>
           <button onclick="Screens._srR('${q.id}','${q.modId}',this)" style="background:${q.modColor};color:white;border:none;border-radius:10px;padding:8px 16px;font-family:var(--font-display);font-weight:700;font-size:13px;cursor:pointer">Review</button>
-        </div>`;}).join('')}${srQs.length>5?`<div style="text-align:center;padding:12px;color:#94A3B8">...and ${srQs.length-5} more</div>`:''}</div>`}
-      <div style="margin-top:24px;text-align:center">
-        <button onclick="if(confirm('Reset ALL Aviation Weather Academy progress?')){localStorage.removeItem('aviation_weather_v1');localStorage.removeItem('charlotte_aviation_v1');GameEngine.init();Router.navigate('dashboard')}" style="background:none;border:none;color:#CBD5E1;font-size:13px;cursor:pointer">Reset All Progress</button>
-      </div>`;
+        </div>`;}).join('')}${srQs.length>5?`<div style="text-align:center;padding:12px;color:#94A3B8">...and ${srQs.length-5} more</div>`:''}</div>`}`;
+    // Reset progress action moved to Settings sheet (gear icon → Settings).
   },
 
   _srR(qId, modId, btn) {
@@ -2131,6 +2129,9 @@ const Onboarding = {
     GameEngine.state.firstLaunchSeen = true;
     GameEngine.save();
     this._dismiss();
+    // The gear icon is gated on firstLaunchSeen — flip it on now that the
+    // user has completed onboarding so it appears immediately.
+    if (typeof Settings !== 'undefined' && Settings.syncGearVisibility) Settings.syncGearVisibility();
     Router.init();
     if (screen === 'lesson' && moduleId) {
       Router.navigate('lesson', { moduleId });
@@ -2232,4 +2233,166 @@ const Onboarding = {
 };
 
 window.Onboarding = Onboarding;
+
+
+// ============================================================
+// Settings — administrative content relocated from the More tab.
+// Full-screen overlay on mobile, centered modal on desktop. Visible
+// via the floating gear icon (#settings-gear in index.html), which is
+// only shown after firstLaunchSeen=true so onboarding stays clean.
+// Sections: Profile, Achievements (link), Stats, About, Reset.
+// ============================================================
+
+const Settings = {
+  show() {
+    const sheet = document.getElementById('settings-sheet');
+    if (!sheet) return;
+    this._render();
+    sheet.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  },
+
+  hide() {
+    const sheet = document.getElementById('settings-sheet');
+    if (!sheet) return;
+    sheet.style.display = 'none';
+    document.body.style.overflow = '';
+  },
+
+  // Update the gear icon's visibility based on firstLaunchSeen. Called from
+  // GameEngine.init() after state load and from Onboarding._complete() the
+  // moment the flag flips, so the gear appears immediately post-onboarding
+  // without a reload.
+  syncGearVisibility() {
+    const gear = document.getElementById('settings-gear');
+    if (!gear) return;
+    const seen = !!(typeof GameEngine !== 'undefined' && GameEngine.state && GameEngine.state.firstLaunchSeen);
+    gear.style.display = seen ? 'flex' : 'none';
+  },
+
+  _render() {
+    const s = (typeof GameEngine !== 'undefined' && GameEngine.state) ? GameEngine.state : {};
+    // Profile / Learner Level
+    const levelId = (typeof GameEngine !== 'undefined' && GameEngine.getCurrentLevel) ? GameEngine.getCurrentLevel() : 'student';
+    const levelMeta = (typeof LEVEL_META !== 'undefined') ? LEVEL_META.find(l => l.id === levelId) : null;
+    const levelLabel = levelMeta ? levelMeta.title : 'Student Pilot';
+    // Achievements
+    const seen = new Set();
+    const uniqueAch = (typeof ACHIEVEMENTS !== 'undefined') ? ACHIEVEMENTS.filter(a => { if (seen.has(a.id)) return false; seen.add(a.id); return true; }) : [];
+    const achEarned = (s.achievements || []).length;
+    const achTotal = uniqueAch.length;
+    // Stats
+    const totalXP = (s.totalXP || 0).toLocaleString();
+    const streak = s.streakDays || 0;
+    const sectionsRead = s.totalSectionsRead || 0;
+    const modulesPassedCount = (s.modulesPassed || []).length;
+    const modulesTotal = (typeof MODULES !== 'undefined') ? MODULES.length : 0;
+    const checkrideScores = s.checkrideScores || [];
+    const lastCheckride = checkrideScores.length ? checkrideScores[checkrideScores.length - 1] : null;
+    const bestCheckride = checkrideScores.length ? Math.max(...checkrideScores.map(r => r.pct || 0)) : null;
+    const bestCheckrideEntry = checkrideScores.find(r => (r.pct || 0) === bestCheckride);
+    const bestDate = bestCheckrideEntry && bestCheckrideEntry.date ? new Date(bestCheckrideEntry.date).toLocaleDateString() : null;
+    const checkrideSummary = bestCheckride !== null
+      ? `Best checkride: ${bestCheckride}%${bestDate ? ` on ${bestDate}` : ''}`
+      : 'No checkride attempts yet';
+
+    document.getElementById('settings-sheet').innerHTML = `
+      <div class="settings-card">
+        <div class="settings-header">
+          <h2 style="font-family:var(--font-display);font-size:22px;font-weight:900;color:var(--navy);margin:0">Settings</h2>
+          <button type="button" onclick="Settings.hide()" aria-label="Close settings" style="background:#F1F5F9;border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:18px;color:#64748B;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+
+        <section class="settings-section">
+          <h3 class="settings-section-h3">Profile</h3>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Learner Level</div>
+              <div class="settings-row-value">${levelLabel}</div>
+            </div>
+            <button type="button" class="settings-row-action" onclick="Settings._changeLevel()">Change level</button>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h3 class="settings-section-h3">Stats</h3>
+          <div class="settings-stats-grid">
+            <div class="settings-stat"><div class="settings-stat-value">${totalXP}</div><div class="settings-stat-label">Total XP</div></div>
+            <div class="settings-stat"><div class="settings-stat-value">${streak}</div><div class="settings-stat-label">${streak === 1 ? 'Day streak' : 'Day streak'}</div></div>
+            <div class="settings-stat"><div class="settings-stat-value">${modulesPassedCount}/${modulesTotal}</div><div class="settings-stat-label">Modules passed</div></div>
+            <div class="settings-stat"><div class="settings-stat-value">${sectionsRead}</div><div class="settings-stat-label">Sections read</div></div>
+          </div>
+          <button type="button" class="settings-row settings-row-link" onclick="Settings.hide();Router.navigate('logbook')">
+            <div>
+              <div class="settings-row-label">Checkride history</div>
+              <div class="settings-row-value">${checkrideSummary}</div>
+            </div>
+            <span class="settings-row-chevron">›</span>
+          </button>
+          <button type="button" class="settings-row settings-row-link" onclick="Settings.hide();Router.navigate('achievements')">
+            <div>
+              <div class="settings-row-label">Achievements</div>
+              <div class="settings-row-value">${achEarned} of ${achTotal} badges earned</div>
+            </div>
+            <span class="settings-row-chevron">›</span>
+          </button>
+        </section>
+
+        <section class="settings-section">
+          <h3 class="settings-section-h3">About</h3>
+          <div class="settings-about">
+            <div><strong>Aviation Weather Academy</strong></div>
+            <div>Educational study tool based on FAA-H-8083-28B (Aviation Weather Handbook, April 2026).</div>
+            <div style="margin-top:8px;color:#94A3B8;font-size:11px">Maintained by Charlotte Flight Academy. Not a substitute for FAA-approved training, a certified ground school, or instruction from a qualified CFI.</div>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h3 class="settings-section-h3" style="color:#DC2626">Reset progress</h3>
+          <p style="font-size:13px;color:#64748B;line-height:1.55;margin:0 0 10px">Erases all XP, module progress, achievements, and review queue. This cannot be undone.</p>
+          <button type="button" class="settings-reset-btn" onclick="Settings._resetProgress()">Reset all progress</button>
+        </section>
+      </div>`;
+  },
+
+  _changeLevel() {
+    // Route through the existing onboarding level picker. After they confirm,
+    // _complete persists state.learnerLevel (per the chunk 1 wiring) and the
+    // Settings sheet is re-shown so they're not dropped onto a different
+    // screen unexpectedly.
+    Settings.hide();
+    if (typeof Onboarding !== 'undefined' && Onboarding._renderScreen2) {
+      const overlay = document.getElementById('onboarding-overlay');
+      if (overlay) overlay.style.display = 'block';
+      // Override _complete just for this round so it returns to settings rather
+      // than navigating away. Restore the original after the override fires.
+      const origComplete = Onboarding._complete;
+      Onboarding._complete = function() {
+        if (this._selectedLevel && typeof LEVELS !== 'undefined' && LEVELS.includes(this._selectedLevel)) {
+          GameEngine.state.learnerLevel = this._selectedLevel;
+          GameEngine.save();
+        }
+        if (window.Analytics) Analytics.track('Settings: Level Changed', { level: this._selectedLevel });
+        Onboarding._dismiss();
+        Onboarding._complete = origComplete;
+        Settings.show();
+        // Re-render the dashboard so the new level is reflected if visible.
+        if (Router.current === 'dashboard') Screens.dashboard();
+      };
+      Onboarding._renderScreen2();
+    }
+  },
+
+  _resetProgress() {
+    if (!confirm('Reset ALL Aviation Weather Academy progress? This cannot be undone.')) return;
+    localStorage.removeItem('aviation_weather_v1');
+    localStorage.removeItem('charlotte_aviation_v1');
+    Settings.hide();
+    GameEngine.init();
+    Settings.syncGearVisibility();
+    Router.navigate('dashboard');
+  }
+};
+
+window.Settings = Settings;
 
