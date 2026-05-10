@@ -835,3 +835,119 @@ button:focus-visible{outline:3px solid var(--sky-dark);outline-offset:2px;border
   .tslc-module .tslc-extent-sub{font-size:11px}
   .tslc-slider{height:10px}
 }
+
+/* ============================================================
+   Thunderstorm Ingredients Module (replaces cbIngredients triangle
+   in M6 §s6_1). Three toggle cards (Water Vapor / Unstable Air /
+   Lift) each with a 44px tap target and a per-card visual; result
+   panel shows the outcome scene that updates immediately as
+   ingredients are toggled. Success-state cloud reuses
+   Diagrams.tsTowCumulusPath verbatim from the lifecycle module.
+   ============================================================ */
+
+.tsing-module{
+  max-width:880px;margin:20px auto;background:#FFFFFF;
+  border-radius:16px;overflow:hidden;font-family:var(--font-body);
+  color:#334155;line-height:1.5;
+  box-shadow:0 10px 40px rgba(12,27,51,.18)
+}
+.tsing-module__header{padding:18px 22px 4px;background:var(--navy)}
+.tsing-module__title{font-family:var(--font-display);font-weight:900;
+  color:white;font-size:22px;line-height:1.15;letter-spacing:-.01em;margin:0}
+.tsing-module__attr{font-family:var(--font-mono);font-size:11px;color:var(--sky);
+  background:var(--navy);padding:6px 22px 14px;letter-spacing:.02em}
+
+/* Ingredient cards grid */
+.tsing-cards{background:var(--cloud);padding:16px 16px 8px;display:grid;
+  grid-template-columns:repeat(3,1fr);gap:12px}
+.tsing-card{background:#FFFFFF;border-radius:12px;overflow:hidden;
+  box-shadow:0 2px 6px rgba(12,27,51,.08);display:flex;flex-direction:column;
+  border:2px solid transparent;cursor:pointer;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  transition:border-color .2s ease,box-shadow .2s ease,transform .12s ease}
+.tsing-card:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(12,27,51,.14)}
+.tsing-card[data-on="true"]{border-color:var(--emerald)}
+.tsing-card__title{font-family:var(--font-display);font-weight:800;font-size:15px;
+  color:var(--navy);padding:10px 12px 8px;display:flex;align-items:center;
+  justify-content:space-between;gap:6px;white-space:nowrap}
+.tsing-status-pill{font-family:var(--font-mono);font-size:9px;font-weight:700;
+  padding:2px 7px;border-radius:999px;letter-spacing:.06em;text-transform:uppercase;
+  background:rgba(244,63,94,.12);color:var(--rose);
+  transition:background .2s ease,color .2s ease;flex-shrink:0}
+.tsing-card[data-on="true"] .tsing-status-pill{background:rgba(16,185,129,.14);color:var(--emerald)}
+.tsing-card__visual{aspect-ratio:4/3;width:100%;
+  background:linear-gradient(180deg,#87bce8 0%,#b9d6ee 100%);
+  transition:filter .3s ease,opacity .3s ease;overflow:hidden;position:relative}
+.tsing-card__visual svg{display:block;width:100%;height:100%}
+.tsing-card[data-on="false"] .tsing-card__visual{filter:grayscale(.95) brightness(.92);opacity:.7}
+
+/* Toggle row (44px tap target) */
+.tsing-card__toggle-row{padding:10px 14px 12px;display:flex;align-items:center;
+  justify-content:space-between;gap:10px;background:#FFFFFF;
+  border-top:1px solid var(--cloud);min-height:44px}
+.tsing-card__toggle-label{font-family:var(--font-body);font-weight:700;font-size:13px;color:#334155}
+.tsing-toggle{position:relative;display:inline-block;width:60px;height:32px;flex-shrink:0}
+.tsing-toggle-tap{display:inline-flex;align-items:center;justify-content:center;
+  min-width:44px;min-height:44px;cursor:pointer}
+.tsing-toggle input{opacity:0;width:0;height:0;position:absolute}
+.tsing-toggle__track{position:absolute;inset:0;background:#CBD5E1;border-radius:999px;
+  transition:background .2s ease}
+.tsing-toggle__thumb{position:absolute;top:3px;left:3px;width:26px;height:26px;
+  background:#FFFFFF;border-radius:50%;box-shadow:0 2px 6px rgba(12,27,51,.25);
+  transition:transform .2s cubic-bezier(.4,0,.2,1)}
+.tsing-toggle input:checked ~ .tsing-toggle__track{background:var(--emerald)}
+.tsing-toggle input:checked ~ .tsing-toggle__thumb{transform:translateX(28px)}
+.tsing-toggle input:focus-visible ~ .tsing-toggle__track{outline:2px solid var(--sky-dark);outline-offset:3px}
+
+/* Result panel */
+.tsing-result{padding:16px;background:var(--cloud)}
+.tsing-result__inner{background:#FFFFFF;border-radius:12px;overflow:hidden;
+  box-shadow:0 2px 8px rgba(12,27,51,.08)}
+.tsing-result__scene{width:100%;aspect-ratio:16/9;
+  background:linear-gradient(180deg,#87bce8 0%,#b9d6ee 100%);
+  position:relative;overflow:hidden}
+.tsing-result__scene svg{display:block;width:100%;height:100%;position:absolute;inset:0}
+.tsing-result__verdict{padding:14px 18px 8px 18px;display:flex;align-items:center;
+  justify-content:space-between;gap:12px;flex-wrap:wrap}
+.tsing-result__chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;
+  border-radius:999px;font-family:var(--font-display);font-weight:800;font-size:12px;
+  letter-spacing:.04em;text-transform:uppercase}
+.tsing-result__chip[data-tone="success"]{background:rgba(16,185,129,.14);color:var(--emerald)}
+.tsing-result__chip[data-tone="warn"]{background:rgba(245,158,11,.14);color:var(--amber)}
+.tsing-result__chip[data-tone="muted"]{background:rgba(51,65,85,.10);color:#334155}
+.tsing-chip-dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+.tsing-result__count{font-family:var(--font-mono);font-size:11px;color:#334155;opacity:.75}
+.tsing-result__caption{padding:4px 18px 18px;font-family:var(--font-body);font-size:14px;
+  color:#334155;line-height:1.55}
+.tsing-result__cite{display:block;font-family:var(--font-mono);font-size:11px;
+  color:var(--sky-dark);margin-top:6px;letter-spacing:.02em}
+
+.tsing-footer{background:var(--navy);color:white;padding:14px 22px 18px;
+  font-family:var(--font-body);font-size:14px;line-height:1.5;margin:0}
+.tsing-footer strong{color:var(--sky);font-weight:800}
+.tsing-footer__cite{display:block;font-family:var(--font-mono);font-size:11px;
+  color:var(--sky);margin-top:6px;letter-spacing:.02em}
+
+/* Animation pieces */
+@keyframes tsing-vapor-rise{0%{transform:translateY(0);opacity:.85}100%{transform:translateY(-30px);opacity:0}}
+@keyframes tsing-pulse-arrow{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.tsing-vapor-stream{animation:tsing-vapor-rise 2.6s ease-in infinite;transform-origin:center}
+.tsing-lift-arrow{animation:tsing-pulse-arrow 1.8s ease-in-out infinite;transform-origin:center}
+.tsing-parcel-arrow{animation:tsing-pulse-arrow 2.2s ease-in-out infinite}
+.tsing-scene-elem{transition:opacity .35s ease}
+
+/* Mobile */
+@media (max-width:599px){
+  .tsing-module{margin:16px auto;border-radius:14px}
+  .tsing-module__header{padding:16px 16px 4px}
+  .tsing-module__title{font-size:18px}
+  .tsing-module__attr{padding:6px 16px 12px;font-size:10px}
+  .tsing-cards{grid-template-columns:1fr;padding:12px 12px 4px;gap:10px}
+  .tsing-card__title{font-size:14px;padding:10px 12px 6px}
+  .tsing-card__visual{aspect-ratio:16/7}
+  .tsing-card__toggle-row{padding:8px 12px 10px;min-height:44px}
+  .tsing-result{padding:12px}
+  .tsing-result__caption{font-size:13px;padding:4px 14px 16px}
+  .tsing-result__verdict{padding:12px 14px 6px}
+  .tsing-footer{font-size:13px;padding:12px 16px 16px}
+}

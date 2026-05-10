@@ -1274,7 +1274,7 @@ const MODULES = [
           </div>
           <div class="danger-callout">☠️ <strong>All thunderstorms are hazardous.</strong> The FAA handbook states: "Weather recognizable as a thunderstorm should be considered hazardous, as penetration of any thunderstorm can lead to an aircraft accident and fatalities." There is no such thing as a "safe" thunderstorm to penetrate.</div>
         `,
-        diagram:{type:'interactive',key:'cb_ingredients'}
+        diagram:{type:'hotspot',key:'thunderstorm_ingredients'}
       },
       {
         id:'s6_2',title:'Thunderstorm Cell Life Cycle',

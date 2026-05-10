@@ -22,10 +22,13 @@ const Diagrams = {
     // Foundations: hotspot / slider patterns (atmosphere, wind, fronts, clouds)
     if (type === 'hotspot') return this.renderHotspot(key);
     if (type === 'slider') return this.renderSlider(key);
-    // Hazard interactives (CB ingredients, turbulence, fog, microburst, calculators)
+    // Hazard interactives (turbulence, fog, microburst, calculators).
+    // cb_ingredients was removed in the M6 §s6_1 redesign — that key now routes
+    // to thunderstorm_ingredients via renderHotspot() (selfTitled hotspot,
+    // dispatched from Screens._initDiagram). The interactive type itself is
+    // retained as a documented capability for future use.
     if (type === 'interactive') {
       const fns = {
-        cb_ingredients:()=>this.cbIngredients(),
         turbulence_sources:()=>this.turbulenceSources(),
         fog_types:()=>this.fogTypes(),
         microburst_approach:()=>this.microburstApproach(),
@@ -132,6 +135,12 @@ const Diagrams = {
         title: '⛈️ Single-Cell Thunderstorm Lifecycle',
         selfTitled: true,
         svgContent: this.tsLifecycleSVG(),
+      },
+      thunderstorm_ingredients: {
+        // Module renders its own header + FAA attribution strip.
+        title: '⛈️ Three Ingredients of a Thunderstorm',
+        selfTitled: true,
+        svgContent: this.tsIngredientsSVG(),
       }
     };
     const cfg = configs[key];
@@ -2219,68 +2228,421 @@ const Diagrams = {
     render(0);
   },
 
-  // ===== ACT 2 DIAGRAMS =====
-  // Pass 2c redraw: ONE unified triangle with three labeled sides instead of
-  // three separate triangles. The original SVG implied the three ingredients
-  // were independent (each in its own triangle) — but the FAA's teaching is
-  // that ALL THREE must be present simultaneously. A single triangle with
-  // three sides (moisture / instability / lift) makes that simultaneity
-  // structurally explicit: removing any one side and the triangle no longer
-  // encloses anything. Tap each side to surface the ingredient detail in
-  // the existing showCBInfo popup.
-  cbIngredients(){
-    // Triangle vertices (apex on top): apex (180, 35), bottom-left (40, 175),
-    // bottom-right (320, 175). Each side is a separate clickable hit-box
-    // (transparent thick polyline) overlaying a thin colored stroke.
-    return `<div class="diagram-container"><div class="diagram-header"><span style="font-size:14px;color:white;font-family:var(--font-display);font-weight:700">⛈️ Three Ingredients of a Thunderstorm — Tap Each Side</span></div>
-    <div style="background:#0C1B33;padding:18px 18px 4px;position:relative">
-      <svg viewBox="0 0 360 200" style="width:100%;display:block">
-        <defs>
-          <linearGradient id="cbi-bg" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#0C1B33"/>
-            <stop offset="100%" stop-color="#1E3A5F"/>
-          </linearGradient>
-        </defs>
-        <rect width="360" height="200" fill="url(#cbi-bg)"/>
-        <!-- Triangle outline (visible) -->
-        <polygon points="180,35 320,175 40,175" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.12)" stroke-width="1" stroke-dasharray="3,3"/>
-        <!-- Each side: visible colored line + invisible thick hit-box overlay -->
-        <!-- Moisture: left side (apex to bottom-left) -->
-        <line x1="180" y1="35" x2="40" y2="175" stroke="var(--sky)" stroke-width="4" stroke-linecap="round"/>
-        <line x1="180" y1="35" x2="40" y2="175" stroke="transparent" stroke-width="22" stroke-linecap="round" onclick="Diagrams.showCBInfo('moisture')" tabindex="0" role="button" aria-label="Ingredient: Moisture" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.dispatchEvent(new MouseEvent('click'))}" style="cursor:pointer"/>
-        <text x="98" y="98" text-anchor="middle" font-family="Nunito" font-size="11" fill="#BAE6FD" font-weight="900" transform="rotate(-44 98 98)" pointer-events="none">💧 MOISTURE</text>
-        <!-- Instability: right side (apex to bottom-right) -->
-        <line x1="180" y1="35" x2="320" y2="175" stroke="var(--amber)" stroke-width="4" stroke-linecap="round"/>
-        <line x1="180" y1="35" x2="320" y2="175" stroke="transparent" stroke-width="22" stroke-linecap="round" onclick="Diagrams.showCBInfo('instability')" tabindex="0" role="button" aria-label="Ingredient: Instability" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.dispatchEvent(new MouseEvent('click'))}" style="cursor:pointer"/>
-        <text x="262" y="98" text-anchor="middle" font-family="Nunito" font-size="11" fill="#FDE68A" font-weight="900" transform="rotate(44 262 98)" pointer-events="none">📈 INSTABILITY</text>
-        <!-- Lift: bottom side (bottom-left to bottom-right) -->
-        <line x1="40" y1="175" x2="320" y2="175" stroke="var(--product)" stroke-width="4" stroke-linecap="round"/>
-        <line x1="40" y1="175" x2="320" y2="175" stroke="transparent" stroke-width="22" stroke-linecap="round" onclick="Diagrams.showCBInfo('lift')" tabindex="0" role="button" aria-label="Ingredient: Lift" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.dispatchEvent(new MouseEvent('click'))}" style="cursor:pointer"/>
-        <text x="180" y="193" text-anchor="middle" font-family="Nunito" font-size="11" fill="#C4B5FD" font-weight="900" pointer-events="none">⬆️ LIFT</text>
-        <!-- Center label: the result -->
-        <text x="180" y="118" text-anchor="middle" font-family="Nunito" font-size="22" fill="white" pointer-events="none">⛈️</text>
-        <text x="180" y="138" text-anchor="middle" font-family="Nunito" font-size="11" fill="white" font-weight="900" pointer-events="none">THUNDERSTORM</text>
-        <text x="180" y="152" text-anchor="middle" font-family="Nunito" font-size="9" fill="#94A3B8" pointer-events="none">all three required</text>
-      </svg>
-      <p style="font-family:var(--font-mono);font-size:10px;color:#64748B;text-align:center;margin:8px 0 0">Remove ANY one side → triangle collapses → no thunderstorm</p>
-      <div id="cb-ing-popup" style="display:none;padding:12px 16px;margin:10px -18px 0;background:rgba(255,255,255,.08);color:white;font-family:var(--font-display);font-size:13px;line-height:1.5;border-top:1px solid rgba(255,255,255,.1)">
-        <strong id="cb-ing-title" style="color:#F59E0B;display:block;margin-bottom:4px"></strong>
-        <span id="cb-ing-text"></span>
-      </div>
-    </div></div>`;
+  // M6 §s6_1 — bespoke three-ingredients toggle module (replaces the cbIngredients
+  // triangle SVG). Three ingredient cards (Water Vapor / Unstable Air / Lift) each
+  // with a 44px tap target, a per-card visual, and a result panel that updates
+  // immediately as ingredients are toggled — clouds form / dry convection /
+  // shallow stratus / no convection / clear sky — each with a caption citing
+  // FAA-H-8083-28B Chapter 22. The success-state result-panel cloud reuses
+  // tsTowCumulusPath verbatim from the lifecycle module so the two M6 modules
+  // share the exact same towering-cumulus silhouette (visual continuity required).
+  tsIngredientsSVG() { return this.renderTsIngredientsModule(); },
+
+  // Small organic cumulus puff path — single closed silhouette with bezier-bumped
+  // edges. Used in the Lift ingredient card visual (replaces the prior 4 stacked
+  // ellipses). Centered at (cx, cy) with the puff billowing upward; total extent
+  // ~80 wide × ~46 tall.
+  tsSmallPuffPath(cx, cy) {
+    const x = cx, y = cy;
+    return [
+      `M ${x-38} ${y+6}`,
+      `C ${x-50} ${y+4}, ${x-52} ${y-12}, ${x-36} ${y-14}`,
+      `C ${x-46} ${y-22}, ${x-30} ${y-30}, ${x-18} ${y-22}`,
+      `C ${x-12} ${y-32}, ${x+12} ${y-34}, ${x+18} ${y-22}`,
+      `C ${x+30} ${y-30}, ${x+46} ${y-22}, ${x+36} ${y-14}`,
+      `C ${x+52} ${y-12}, ${x+50} ${y+4}, ${x+38} ${y+6}`,
+      `L ${x+10} ${y+8}`, `L ${x-12} ${y+8}`, `Z`
+    ].join(' ');
   },
 
-  showCBInfo(id){
-    const info={
-      moisture:{title:'💧 Moisture',text:'High dewpoints (≥55°F in summer) indicate sufficient water vapor for thunderstorm development. Maritime Tropical (mT) air from the Gulf of Mexico is the primary fuel for US thunderstorms. Dewpoints drive the Lifted Condensation Level (LCL) and Level of Free Convection (LFC).'},
-      instability:{title:'📈 Instability',text:'Conditionally unstable air means the atmosphere will accelerate a saturated parcel upward once it reaches the LFC. Ingredients: warm humid surface air, cold air aloft, high lapse rates. A cap (temperature inversion) can delay storm initiation until enough instability builds — then explosive development.'},
-      lift:{title:'⬆️ Lifting Mechanism',text:'Something must trigger the initial lift to reach the LFC: cold fronts, drylines, outflow boundaries, sea breeze convergence, orographic uplift, upper-level divergence. Without lift, instability and moisture remain unreleased — a potentially explosive situation awaiting a trigger.'},
-    };
-    const i=info[id];
-    document.getElementById('cb-ing-popup').style.display='block';
-    document.getElementById('cb-ing-title').textContent=i.title;
-    document.getElementById('cb-ing-text').textContent=i.text;
+  renderTsIngredientsModule() {
+    // Shared cumulus path for the success state — IDENTICAL silhouette to the
+    // lifecycle module's Stage 1, just translated into the 800×450 result-panel
+    // viewBox. Centered at x=400 with base at y=380 (just above the ocean line).
+    const successCumulus = this.tsTowCumulusPath(400, 380);
+    const liftCardPuff = this.tsSmallPuffPath(100, 32);
+
+    return `
+<div class="tsing-module" id="tsingModule" role="region" aria-label="Three ingredients of a thunderstorm — interactive">
+  <header class="tsing-module__header">
+    <h2 class="tsing-module__title">The Three Ingredients of a Thunderstorm</h2>
+  </header>
+  <div class="tsing-module__attr">FAA-H-8083-28B · Chapter 22 — Thunderstorm Ingredients</div>
+
+  <div class="tsing-cards" role="group" aria-label="Ingredient toggles">
+    <!-- Water Vapor -->
+    <div class="tsing-card" data-ingredient="vapor" data-on="true">
+      <div class="tsing-card__title">
+        <span>Water Vapor</span>
+        <span class="tsing-status-pill" id="tsingPillVapor">On</span>
+      </div>
+      <div class="tsing-card__visual">
+        <svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <linearGradient id="tsingOcean" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#1e6bb0"/>
+              <stop offset="100%" stop-color="#0a3d6b"/>
+            </linearGradient>
+          </defs>
+          <path d="M0 110 Q 25 105, 50 110 T 100 110 T 150 110 T 200 110 L 200 150 L 0 150 Z" fill="url(#tsingOcean)"/>
+          <path d="M0 116 Q 25 112, 50 116 T 100 116 T 150 116 T 200 116 L 200 122 L 0 122 Z" fill="#3a86c4" opacity="0.6"/>
+          <g stroke="#FFFFFF" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.85">
+            <path class="tsing-vapor-stream" style="animation-delay:0s"   d="M 50 108 Q 44 90, 50 72 Q 56 54, 50 38 Q 46 26, 50 14"/>
+            <path class="tsing-vapor-stream" style="animation-delay:0.9s" d="M 100 108 Q 94 90, 100 72 Q 106 54, 100 38 Q 96 26, 100 14"/>
+            <path class="tsing-vapor-stream" style="animation-delay:1.6s" d="M 150 108 Q 144 90, 150 72 Q 156 54, 150 38 Q 146 26, 150 14"/>
+          </g>
+        </svg>
+      </div>
+      <div class="tsing-card__toggle-row">
+        <span class="tsing-card__toggle-label">Moisture available</span>
+        <label class="tsing-toggle-tap" aria-label="Toggle Water Vapor">
+          <span class="tsing-toggle">
+            <input type="checkbox" data-toggle="vapor" checked aria-label="Water vapor present">
+            <span class="tsing-toggle__track"></span>
+            <span class="tsing-toggle__thumb"></span>
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Unstable Air -->
+    <div class="tsing-card" data-ingredient="unstable" data-on="true">
+      <div class="tsing-card__title">
+        <span>Unstable Air</span>
+        <span class="tsing-status-pill" id="tsingPillUnstable">On</span>
+      </div>
+      <div class="tsing-card__visual">
+        <svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <linearGradient id="tsingInst" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3b5998"/>
+              <stop offset="55%" stop-color="#c98889"/>
+              <stop offset="100%" stop-color="#ffc89a"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="200" height="138" fill="url(#tsingInst)"/>
+          <rect x="0" y="138" width="200" height="12" fill="#5fa84e"/>
+          <g stroke="#0C1B33" stroke-width="0.8">
+            <circle cx="100" cy="22"  r="7" fill="#5e7fc2"/>
+            <circle cx="100" cy="42"  r="7" fill="#8e7eb0"/>
+            <circle cx="100" cy="62"  r="7" fill="#b785a0"/>
+            <circle cx="100" cy="82"  r="7" fill="#d68b8c"/>
+            <circle cx="100" cy="102" r="7" fill="#e9a37b"/>
+            <circle cx="100" cy="124" r="7" fill="#f3c084"/>
+          </g>
+          <g stroke="#0C1B33" stroke-width="1.2" fill="#0C1B33" class="tsing-parcel-arrow">
+            <g style="animation-delay:0s">
+              <path d="M 96 50 L 100 46 L 104 50 Z"/>
+              <path d="M 96 36 L 100 40 L 104 36 Z"/>
+            </g>
+            <g style="animation-delay:0.4s">
+              <path d="M 96 70 L 100 66 L 104 70 Z"/>
+              <path d="M 96 56 L 100 60 L 104 56 Z"/>
+            </g>
+            <g style="animation-delay:0.8s">
+              <path d="M 96 90 L 100 86 L 104 90 Z"/>
+              <path d="M 96 76 L 100 80 L 104 76 Z"/>
+            </g>
+            <g style="animation-delay:1.2s">
+              <path d="M 96 113 L 100 109 L 104 113 Z"/>
+              <path d="M 96 96 L 100 100 L 104 96 Z"/>
+            </g>
+          </g>
+          <g font-family="var(--font-display)" font-weight="800" font-size="11">
+            <text x="60" y="20" fill="#FFFFFF" text-anchor="end">Cold</text>
+            <text x="140" y="20" fill="#FFFFFF" text-anchor="start">Dry</text>
+            <text x="60" y="132" fill="#7a1f1f" text-anchor="end">Warm</text>
+            <text x="140" y="132" fill="#7a1f1f" text-anchor="start">Moist</text>
+          </g>
+        </svg>
+      </div>
+      <div class="tsing-card__toggle-row">
+        <span class="tsing-card__toggle-label">Atmosphere unstable</span>
+        <label class="tsing-toggle-tap" aria-label="Toggle Unstable Air">
+          <span class="tsing-toggle">
+            <input type="checkbox" data-toggle="unstable" checked aria-label="Unstable air present">
+            <span class="tsing-toggle__track"></span>
+            <span class="tsing-toggle__thumb"></span>
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Lift -->
+    <div class="tsing-card" data-ingredient="lift" data-on="true">
+      <div class="tsing-card__title">
+        <span>Lift</span>
+        <span class="tsing-status-pill" id="tsingPillLift">On</span>
+      </div>
+      <div class="tsing-card__visual">
+        <svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <linearGradient id="tsingLiftSky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3886c8"/>
+              <stop offset="100%" stop-color="#bfdcef"/>
+            </linearGradient>
+            <linearGradient id="tsingPuffFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FFFFFF"/>
+              <stop offset="100%" stop-color="#C4D2E2"/>
+            </linearGradient>
+          </defs>
+          <rect width="200" height="138" fill="url(#tsingLiftSky)"/>
+          <rect x="0" y="138" width="200" height="12" fill="#5fa84e"/>
+          <!-- Hand-authored organic puff cloud (replaces the prior 4 stacked ellipses) -->
+          <path d="${liftCardPuff}" fill="url(#tsingPuffFill)" stroke="#0C1B33" stroke-width="1.6" stroke-linejoin="round"/>
+          <!-- Stacked block-arrows pushing upward into the puff -->
+          <g class="tsing-lift-arrow">
+            <path d="M 86 138 L 86 96 L 78 96 L 100 70 L 122 96 L 114 96 L 114 138 Z" fill="#1d4a8a" stroke="#0C1B33" stroke-width="1.2" stroke-linejoin="round"/>
+            <path d="M 92 138 L 92 110 L 86 110 L 100 92 L 114 110 L 108 110 L 108 138 Z" fill="#38BDF8" stroke="#0C1B33" stroke-width="1" stroke-linejoin="round"/>
+            <path d="M 96 138 L 96 122 L 92 122 L 100 110 L 108 122 L 104 122 L 104 138 Z" fill="#FFFFFF" stroke="#0C1B33" stroke-width="0.8" stroke-linejoin="round"/>
+          </g>
+        </svg>
+      </div>
+      <div class="tsing-card__toggle-row">
+        <span class="tsing-card__toggle-label">Trigger active</span>
+        <label class="tsing-toggle-tap" aria-label="Toggle Lift">
+          <span class="tsing-toggle">
+            <input type="checkbox" data-toggle="lift" checked aria-label="Lift present">
+            <span class="tsing-toggle__track"></span>
+            <span class="tsing-toggle__thumb"></span>
+          </span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result panel -->
+  <div class="tsing-result">
+    <div class="tsing-result__inner">
+      <div class="tsing-result__scene">
+        <svg viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice" aria-hidden="true" id="tsingScene">
+          <defs>
+            <linearGradient id="tsingSkyClear" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3886c8"/>
+              <stop offset="100%" stop-color="#bfdcef"/>
+            </linearGradient>
+            <linearGradient id="tsingSkyUnstable" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3b5998"/>
+              <stop offset="55%" stop-color="#c98889"/>
+              <stop offset="100%" stop-color="#ffc89a"/>
+            </linearGradient>
+            <linearGradient id="tsingCloud" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FFFFFF"/>
+              <stop offset="55%" stop-color="#F1F5FB"/>
+              <stop offset="100%" stop-color="#C4D2E2"/>
+            </linearGradient>
+            <linearGradient id="tsingOceanScene" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#1e6bb0"/>
+              <stop offset="100%" stop-color="#0a3d6b"/>
+            </linearGradient>
+            <marker id="tsingArrowDot" viewBox="0 0 10 10" refX="5" refY="2" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 1 9 L 5 1 L 9 9 Z" fill="#0284C7"/>
+            </marker>
+          </defs>
+
+          <!-- Sky backgrounds (one of two visible at any time) -->
+          <rect class="tsing-scene-elem" id="tsingBgClear" width="800" height="380" fill="url(#tsingSkyClear)" opacity="1"/>
+          <rect class="tsing-scene-elem" id="tsingBgUnstable" width="800" height="380" fill="url(#tsingSkyUnstable)" opacity="0"/>
+
+          <!-- Ground (always) -->
+          <rect x="0" y="380" width="800" height="70" fill="#5fa84e"/>
+          <path d="M0 380 Q 80 374, 160 380 T 320 380 T 480 380 T 640 380 T 800 380 L 800 384 L 0 384 Z" fill="#4d8a3f" opacity="0.55"/>
+
+          <!-- Ocean (when vapor on) -->
+          <g class="tsing-scene-elem" id="tsingOceanGroup">
+            <path d="M 0 360 Q 80 354, 160 360 T 320 360 T 480 360 T 640 360 T 800 360 L 800 380 L 0 380 Z" fill="url(#tsingOceanScene)"/>
+            <path d="M 0 364 Q 80 360, 160 364 T 320 364 T 480 364 T 640 364 T 800 364 L 800 368 L 0 368 Z" fill="#3a86c4" opacity="0.6"/>
+          </g>
+
+          <!-- Vapor streams (vapor-on, no full success) -->
+          <g class="tsing-scene-elem" id="tsingVaporGroup" opacity="0">
+            <g stroke="#FFFFFF" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.7">
+              <path class="tsing-vapor-stream" style="animation-delay:0s"   d="M 220 360 Q 210 320, 220 280 Q 232 240, 220 200 Q 212 170, 220 140"/>
+              <path class="tsing-vapor-stream" style="animation-delay:0.7s" d="M 400 360 Q 390 320, 400 280 Q 412 240, 400 200 Q 392 170, 400 140"/>
+              <path class="tsing-vapor-stream" style="animation-delay:1.4s" d="M 580 360 Q 570 320, 580 280 Q 592 240, 580 200 Q 572 170, 580 140"/>
+            </g>
+          </g>
+
+          <!-- Dry rising arrows (lift on, vapor off) -->
+          <g class="tsing-scene-elem" id="tsingDryRiseGroup" opacity="0" stroke="#0284C7" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="6 6" stroke-opacity="0.7">
+            <path d="M 260 360 L 260 140" marker-end="url(#tsingArrowDot)"/>
+            <path d="M 400 360 L 400 110" marker-end="url(#tsingArrowDot)"/>
+            <path d="M 540 360 L 540 140" marker-end="url(#tsingArrowDot)"/>
+          </g>
+
+          <!-- Shallow stratus (vapor + lift, unstable off) -->
+          <g class="tsing-scene-elem" id="tsingStratusGroup" opacity="0">
+            <g fill="#dde6f0" stroke="#92a3bd" stroke-width="1" stroke-linejoin="round" opacity="0.92">
+              <ellipse cx="220" cy="296" rx="80" ry="14"/>
+              <ellipse cx="340" cy="290" rx="86" ry="13"/>
+              <ellipse cx="460" cy="298" rx="90" ry="14"/>
+              <ellipse cx="580" cy="292" rx="76" ry="12"/>
+              <ellipse cx="160" cy="300" rx="58" ry="11"/>
+              <ellipse cx="660" cy="300" rx="62" ry="11"/>
+            </g>
+          </g>
+
+          <!-- Lift arrow stack (right side, when lift on) -->
+          <g class="tsing-scene-elem" id="tsingLiftGroup" opacity="0">
+            <g class="tsing-lift-arrow" transform="translate(680, 0)">
+              <path d="M -16 380 L -16 320 L -28 320 L 0 280 L 28 320 L 16 320 L 16 380 Z" fill="#1d4a8a" stroke="#0C1B33" stroke-width="1.4" stroke-linejoin="round" opacity="0.85"/>
+              <path d="M -10 380 L -10 340 L -18 340 L 0 316 L 18 340 L 10 340 L 10 380 Z" fill="#38BDF8" stroke="#0C1B33" stroke-width="1" stroke-linejoin="round" opacity="0.92"/>
+            </g>
+          </g>
+
+          <!-- Towering cumulus (success) — IDENTICAL silhouette to lifecycle Stage 1 -->
+          <g class="tsing-scene-elem" id="tsingSuccessCloud" opacity="0">
+            <path d="${successCumulus}" fill="url(#tsingCloud)" stroke="#0C1B33" stroke-width="2.5" stroke-linejoin="round"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="tsing-result__verdict">
+        <span class="tsing-result__chip" id="tsingResultChip" data-tone="success">
+          <span class="tsing-chip-dot"></span>
+          <span id="tsingChipText">Thunderstorm forms</span>
+        </span>
+        <span class="tsing-result__count" id="tsingResultCount">3 / 3 ingredients</span>
+      </div>
+      <div class="tsing-result__caption">
+        <span id="tsingResultCaption">All three ingredients present — moist, unstable air is lifted and a towering cumulus builds. The cell can develop into a thunderstorm.</span>
+        <span class="tsing-result__cite">FAA-H-8083-28B · Chapter 22 — Thunderstorm Ingredients</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="tsing-footer">
+    A thunderstorm needs <strong>all three</strong> ingredients — water vapor, unstable air, and lift. Remove any one and convection cannot mature into a storm.
+    <span class="tsing-footer__cite">FAA-H-8083-28B · Chapter 22</span>
+  </p>
+</div>`;
   },
+
+  // Interactive init for the ingredients module. Idempotent via dataset.tsingInit.
+  // Wires toggle inputs + card-body taps; renders the appropriate scene state for
+  // each of the 8 ingredient combos.
+  _initTsIngredientsModule() {
+    const root = document.getElementById('tsingModule');
+    if (!root || root.dataset.tsingInit === 'done') return;
+    root.dataset.tsingInit = 'done';
+
+    const state = { vapor: true, unstable: true, lift: true };
+    const inputs = root.querySelectorAll('input[data-toggle]');
+    const cards = root.querySelectorAll('.tsing-card[data-ingredient]');
+    const pills = {
+      vapor: root.querySelector('#tsingPillVapor'),
+      unstable: root.querySelector('#tsingPillUnstable'),
+      lift: root.querySelector('#tsingPillLift')
+    };
+    const sceneEls = {
+      bgClear:        root.querySelector('#tsingBgClear'),
+      bgUnstable:     root.querySelector('#tsingBgUnstable'),
+      ocean:          root.querySelector('#tsingOceanGroup'),
+      vapor:          root.querySelector('#tsingVaporGroup'),
+      dryRise:        root.querySelector('#tsingDryRiseGroup'),
+      stratus:        root.querySelector('#tsingStratusGroup'),
+      lift:           root.querySelector('#tsingLiftGroup'),
+      successCloud:   root.querySelector('#tsingSuccessCloud')
+    };
+    const chip = root.querySelector('#tsingResultChip');
+    const chipText = root.querySelector('#tsingChipText');
+    const resultCaption = root.querySelector('#tsingResultCaption');
+    const resultCount = root.querySelector('#tsingResultCount');
+
+    function evaluate(s) {
+      const v = s.vapor, u = s.unstable, l = s.lift;
+      if (v && u && l) return {
+        caption: 'All three ingredients present — moist, unstable air is lifted and a towering cumulus builds. The cell can develop into a thunderstorm.',
+        chip: 'Thunderstorm forms', tone: 'success',
+        scene: { unstableBg: true, ocean: true, vapor: false, dryRise: false, stratus: false, lift: true, success: true }
+      };
+      if (!v && u && l) return {
+        caption: 'Without moisture, only dry convection — air is lifted in an unstable atmosphere but no cloud can form.',
+        chip: 'No cloud', tone: 'warn',
+        scene: { unstableBg: true, ocean: false, vapor: false, dryRise: true, stratus: false, lift: true, success: false }
+      };
+      if (v && !u && l) return {
+        caption: 'Without instability, rising air sinks back down. Moisture is lifted but only thin, shallow stratus forms — no convective growth.',
+        chip: 'Shallow cloud', tone: 'warn',
+        scene: { unstableBg: false, ocean: true, vapor: false, dryRise: false, stratus: true, lift: true, success: false }
+      };
+      if (v && u && !l) return {
+        caption: 'Without a trigger, the ingredients sit unused. Moisture and an unstable atmosphere are present, but nothing initiates convection.',
+        chip: 'No trigger', tone: 'warn',
+        scene: { unstableBg: true, ocean: true, vapor: true, dryRise: false, stratus: false, lift: false, success: false }
+      };
+      if (!v && !u && l) return {
+        caption: 'Lift acts on dry, stable air — no moisture to condense and no instability to sustain rising parcels. No storm forms.',
+        chip: 'Dry & stable', tone: 'muted',
+        scene: { unstableBg: false, ocean: false, vapor: false, dryRise: true, stratus: false, lift: true, success: false }
+      };
+      if (!v && u && !l) return {
+        caption: 'The atmosphere is unstable and dry, but nothing triggers it — convection never initiates.',
+        chip: 'Latent only', tone: 'muted',
+        scene: { unstableBg: true, ocean: false, vapor: false, dryRise: false, stratus: false, lift: false, success: false }
+      };
+      if (v && !u && !l) return {
+        caption: 'Moisture is present but the air is stable and untriggered — at most, calm haze and low cloud, no storm activity.',
+        chip: 'Calm & moist', tone: 'muted',
+        scene: { unstableBg: false, ocean: true, vapor: false, dryRise: false, stratus: false, lift: false, success: false }
+      };
+      return {
+        caption: 'Clear, calm conditions — no thunderstorm activity is possible without any of the required ingredients.',
+        chip: 'Clear & calm', tone: 'muted',
+        scene: { unstableBg: false, ocean: false, vapor: false, dryRise: false, stratus: false, lift: false, success: false }
+      };
+    }
+
+    function setOpacity(el, v) { if (el) el.setAttribute('opacity', v ? '1' : '0'); }
+
+    function render() {
+      const r = evaluate(state);
+      cards.forEach(c => {
+        const k = c.getAttribute('data-ingredient');
+        c.setAttribute('data-on', state[k] ? 'true' : 'false');
+      });
+      Object.keys(pills).forEach(k => { pills[k].textContent = state[k] ? 'On' : 'Off'; });
+
+      chipText.textContent = r.chip;
+      chip.setAttribute('data-tone', r.tone);
+      const on = (state.vapor?1:0) + (state.unstable?1:0) + (state.lift?1:0);
+      resultCount.textContent = on + ' / 3 ingredients';
+      resultCaption.textContent = r.caption;
+
+      setOpacity(sceneEls.bgClear, !r.scene.unstableBg);
+      setOpacity(sceneEls.bgUnstable, r.scene.unstableBg);
+      setOpacity(sceneEls.ocean, r.scene.ocean);
+      setOpacity(sceneEls.vapor, r.scene.vapor);
+      setOpacity(sceneEls.dryRise, r.scene.dryRise);
+      setOpacity(sceneEls.stratus, r.scene.stratus);
+      setOpacity(sceneEls.lift, r.scene.lift);
+      setOpacity(sceneEls.successCloud, r.scene.success);
+    }
+
+    inputs.forEach(i => {
+      i.addEventListener('change', () => {
+        state[i.getAttribute('data-toggle')] = i.checked;
+        render();
+      });
+    });
+    cards.forEach(c => {
+      c.addEventListener('click', e => {
+        if (e.target.closest('.tsing-toggle-tap')) return;
+        const k = c.getAttribute('data-ingredient');
+        const input = c.querySelector(`input[data-toggle="${k}"]`);
+        input.checked = !input.checked;
+        state[k] = input.checked;
+        render();
+      });
+    });
+
+    render();
+  },
+
+  // ===== ACT 2 DIAGRAMS =====
+  // (cbIngredients + showCBInfo were removed in the M6 §s6_1 redesign. The
+  // section's diagram is now type:'hotspot', key:'thunderstorm_ingredients',
+  // dispatched through renderHotspot() and _initTsIngredientsModule.)
 
   // FAA-H-8083-28B Ch 19 — turbulence types by mechanism. The four figures
   // below cover the four mechanisms the FAA splits into separate diagrams.

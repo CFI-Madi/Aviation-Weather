@@ -694,6 +694,7 @@ const Screens = {
       if (k === 'surface_wind_forces') { setTimeout(() => Diagrams._initSurfaceWindModule(), 100); return; }
       if (k === 'jet_stream') { setTimeout(() => Diagrams._initJetStreamsModule(), 100); return; }
       if (k === 'thunderstorm_lifecycle') { setTimeout(() => Diagrams._initTsLifecycleModule(), 100); return; }
+      if (k === 'thunderstorm_ingredients') { setTimeout(() => Diagrams._initTsIngredientsModule(), 100); return; }
     }
     // Delegate to Diagrams._initToolByKey so the tool_detail screen and the
     // lesson-embedded path share one init dispatch table.
