@@ -3,7 +3,7 @@
 // Cache name: bump version string to force cache refresh on deploy
 // ============================================================
 
-const CACHE_NAME = 'wx-academy-v13';
+const CACHE_NAME = 'wx-academy-v14';
 
 const APP_SHELL = [
   './',
@@ -18,11 +18,17 @@ const APP_SHELL = [
   './js/storage.js',
   './js/screens.js',
   './js/diagrams.js',
+  // Phase 2 — METAR Quiz generator + distractor logic.
+  './js/metar_quiz.js',
   './js/data/config.js',
   './js/data/modules.js',
   './js/data/case_studies.js',
   './js/data/achievements.js',
   './js/data/faa_validation.js',
+  // Phase 2 — METAR Quiz data tables + ASOS Reference content.
+  './js/data/metar_quiz_templates.js',
+  './js/data/metar_quiz_distractors.js',
+  './js/data/asos_reference.js',
   // PROCESS_DIAGRAMS — semantically-named copies in use since v1
   './img/awh/density_altitude_01.png',
   './img/awh/density_altitude_02.png',
