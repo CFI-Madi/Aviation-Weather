@@ -1033,6 +1033,13 @@ const Screens = {
 
     const weaknesses = GameEngine.getConceptWeaknesses();
 
+    // Case studies + checkride summary, ported from the retired More tab.
+    const casesCompleted = (s.caseStudiesCompleted || []).length;
+    const casesTotal = typeof CASE_STUDIES !== 'undefined' ? CASE_STUDIES.length : 0;
+    const checkrideScores = s.checkrideScores || [];
+    const bestCR = checkrideScores.length ? Math.max(...checkrideScores.map(r => r.pct || 0)) : null;
+    const passedCR = checkrideScores.filter(r => (r.passed ?? ((r.pct || 0) >= 70))).length;
+
     document.getElementById('logbook-content').innerHTML = `
       <h1 style="font-family:var(--font-display);font-size:26px;font-weight:900;color:var(--navy);margin-bottom:4px">Knowledge Logbook</h1>
       <p style="color:#64748B;font-size:14px;margin-bottom:20px">All 4 levels - ${MODULES.length} total modules</p>
@@ -1069,6 +1076,37 @@ const Screens = {
           </div>
           <div class="xp-bar-track" style="height:6px"><div class="xp-bar-fill" style="height:6px;width:${l.total ? Math.round(l.done/l.total*100) : 0}%;background:${l.color}"></div></div>
         </div>`).join('')}
+      </div>
+
+      <h2 style="font-size:18px;font-weight:800;color:var(--navy);margin:0 0 12px">Case Studies</h2>
+      <button type="button" onclick="Router.navigate('case_studies')" style="background:white;border:none;border-radius:14px;padding:16px;width:100%;text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:24px;font-family:var(--font-body)">
+        <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#FFE4E6,#FCA5A5);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:900;font-size:14px;color:#7F1D1D;flex-shrink:0">CS</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:15px;color:var(--navy)">${casesCompleted} of ${casesTotal} completed</div>
+          <div style="font-size:12px;color:#64748B;margin-top:2px">NTSB scenarios with weather-decision walkthroughs</div>
+          <div class="xp-bar-track" style="height:6px;margin-top:8px"><div class="xp-bar-fill" style="height:6px;width:${casesTotal ? Math.round(casesCompleted/casesTotal*100) : 0}%;background:#F43F5E"></div></div>
+        </div>
+        <span style="font-family:var(--font-display);font-size:22px;color:#CBD5E1;flex-shrink:0">›</span>
+      </button>
+
+      <h2 style="font-size:18px;font-weight:800;color:var(--navy);margin:0 0 12px">Checkride History</h2>
+      <div class="card" style="padding:18px;margin-bottom:24px">
+        ${checkrideScores.length ? `
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+            <div style="text-align:center"><div style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--navy)">${checkrideScores.length}</div><div style="font-size:10px;color:#94A3B8;font-weight:700">ATTEMPTS</div></div>
+            <div style="text-align:center"><div style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:#10B981">${passedCR}</div><div style="font-size:10px;color:#94A3B8;font-weight:700">PASSED</div></div>
+            <div style="text-align:center"><div style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--sky)">${bestCR}%</div><div style="font-size:10px;color:#94A3B8;font-weight:700">BEST</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            ${checkrideScores.slice(-5).reverse().map(r => `
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:${(r.passed ?? ((r.pct||0)>=70))?'#F0FDF4':'#FFF1F2'};border-radius:10px">
+                <span style="font-size:14px">${(r.passed ?? ((r.pct||0)>=70))?'✅':'❌'}</span>
+                <span style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:${(r.passed ?? ((r.pct||0)>=70))?'#10B981':'#EF4444'}">${r.pct}%</span>
+                <span style="font-size:11px;color:#94A3B8;margin-left:auto">${(r.passed ?? ((r.pct||0)>=70))?'Pass':'Fail'} - ${r.total||'?'} Qs</span>
+              </div>`).join('')}
+          </div>
+        ` : `<div style="text-align:center;padding:20px 0;color:#94A3B8;font-size:14px">No checkride attempts yet.<br><span style="font-size:12px">Complete at least one module to unlock the exam.</span></div>`}
+        <button onclick="Router.navigate('checkride')" style="margin-top:14px;width:100%;background:var(--navy);color:white;border:none;border-radius:14px;padding:12px;font-family:var(--font-display);font-weight:800;font-size:14px;cursor:pointer">Go to Checkride</button>
       </div>
 
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
