@@ -183,6 +183,23 @@ h1,h2,h3{font-family:var(--font-display)}
   .taf-row-tokens{font-size:12px}
   .taf-token{font-size:11.5px;padding:2px 6px}
 }
+/* Study Tools landing — three-category layout. 1-col mobile, 2-col ≥600px.
+   Cards are buttons (semantic + keyboard-friendly). The Coming-soon variant
+   keeps the same shape but de-emphasizes color/contrast and shows a pill
+   instead of a description. */
+.study-tools-grid{display:grid;gap:12px;grid-template-columns:1fr}
+@media (min-width:600px){.study-tools-grid{grid-template-columns:1fr 1fr}}
+.study-tool-card{display:flex;flex-direction:column;gap:8px;align-items:flex-start;text-align:left;background:white;border:none;border-radius:18px;padding:16px 18px;box-shadow:0 2px 12px rgba(0,0,0,.06);cursor:pointer;font-family:var(--font-body);transition:transform .12s,box-shadow .15s}
+.study-tool-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.10)}
+.study-tool-card:focus-visible{outline:3px solid var(--sky-dark);outline-offset:2px}
+.study-tool-card-soon{opacity:.62;cursor:default}
+.study-tool-card-soon:hover{transform:none;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.study-tool-card-header{display:flex;align-items:center;gap:10px}
+.study-tool-card-icon{font-size:22px;line-height:1;flex-shrink:0}
+.study-tool-card-name{font-family:var(--font-display);font-weight:800;font-size:15px;color:var(--navy);line-height:1.2}
+.study-tool-card-desc{font-size:13px;color:#475569;line-height:1.5;margin:0}
+.study-tool-card-pill{display:inline-block;background:#F1F5F9;color:#64748B;font-family:var(--font-display);font-weight:800;font-size:11px;padding:3px 10px;border-radius:99px;letter-spacing:.04em;text-transform:uppercase}
+.study-tool-card-tag{display:inline-block;background:var(--sky-light);color:var(--sky-dark);font-family:var(--font-display);font-weight:700;font-size:11px;padding:3px 10px;border-radius:99px;line-height:1.4}
 .daily-pulse{animation:daily-glow 2s ease-in-out infinite}
 @keyframes daily-glow{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.3)}50%{box-shadow:0 0 0 10px rgba(245,158,11,0)}}
 .act-tab{padding:8px 16px;border-radius:20px;font-family:var(--font-display);font-size:13px;font-weight:800;cursor:pointer;border:2px solid #E2E8F0;background:white;color:#94A3B8;transition:all .2s;white-space:nowrap}

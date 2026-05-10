@@ -1213,19 +1213,130 @@ const Screens = {
   },
 
   // ===== STUDY TOOLS =====
-  // Chunk 1 stub. The full landing page lands in Chunk 2; this stub makes the
-  // tab-tap and #/tools URL resolve without crashing.
-  tools() {
-    document.getElementById('tools-content').innerHTML = `
-      <h1 style="font-family:var(--font-display);font-size:26px;font-weight:900;color:var(--navy);margin-bottom:4px">Study Tools</h1>
-      <p style="color:#64748B;font-size:14px;margin-bottom:24px">Calculators, decoders, and quiz tools — one tap from anywhere.</p>
-      <div class="card" style="padding:20px;text-align:center;color:#64748B;font-size:14px">
-        Tools landing coming online — building it out in the next commit.
-      </div>`;
+  // Tool registry — the source of truth for the landing page card list,
+  // tool_detail routing, and the "Reviewed in Module N: <title>" tag. Module
+  // titles are pulled from MODULES at render time so a module rename doesn't
+  // need a second edit here.
+  TOOL_REGISTRY: [
+    {
+      category: 'Weather Decoding',
+      tools: [
+        { id: 'metar-quiz',   name: 'METAR Quiz',     icon: '📝', comingSoon: true,
+          comingSoonCopy: 'METAR Quiz coming soon — generates random METARs for you to decode field-by-field, with feedback.' },
+        { id: 'taf-quiz',     name: 'TAF Quiz',       icon: '🗒️', comingSoon: true,
+          comingSoonCopy: 'TAF Quiz coming soon — generates change-group scenarios (FM/TEMPO/BECMG/PROB/WS) and asks you to interpret them.' },
+        { id: 'metar-practice', name: 'METAR Practice', icon: '📋', moduleId: 'm11',
+          desc: '10 annotated METAR examples covering common decoding situations.',
+          renderFn: 'renderMetarDecoder' },
+        { id: 'taf-practice',   name: 'TAF Practice',   icon: '📅', moduleId: 'm12',
+          desc: '8 annotated TAF examples covering FM/TEMPO/BECMG/PROB/WS.',
+          renderFn: 'renderTafDecoder' }
+      ]
+    },
+    {
+      category: 'Performance Calculators',
+      tools: [
+        { id: 'density-altitude', name: 'Density Altitude', icon: '📊', moduleId: 'm2',
+          desc: 'Calculate density altitude from pressure altitude and temperature.',
+          renderFn: 'densityAltCalc', initFn: 'calcDA' },
+        { id: 'flight-category',  name: 'Flight Category',  icon: '✈️', moduleId: 'm11',
+          desc: 'Determine VFR/MVFR/IFR/LIFR from ceiling and visibility.',
+          renderFn: 'renderFlightCategoryCalc', initFn: 'calcFlightCategory' }
+      ]
+    },
+    {
+      category: 'Hazard Assessment',
+      tools: [
+        { id: 'icing-severity', name: 'Icing Severity', icon: '🧊', moduleId: 'm7',
+          desc: 'Estimate icing severity from temperature and visible moisture.',
+          renderFn: 'icingSeverityCalc', initFn: 'calcIcingRisk' },
+        { id: 'fog-formation',  name: 'Fog Formation',  icon: '🌫️', moduleId: 'm9',
+          desc: 'Predict fog formation from temperature, dewpoint, and wind.',
+          renderFn: 'fogFormationCalc', initFn: 'calcFogRisk' }
+      ]
+    }
+  ],
+
+  // Look up a tool descriptor by its id (used by tool_detail routing).
+  _findTool(toolId) {
+    for (const cat of this.TOOL_REGISTRY) {
+      const t = cat.tools.find(t => t.id === toolId);
+      if (t) return t;
+    }
+    return null;
   },
 
-  // Chunk 1 placeholder — Chunk 3 wires up the actual tool detail screen.
-  // For now, route falls back to the landing if a user lands here directly.
+  // Build the "Reviewed in Module N: <title>" tag string from live module data.
+  // Falls back to a bare module-id reference if the module is missing.
+  _moduleTagFor(moduleId) {
+    const mod = (typeof MODULES !== 'undefined') ? MODULES.find(m => m.id === moduleId) : null;
+    // Module IDs use the m1, m1a, m2 ... m20 convention. Strip the leading 'm'
+    // for the human number; treat 'm1a' as "Module 1a".
+    const num = moduleId ? moduleId.replace(/^m/, '') : '?';
+    const title = mod ? mod.title : moduleId;
+    return `Reviewed in Module ${num}: ${title}`;
+  },
+
+  // Show a brief toast (used by Coming Soon cards). Auto-dismiss after 3 s.
+  _showToolToast(message) {
+    let host = document.getElementById('study-tools-toast');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'study-tools-toast';
+      host.style.cssText = 'position:fixed;left:50%;bottom:96px;transform:translateX(-50%);z-index:200;background:#0C1B33;color:white;padding:12px 18px;border-radius:14px;font-family:var(--font-display);font-weight:700;font-size:13px;max-width:320px;text-align:center;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.25);pointer-events:none;opacity:0;transition:opacity .25s';
+      document.body.appendChild(host);
+    }
+    host.textContent = message;
+    requestAnimationFrame(() => { host.style.opacity = '1'; });
+    clearTimeout(host._dismiss);
+    host._dismiss = setTimeout(() => { host.style.opacity = '0'; }, 3000);
+  },
+
+  tools() {
+    const sectionsHtml = this.TOOL_REGISTRY.map(cat => {
+      const cardsHtml = cat.tools.map(t => this._renderToolCard(t)).join('');
+      return `
+        <section class="study-tools-category">
+          <h2 style="font-family:var(--font-display);font-weight:900;font-size:16px;color:var(--navy);margin:24px 0 12px;letter-spacing:.01em">${cat.category}</h2>
+          <div class="study-tools-grid">${cardsHtml}</div>
+        </section>`;
+    }).join('');
+
+    document.getElementById('tools-content').innerHTML = `
+      <h1 style="font-family:var(--font-display);font-size:26px;font-weight:900;color:var(--navy);margin-bottom:4px">Study Tools</h1>
+      <p style="color:#64748B;font-size:14px;margin-bottom:8px">Calculators, decoders, and quiz tools — one tap from anywhere.</p>
+      <div style="padding-bottom:24px">${sectionsHtml}</div>`;
+  },
+
+  _renderToolCard(tool) {
+    if (tool.comingSoon) {
+      const escapedCopy = (tool.comingSoonCopy || 'Coming in a future update.').replace(/'/g, "\\'");
+      return `
+        <button type="button" class="study-tool-card study-tool-card-soon"
+            onclick="Screens._showToolToast('${escapedCopy}')"
+            aria-label="${tool.name} — coming soon">
+          <div class="study-tool-card-header">
+            <span class="study-tool-card-icon" aria-hidden="true">${tool.icon}</span>
+            <span class="study-tool-card-name">${tool.name}</span>
+          </div>
+          <span class="study-tool-card-pill">Coming soon</span>
+        </button>`;
+    }
+    const tag = tool.moduleId ? this._moduleTagFor(tool.moduleId) : '';
+    return `
+      <button type="button" class="study-tool-card"
+          onclick="Router.navigate('tool_detail',{toolId:'${tool.id}'})"
+          aria-label="Open ${tool.name}">
+        <div class="study-tool-card-header">
+          <span class="study-tool-card-icon" aria-hidden="true">${tool.icon}</span>
+          <span class="study-tool-card-name">${tool.name}</span>
+        </div>
+        <p class="study-tool-card-desc">${tool.desc}</p>
+        ${tool.moduleId ? `<span class="study-tool-card-tag" data-module-id="${tool.moduleId}">${tag}</span>` : ''}
+      </button>`;
+  },
+
+  // Chunk 2 placeholder — Chunk 3 wires up the actual tool detail screen.
   tool_detail() {
     Router.navigate('tools');
   },
