@@ -20,10 +20,6 @@ const Router = {
       // Active checkride question session is transient — stays as #/checkride
       case 'checkride_results': return '#/checkride';
       case 'logbook':      return '#/logbook';
-      // 'more' is retained as a fallback route only — the More tab has been
-      // replaced by Study Tools in the bottom nav. Direct #/more URLs still
-      // resolve until Screens.more() is removed in the final cleanup chunk.
-      case 'more':         return '#/more';
       case 'achievements': return '#/achievements';
       case 'case_studies': return '#/cases';
       case 'case_detail':  return params.caseId ? `#/case/${params.caseId}` : '#/cases';
@@ -42,7 +38,6 @@ const Router = {
     if (seg==='modules')      return {screen:'modules',params:{}};
     if (seg==='checkride')    return {screen:'checkride',params:{}};
     if (seg==='logbook')      return {screen:'logbook',params:{}};
-    if (seg==='more')         return {screen:'more',params:{}};
     if (seg==='achievements') return {screen:'achievements',params:{}};
     if (seg==='cases')        return {screen:'case_studies',params:{}};
     if (seg==='tools') {
@@ -79,13 +74,17 @@ const Router = {
       b.classList.remove('active'); b.removeAttribute('aria-current');
     });
     // Sub-screens that should highlight a tab button rather than appear standalone.
-    // 'tool_detail' highlights the Study Tools tab. The other entries highlight
-    // 'more' for now — they'll be remapped during the final cleanup chunk once
-    // achievements/case_studies have settled into Logbook + Settings.
-    const secondary = ['achievements','case_studies','case_detail','quiz','lesson','checkride_results','tool_detail'];
+    //   tool_detail              → Study Tools tab
+    //   case_studies/case_detail → Logbook tab (now hosted there post-Phase 1)
+    //   achievements             → reachable via Settings sheet; highlights Logbook
+    //                              when arrived at directly (the gear isn't a tab)
+    //   quiz/lesson              → Study tab (the modules screen)
+    //   checkride_results        → Checkride tab
     let navId = screen;
     if (screen === 'tool_detail') navId = 'tools';
-    else if (['achievements','case_studies','case_detail','quiz','lesson','checkride_results'].includes(screen)) navId = 'more';
+    else if (screen === 'lesson' || screen === 'quiz') navId = 'modules';
+    else if (screen === 'checkride_results') navId = 'checkride';
+    else if (screen === 'case_studies' || screen === 'case_detail' || screen === 'achievements') navId = 'logbook';
     const btn = document.getElementById(`nav-${navId}`);
     if (btn) { btn.classList.add('active'); btn.setAttribute('aria-current','page'); }
   },
