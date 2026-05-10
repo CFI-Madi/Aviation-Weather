@@ -3,6 +3,20 @@
 // ============================================================
 
 const Diagrams = {
+  // Shared init dispatch — used by both lesson sections (Screens._initDiagram)
+  // and the standalone tool-detail screen (Screens.tool_detail). The key may
+  // be a section's svgKey/key/type or a registered tool's renderFn name.
+  _initToolByKey(k) {
+    if (!k) return;
+    if (k === 'density_altitude' || k === 'densityAltCalc') this.calcDA();
+    else if (k === 'lapse_rate_graph') this.updateLapseGraph();
+    else if (k === 'wave_cyclone') this.showCycloneStage(0);
+    else if (k === 'microburst_approach') this.showMicroburstPhase(0);
+    else if (k === 'icing_severity' || k === 'icingSeverityCalc') this.calcIcingRisk();
+    else if (k === 'fog_formation' || k === 'fogFormationCalc') this.calcFogRisk();
+    else if (k === 'flight_category_calc' || k === 'renderFlightCategoryCalc') this.calcFlightCategory();
+  },
+
   // Unified render — dispatches every diagram type the lessons can ask for
   render(type, key) {
     // Foundations: hotspot / slider patterns (atmosphere, wind, fronts, clouds)

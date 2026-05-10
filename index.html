@@ -26,8 +26,8 @@
   <div id="screen-checkride_results" class="screen px-4 pt-4"><div id="checkride_results-content"></div></div>
   <div id="screen-case_studies" class="screen px-4 pt-4"><div id="case_studies-content"></div></div>
   <div id="screen-case_detail" class="screen px-4 pt-4"><div id="case_detail-content"></div></div>
-  <div id="screen-more" class="screen px-4 pt-6"><div id="more-content"></div></div>
-  <div id="screen-metar_live" class="screen px-4 pt-4"><div id="metar_live-content"></div></div>
+  <div id="screen-tools" class="screen px-4 pt-6"><div id="tools-content"></div></div>
+  <div id="screen-tool_detail" class="screen px-4 pt-4"><div id="tool_detail-content"></div></div>
 </div>
 <nav id="bottom-nav" aria-label="Main navigation">
   <button class="nav-btn active" onclick="window.Router&&Router.navigate('dashboard')" id="nav-dashboard" aria-label="Home" aria-current="page">
@@ -46,13 +46,21 @@
     <span class="nav-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16.5l8 2.5 8-2.5"/><path d="M3 12l8 2.5 8-2.5"/><path d="M11 3L3 6.5l8 2.5 8-2.5L11 3z"/></svg></span>
     <span>Logbook</span><div class="nav-dot" aria-hidden="true"></div>
   </button>
-  <button class="nav-btn" onclick="window.Router&&Router.navigate('more')" id="nav-more" aria-label="More features">
-    <span class="nav-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="currentColor"><circle cx="8" cy="8" r="2.2"/><circle cx="14" cy="8" r="2.2"/><circle cx="8" cy="14" r="2.2"/><circle cx="14" cy="14" r="2.2"/></svg></span>
-    <span>More</span><div class="nav-dot" aria-hidden="true"></div>
+  <button class="nav-btn" onclick="window.Router&&Router.navigate('tools')" id="nav-tools" aria-label="Study Tools">
+    <span class="nav-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><!-- wrench: head with open jaw + handle --><path d="M14.6 4.6a3 3 0 0 1 4.24 4.24l-2.12-2.12-2.12 2.12-2.12-2.12 2.12-2.12z"/><path d="M11.6 8.6l-7.07 7.07a1.5 1.5 0 1 0 2.12 2.12l7.07-7.07"/></svg></span>
+    <span>Study Tools</span><div class="nav-dot" aria-hidden="true"></div>
   </button>
 </nav>
 
 <div id="onboarding-overlay" style="display:none;position:fixed;inset:0;z-index:500;background:#0C1B33;overflow-y:auto"></div>
+<div id="settings-sheet" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(12,27,51,.55);overflow-y:auto" role="dialog" aria-modal="true" aria-label="Settings"></div>
+<button id="settings-gear" type="button" aria-label="Open settings" style="display:none;position:fixed;top:14px;right:14px;z-index:90;width:44px;height:44px;border:none;border-radius:50%;background:white;box-shadow:0 2px 10px rgba(0,0,0,.12);cursor:pointer;align-items:center;justify-content:center;color:#475569"
+        onclick="window.Settings&&Settings.show()">
+  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="11" cy="11" r="3"/>
+    <path d="M11 1.5v3M11 17.5v3M3.43 3.43l2.12 2.12M16.45 16.45l2.12 2.12M1.5 11h3M17.5 11h3M3.43 18.57l2.12-2.12M16.45 5.55l2.12-2.12"/>
+  </svg>
+</button>
 
 <!-- Data -->
 <script src="js/data/config.js"></script>

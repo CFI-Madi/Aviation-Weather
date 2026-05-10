@@ -603,28 +603,56 @@ const Screens = {
   _renderDiagram(sec) {
     if (!sec.diagram) return '';
     const d = sec.diagram;
+    let html = '';
     // Foundations pattern: hotspot/slider with svgKey
-    if (d.svgKey) return Diagrams.render(d.type, d.svgKey);
+    if (d.svgKey) html = Diagrams.render(d.type, d.svgKey);
     // Hazard pattern: interactive with explicit key
-    if (d.key) return Diagrams.render(d.type, d.key);
+    else if (d.key) html = Diagrams.render(d.type, d.key);
     // Operational products: type is the render key
-    if (d.type) return Diagrams.render(d.type, d.type);
-    return '';
+    else if (d.type) html = Diagrams.render(d.type, d.type);
+    if (html) {
+      const footer = this._embeddedToolFooter(d);
+      if (footer) html += footer;
+    }
+    return html;
+  },
+
+  // Returns an "Also available in Study Tools" footer if the section's
+  // diagram corresponds to a registered tool. Six tools, six places — but
+  // keeping the dispatch here means the per-tool footer copy lives in one
+  // file instead of six section bodies. M2's density-altitude section is a
+  // special case: it embeds the FAA process image rather than the slider
+  // calc, so the footer there is more invitation than reminder ("try real
+  // numbers" vs the standard "also available standalone" copy).
+  _embeddedToolFooter(d) {
+    const key = d.svgKey || d.key || d.type || '';
+    // (key → toolId, copy)
+    const map = {
+      'density_altitude':       { toolId: 'density-altitude',
+        copy: 'Want to try real numbers? The standalone <strong>Density Altitude</strong> calculator is in <a href="#/tools/density-altitude">Study Tools</a>.' },
+      'icing_severity':         { toolId: 'icing-severity',
+        copy: 'Also available in <a href="#/tools/icing-severity">Study Tools → Icing Severity</a> for standalone exploration.' },
+      'fog_formation':          { toolId: 'fog-formation',
+        copy: 'Also available in <a href="#/tools/fog-formation">Study Tools → Fog Formation</a> for standalone exploration.' },
+      'metar_decoder':          { toolId: 'metar-practice',
+        copy: 'Also available in <a href="#/tools/metar-practice">Study Tools → METAR Practice</a> — same 10 examples, one tap from anywhere.' },
+      'taf_decoder':            { toolId: 'taf-practice',
+        copy: 'Also available in <a href="#/tools/taf-practice">Study Tools → TAF Practice</a> — same 8 examples, one tap from anywhere.' },
+      'flight_category_calc':   { toolId: 'flight-category',
+        copy: 'Also available in <a href="#/tools/flight-category">Study Tools → Flight Category</a> for standalone exploration.' }
+    };
+    const entry = map[key];
+    if (!entry) return '';
+    return `<p class="embedded-tool-footer" style="font-size:12px;color:#64748B;line-height:1.55;margin:10px 6px 0;font-family:var(--font-body)">${entry.copy}</p>`;
   },
 
   _initDiagram(sec) {
     if (!sec.diagram) return;
     if (sec.diagram.type === 'process') return;
     const k = sec.diagram.svgKey || sec.diagram.key || sec.diagram.type || '';
-    setTimeout(() => {
-      if (k === 'density_altitude') Diagrams.calcDA();
-      if (k === 'lapse_rate_graph') Diagrams.updateLapseGraph();
-      if (k === 'wave_cyclone') Diagrams.showCycloneStage(0);
-      if (k === 'microburst_approach') Diagrams.showMicroburstPhase(0);
-      if (k === 'icing_severity') Diagrams.calcIcingRisk();
-      if (k === 'fog_formation') Diagrams.calcFogRisk();
-      if (k === 'flight_category_calc') Diagrams.calcFlightCategory();
-    }, 100);
+    // Delegate to Diagrams._initToolByKey so the tool_detail screen and the
+    // lesson-embedded path share one init dispatch table.
+    setTimeout(() => Diagrams._initToolByKey(k), 100);
   },
 
   // ===== QUIZ =====
@@ -1039,6 +1067,13 @@ const Screens = {
 
     const weaknesses = GameEngine.getConceptWeaknesses();
 
+    // Case studies + checkride summary, ported from the retired More tab.
+    const casesCompleted = (s.caseStudiesCompleted || []).length;
+    const casesTotal = typeof CASE_STUDIES !== 'undefined' ? CASE_STUDIES.length : 0;
+    const checkrideScores = s.checkrideScores || [];
+    const bestCR = checkrideScores.length ? Math.max(...checkrideScores.map(r => r.pct || 0)) : null;
+    const passedCR = checkrideScores.filter(r => (r.passed ?? ((r.pct || 0) >= 70))).length;
+
     document.getElementById('logbook-content').innerHTML = `
       <h1 style="font-family:var(--font-display);font-size:26px;font-weight:900;color:var(--navy);margin-bottom:4px">Knowledge Logbook</h1>
       <p style="color:#64748B;font-size:14px;margin-bottom:20px">All 4 levels - ${MODULES.length} total modules</p>
@@ -1077,6 +1112,37 @@ const Screens = {
         </div>`).join('')}
       </div>
 
+      <h2 style="font-size:18px;font-weight:800;color:var(--navy);margin:0 0 12px">Case Studies</h2>
+      <button type="button" onclick="Router.navigate('case_studies')" style="background:white;border:none;border-radius:14px;padding:16px;width:100%;text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:24px;font-family:var(--font-body)">
+        <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#FFE4E6,#FCA5A5);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:900;font-size:14px;color:#7F1D1D;flex-shrink:0">CS</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:15px;color:var(--navy)">${casesCompleted} of ${casesTotal} completed</div>
+          <div style="font-size:12px;color:#64748B;margin-top:2px">NTSB scenarios with weather-decision walkthroughs</div>
+          <div class="xp-bar-track" style="height:6px;margin-top:8px"><div class="xp-bar-fill" style="height:6px;width:${casesTotal ? Math.round(casesCompleted/casesTotal*100) : 0}%;background:#F43F5E"></div></div>
+        </div>
+        <span style="font-family:var(--font-display);font-size:22px;color:#CBD5E1;flex-shrink:0">›</span>
+      </button>
+
+      <h2 style="font-size:18px;font-weight:800;color:var(--navy);margin:0 0 12px">Checkride History</h2>
+      <div class="card" style="padding:18px;margin-bottom:24px">
+        ${checkrideScores.length ? `
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+            <div style="text-align:center"><div style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--navy)">${checkrideScores.length}</div><div style="font-size:10px;color:#94A3B8;font-weight:700">ATTEMPTS</div></div>
+            <div style="text-align:center"><div style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:#10B981">${passedCR}</div><div style="font-size:10px;color:#94A3B8;font-weight:700">PASSED</div></div>
+            <div style="text-align:center"><div style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--sky)">${bestCR}%</div><div style="font-size:10px;color:#94A3B8;font-weight:700">BEST</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            ${checkrideScores.slice(-5).reverse().map(r => `
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:${(r.passed ?? ((r.pct||0)>=70))?'#F0FDF4':'#FFF1F2'};border-radius:10px">
+                <span style="font-size:14px">${(r.passed ?? ((r.pct||0)>=70))?'✅':'❌'}</span>
+                <span style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:${(r.passed ?? ((r.pct||0)>=70))?'#10B981':'#EF4444'}">${r.pct}%</span>
+                <span style="font-size:11px;color:#94A3B8;margin-left:auto">${(r.passed ?? ((r.pct||0)>=70))?'Pass':'Fail'} - ${r.total||'?'} Qs</span>
+              </div>`).join('')}
+          </div>
+        ` : `<div style="text-align:center;padding:20px 0;color:#94A3B8;font-size:14px">No checkride attempts yet.<br><span style="font-size:12px">Complete at least one module to unlock the exam.</span></div>`}
+        <button onclick="Router.navigate('checkride')" style="margin-top:14px;width:100%;background:var(--navy);color:white;border:none;border-radius:14px;padding:12px;font-family:var(--font-display);font-weight:800;font-size:14px;cursor:pointer">Go to Checkride</button>
+      </div>
+
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <h2 style="font-size:18px;font-weight:800;color:var(--navy);margin:0">Review Queue</h2>
         <span style="background:#FEF3C7;color:#D97706;padding:4px 12px;border-radius:20px;font-size:13px;font-weight:700">${srQs.length} due</span>
@@ -1091,10 +1157,8 @@ const Screens = {
           </div>
           <div style="font-size:14px;color:var(--navy);font-weight:600;margin-bottom:10px">${q.question}</div>
           <button onclick="Screens._srR('${q.id}','${q.modId}',this)" style="background:${q.modColor};color:white;border:none;border-radius:10px;padding:8px 16px;font-family:var(--font-display);font-weight:700;font-size:13px;cursor:pointer">Review</button>
-        </div>`;}).join('')}${srQs.length>5?`<div style="text-align:center;padding:12px;color:#94A3B8">...and ${srQs.length-5} more</div>`:''}</div>`}
-      <div style="margin-top:24px;text-align:center">
-        <button onclick="if(confirm('Reset ALL Aviation Weather Academy progress?')){localStorage.removeItem('aviation_weather_v1');localStorage.removeItem('charlotte_aviation_v1');GameEngine.init();Router.navigate('dashboard')}" style="background:none;border:none;color:#CBD5E1;font-size:13px;cursor:pointer">Reset All Progress</button>
-      </div>`;
+        </div>`;}).join('')}${srQs.length>5?`<div style="text-align:center;padding:12px;color:#94A3B8">...and ${srQs.length-5} more</div>`:''}</div>`}`;
+    // Reset progress action moved to Settings sheet (gear icon → Settings).
   },
 
   _srR(qId, modId, btn) {
@@ -1113,103 +1177,165 @@ const Screens = {
     <div style="font-size:13px;color:#475569;margin-top:10px;padding-top:10px;border-top:1px solid #F1F5F9">${q.explanation||''}</div>`;
   },
 
-  // ===== MORE HUB =====
-  more() {
-    const s = GameEngine.state;
-    // derived — don't hardcode: dedupe by id (defensive against any duplicate
-    // entries in ACHIEVEMENTS) and use the resulting length as the badge total.
-    const seen = new Set();
-    const uniqueAch = ACHIEVEMENTS.filter(a=>{ if(seen.has(a.id))return false; seen.add(a.id); return true; });
-    const achEarned = s.achievements.length;
-    const achTotal = uniqueAch.length;
-    const casesCompleted = (s.caseStudiesCompleted||[]).length;
-    // derived — don't hardcode (case-study count grows; the 15 fallback was stale and is gone)
-    const casesTotal = typeof CASE_STUDIES !== 'undefined' ? CASE_STUDIES.length : 0;
-    const bestCR = s.checkrideScores && s.checkrideScores.length
-      ? Math.max(...s.checkrideScores.map(r=>r.pct||0)) : null;
 
-    document.getElementById('more-content').innerHTML = `
-      <div style="padding:4px 0 100px">
-        <h1 style="font-family:var(--font-display);font-size:26px;font-weight:900;color:var(--navy);margin-bottom:4px">More</h1>
-        <p style="color:#64748B;font-size:14px;margin-bottom:24px">Tools, records, and extra study material</p>
+  // ===== STUDY TOOLS =====
+  // Tool registry — the source of truth for the landing page card list,
+  // tool_detail routing, and the "Reviewed in Module N: <title>" tag. Module
+  // titles are pulled from MODULES at render time so a module rename doesn't
+  // need a second edit here.
+  TOOL_REGISTRY: [
+    {
+      category: 'Weather Decoding',
+      tools: [
+        { id: 'metar-quiz',   name: 'METAR Quiz',     icon: '📝', comingSoon: true,
+          comingSoonCopy: 'METAR Quiz coming soon — generates random METARs for you to decode field-by-field, with feedback.' },
+        { id: 'taf-quiz',     name: 'TAF Quiz',       icon: '🗒️', comingSoon: true,
+          comingSoonCopy: 'TAF Quiz coming soon — generates change-group scenarios (FM/TEMPO/BECMG/PROB/WS) and asks you to interpret them.' },
+        { id: 'metar-practice', name: 'METAR Practice', icon: '📋', moduleId: 'm11',
+          desc: '10 annotated METAR examples covering common decoding situations.',
+          renderFn: 'renderMetarDecoder' },
+        { id: 'taf-practice',   name: 'TAF Practice',   icon: '📅', moduleId: 'm12',
+          desc: '8 annotated TAF examples covering FM/TEMPO/BECMG/PROB/WS.',
+          renderFn: 'renderTafDecoder' }
+      ]
+    },
+    {
+      category: 'Performance Calculators',
+      tools: [
+        { id: 'density-altitude', name: 'Density Altitude', icon: '📊', moduleId: 'm2',
+          desc: 'Calculate density altitude from pressure altitude and temperature.',
+          renderFn: 'densityAltCalc', initFn: 'calcDA' },
+        { id: 'flight-category',  name: 'Flight Category',  icon: '✈️', moduleId: 'm11',
+          desc: 'Determine VFR/MVFR/IFR/LIFR from ceiling and visibility.',
+          renderFn: 'renderFlightCategoryCalc', initFn: 'calcFlightCategory' }
+      ]
+    },
+    {
+      category: 'Hazard Assessment',
+      tools: [
+        { id: 'icing-severity', name: 'Icing Severity', icon: '🧊', moduleId: 'm7',
+          desc: 'Estimate icing severity from temperature and visible moisture.',
+          renderFn: 'icingSeverityCalc', initFn: 'calcIcingRisk' },
+        { id: 'fog-formation',  name: 'Fog Formation',  icon: '🌫️', moduleId: 'm9',
+          desc: 'Predict fog formation from temperature, dewpoint, and wind.',
+          renderFn: 'fogFormationCalc', initFn: 'calcFogRisk' }
+      ]
+    }
+  ],
 
-        <div style="display:grid;gap:14px">
+  // Look up a tool descriptor by its id (used by tool_detail routing).
+  _findTool(toolId) {
+    for (const cat of this.TOOL_REGISTRY) {
+      const t = cat.tools.find(t => t.id === toolId);
+      if (t) return t;
+    }
+    return null;
+  },
 
-          <!-- Achievements card -->
-          <div class="card" style="padding:0;overflow:hidden;cursor:pointer" onclick="Router.navigate('achievements')" role="button" tabindex="0" aria-label="Open Achievements" onkeydown="if(event.key==='Enter'||event.key===' ')Router.navigate('achievements')">
-            <div style="display:flex;align-items:center;gap:16px;padding:18px">
-              <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#FEF3C7,#FCD34D);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0">A</div>
-              <div style="flex:1;min-width:0">
-                <div style="font-family:var(--font-display);font-weight:800;font-size:17px;color:var(--navy)">Achievements</div>
-                <div style="font-size:13px;color:#64748B;margin-top:2px">${achEarned} of ${achTotal} badges earned</div>
-                <div class="xp-bar-track" style="height:6px;margin-top:8px">
-                  <div class="xp-bar-fill" style="height:6px;width:${achTotal?Math.round(achEarned/achTotal*100):0}%"></div>
-                </div>
-              </div>
-              <div style="color:#CBD5E1;font-size:20px;flex-shrink:0">&gt;</div>
-            </div>
+  // Build the "Reviewed in Module N: <title>" tag string from live module data.
+  // Falls back to a bare module-id reference if the module is missing.
+  _moduleTagFor(moduleId) {
+    const mod = (typeof MODULES !== 'undefined') ? MODULES.find(m => m.id === moduleId) : null;
+    // Module IDs use the m1, m1a, m2 ... m20 convention. Strip the leading 'm'
+    // for the human number; treat 'm1a' as "Module 1a".
+    const num = moduleId ? moduleId.replace(/^m/, '') : '?';
+    const title = mod ? mod.title : moduleId;
+    return `Reviewed in Module ${num}: ${title}`;
+  },
+
+  // Show a brief toast (used by Coming Soon cards). Auto-dismiss after 3 s.
+  _showToolToast(message) {
+    let host = document.getElementById('study-tools-toast');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'study-tools-toast';
+      host.style.cssText = 'position:fixed;left:50%;bottom:96px;transform:translateX(-50%);z-index:200;background:#0C1B33;color:white;padding:12px 18px;border-radius:14px;font-family:var(--font-display);font-weight:700;font-size:13px;max-width:320px;text-align:center;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.25);pointer-events:none;opacity:0;transition:opacity .25s';
+      document.body.appendChild(host);
+    }
+    host.textContent = message;
+    requestAnimationFrame(() => { host.style.opacity = '1'; });
+    clearTimeout(host._dismiss);
+    host._dismiss = setTimeout(() => { host.style.opacity = '0'; }, 3000);
+  },
+
+  tools() {
+    const sectionsHtml = this.TOOL_REGISTRY.map(cat => {
+      const cardsHtml = cat.tools.map(t => this._renderToolCard(t)).join('');
+      return `
+        <section class="study-tools-category">
+          <h2 style="font-family:var(--font-display);font-weight:900;font-size:16px;color:var(--navy);margin:24px 0 12px;letter-spacing:.01em">${cat.category}</h2>
+          <div class="study-tools-grid">${cardsHtml}</div>
+        </section>`;
+    }).join('');
+
+    document.getElementById('tools-content').innerHTML = `
+      <h1 style="font-family:var(--font-display);font-size:26px;font-weight:900;color:var(--navy);margin-bottom:4px">Study Tools</h1>
+      <p style="color:#64748B;font-size:14px;margin-bottom:8px">Calculators, decoders, and quiz tools — one tap from anywhere.</p>
+      <div style="padding-bottom:24px">${sectionsHtml}</div>`;
+  },
+
+  _renderToolCard(tool) {
+    if (tool.comingSoon) {
+      const escapedCopy = (tool.comingSoonCopy || 'Coming in a future update.').replace(/'/g, "\\'");
+      return `
+        <button type="button" class="study-tool-card study-tool-card-soon"
+            onclick="Screens._showToolToast('${escapedCopy}')"
+            aria-label="${tool.name} — coming soon">
+          <div class="study-tool-card-header">
+            <span class="study-tool-card-icon" aria-hidden="true">${tool.icon}</span>
+            <span class="study-tool-card-name">${tool.name}</span>
           </div>
-
-          <!-- Live Weather card -->
-          <div class="card" style="padding:0;overflow:hidden;cursor:pointer" onclick="Router.navigate('metar_live')" role="button" tabindex="0" aria-label="Open Live Weather" onkeydown="if(event.key==='Enter'||event.key===' ')Router.navigate('metar_live')">
-            <div style="display:flex;align-items:center;gap:16px;padding:18px">
-              <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#DBEAFE,#93C5FD);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0">WX</div>
-              <div style="flex:1;min-width:0">
-                <div style="font-family:var(--font-display);font-weight:800;font-size:17px;color:var(--navy)">Live Weather</div>
-                <div style="font-size:13px;color:#64748B;margin-top:2px">METAR study guide and category review</div>
-                <div style="font-size:11px;color:#94A3B8;margin-top:4px">Open a stable study-only weather reference</div>
-              </div>
-              <div style="color:#CBD5E1;font-size:20px;flex-shrink:0">&gt;</div>
-            </div>
-          </div>
-
-          <!-- Case Studies card -->
-          <div class="card" style="padding:0;overflow:hidden;cursor:pointer" onclick="Router.navigate('case_studies')" role="button" tabindex="0" aria-label="Open Case Studies" onkeydown="if(event.key==='Enter'||event.key===' ')Router.navigate('case_studies')">
-            <div style="display:flex;align-items:center;gap:16px;padding:18px">
-              <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#FFE4E6,#FCA5A5);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0">CS</div>
-              <div style="flex:1;min-width:0">
-                <div style="font-family:var(--font-display);font-weight:800;font-size:17px;color:var(--navy)">Case Studies</div>
-                <div style="font-size:13px;color:#64748B;margin-top:2px">${casesCompleted} of ${casesTotal} completed</div>
-                <div class="xp-bar-track" style="height:6px;margin-top:8px">
-                  <div class="xp-bar-fill" style="height:6px;width:${casesTotal ? Math.round(casesCompleted/casesTotal*100) : 0}%;background:var(--coral)"></div>
-                </div>
-              </div>
-              <div style="color:#CBD5E1;font-size:20px;flex-shrink:0">&gt;</div>
-            </div>
-          </div>
-
-          <!-- Checkride stats (informational) -->
-          <div class="card" style="padding:18px">
-            <div style="font-family:var(--font-display);font-weight:800;font-size:15px;color:var(--navy);margin-bottom:12px">Checkride History</div>
-            ${s.checkrideScores && s.checkrideScores.length ? `
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
-                <div style="text-align:center">
-                  <div style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--navy)">${s.checkrideScores.length}</div>
-                  <div style="font-size:10px;color:#94A3B8;font-weight:700">ATTEMPTS</div>
-                </div>
-                <div style="text-align:center">
-                  <div style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:#10B981">${s.checkrideScores.filter(r=>(r.passed ?? ((r.pct||0) >= 70))).length}</div>
-                  <div style="font-size:10px;color:#94A3B8;font-weight:700">PASSED</div>
-                </div>
-                <div style="text-align:center">
-                  <div style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--sky)">${bestCR}%</div>
-                  <div style="font-size:10px;color:#94A3B8;font-weight:700">BEST</div>
-                </div>
-              </div>
-              <div style="display:flex;flex-direction:column;gap:6px">
-                ${s.checkrideScores.slice(-5).reverse().map((r,i)=>`
-                  <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:${(r.passed ?? ((r.pct||0) >= 70))?'#F0FDF4':'#FFF1F2'};border-radius:10px">
-                    <span style="font-size:14px">${(r.passed ?? ((r.pct||0) >= 70))?'✅':'❌'}</span>
-                    <span style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:${(r.passed ?? ((r.pct||0) >= 70))?'#10B981':'#EF4444'}">${r.pct}%</span>
-                    <span style="font-size:11px;color:#94A3B8;margin-left:auto">${(r.passed ?? ((r.pct||0) >= 70))?'Pass':'Fail'} - ${r.total||'?'} Qs</span>
-                  </div>`).join('')}
-              </div>
-            ` : `<div style="text-align:center;padding:20px 0;color:#94A3B8;font-size:14px">No checkride attempts yet.<br><span style="font-size:12px">Complete at least one module to unlock the exam.</span></div>`}
-            <button onclick="Router.navigate('checkride')" style="margin-top:14px;width:100%;background:var(--navy);color:white;border:none;border-radius:14px;padding:12px;font-family:var(--font-display);font-weight:800;font-size:14px;cursor:pointer">Go to Checkride</button>
-          </div>
-
+          <span class="study-tool-card-pill">Coming soon</span>
+        </button>`;
+    }
+    const tag = tool.moduleId ? this._moduleTagFor(tool.moduleId) : '';
+    return `
+      <button type="button" class="study-tool-card"
+          onclick="Router.navigate('tool_detail',{toolId:'${tool.id}'})"
+          aria-label="Open ${tool.name}">
+        <div class="study-tool-card-header">
+          <span class="study-tool-card-icon" aria-hidden="true">${tool.icon}</span>
+          <span class="study-tool-card-name">${tool.name}</span>
         </div>
+        <p class="study-tool-card-desc">${tool.desc}</p>
+        ${tool.moduleId ? `<span class="study-tool-card-tag" data-module-id="${tool.moduleId}">${tag}</span>` : ''}
+      </button>`;
+  },
+
+  tool_detail(params) {
+    const toolId = params && params.toolId;
+    const tool = toolId ? this._findTool(toolId) : null;
+    if (!tool || tool.comingSoon || !tool.renderFn) {
+      Router.navigate('tools');
+      return;
+    }
+    // Record this tool open so future "Recently used" surfacing has data.
+    // Storage default initialises recentToolsUsed[] in chunk 4 — guard for
+    // the case where chunk 4 hasn't applied yet so chunk 3 isn't blocked
+    // on chunk 4 (commits land in order anyway).
+    if (typeof GameEngine !== 'undefined' && typeof GameEngine.recordToolUsage === 'function') {
+      GameEngine.recordToolUsage(toolId);
+    }
+    const tag = tool.moduleId ? this._moduleTagFor(tool.moduleId) : '';
+    const mod = tool.moduleId && typeof MODULES !== 'undefined' ? MODULES.find(m => m.id === tool.moduleId) : null;
+    const renderFn = Diagrams[tool.renderFn];
+    const toolHtml = (typeof renderFn === 'function') ? renderFn.call(Diagrams) : '<div style="padding:20px;color:#94A3B8">Tool render unavailable.</div>';
+
+    document.getElementById('tool_detail-content').innerHTML = `
+      <div style="padding-bottom:24px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <button onclick="Router.navigate('tools')" aria-label="Back to Study Tools" style="background:#F1F5F9;border:none;border-radius:12px;padding:8px 14px;cursor:pointer;font-family:var(--font-display);font-weight:700;color:#64748B;font-size:13px">← Back</button>
+        </div>
+        <h1 style="font-family:var(--font-display);font-size:26px;font-weight:900;color:var(--navy);margin:0 0 6px;display:flex;align-items:center;gap:10px"><span aria-hidden="true">${tool.icon}</span><span>${tool.name}</span></h1>
+        ${tool.moduleId ? `<button onclick="Router.navigate('lesson',{moduleId:'${tool.moduleId}'})" class="study-tool-detail-tag" style="background:var(--sky-light);color:var(--sky-dark);font-family:var(--font-display);font-weight:700;font-size:12px;padding:5px 12px;border-radius:99px;border:none;cursor:pointer;margin-bottom:16px;line-height:1.4">${tag} →</button>` : ''}
+        <div class="study-tool-detail-host">${toolHtml}</div>
+        ${tool.moduleId && mod ? `<p style="font-size:12px;color:#64748B;line-height:1.6;margin:18px 6px 0;font-family:var(--font-body)">Working with this calculator standalone? You can also find it in <a href="#/lesson/${tool.moduleId}" style="color:var(--sky-dark);font-weight:700;text-decoration:none">Module ${tool.moduleId.replace(/^m/,'')}: ${mod.title}</a>, which adds context on when and how to use it.</p>` : ''}
       </div>`;
+    // Run the matching init pass for calculators that need a first-render
+    // value (the picker tools self-initialise from the registry data).
+    if (tool.initFn) {
+      setTimeout(() => Diagrams._initToolByKey(tool.renderFn), 100);
+    }
   },
 
   // ===== ACHIEVEMENTS =====
@@ -1236,52 +1362,6 @@ const Screens = {
           <div style="font-size:12px;color:#94A3B8;margin-top:4px;line-height:1.4">${a.desc}</div>
           ${earned?`<div style="margin-top:8px;font-size:11px;font-weight:800;color:${a.color};text-transform:uppercase">Earned</div>`:''}
         </div>`;}).join('')}
-      </div>`;
-  },
-
-  // ============================================================
-  // LIVE METAR SCREEN
-  // ============================================================
-  metar_live() {
-    document.getElementById('metar_live-content').innerHTML = `
-      <div style="padding:20px 16px 100px">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
-          <button onclick="Router.navigate('more')" aria-label="Back to More" style="background:#F1F5F9;border:none;border-radius:12px;padding:8px 14px;cursor:pointer;font-family:var(--font-display);font-weight:700;color:#64748B">Back</button>
-          <div>
-            <h1 style="font-family:var(--font-display);font-weight:900;font-size:22px;color:var(--navy);margin:0">Live Weather</h1>
-            <p style="font-size:12px;color:#64748B;margin:2px 0 0">METAR study help and category review</p>
-          </div>
-        </div>
-        <div class="card" style="padding:18px;margin-bottom:16px">
-          <div style="font-family:var(--font-display);font-weight:900;font-size:16px;color:var(--navy);margin-bottom:8px">Live weather temporarily unavailable</div>
-          <div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:14px">We have paused live airport pulls while the weather feed is being cleaned up. You can still review METAR categories and jump into the decoder lesson below.</div>
-          <button onclick="Router.navigate('lesson',{moduleId:'m11'})" style="background:var(--navy);color:white;border:none;border-radius:12px;padding:10px 16px;font-family:var(--font-display);font-weight:800;font-size:14px;cursor:pointer">Open M11 METAR Practice</button>
-        </div>
-        <div class="card" style="padding:18px;margin-bottom:16px">
-          <div style="font-size:11px;color:#94A3B8;font-weight:800;text-transform:uppercase;margin-bottom:8px">Flight Categories</div>
-          <div style="display:grid;gap:10px">
-            ${[
-              ['VFR', '#10B981', 'Ceiling above 3,000 ft and visibility above 5 SM'],
-              ['MVFR', '#3B82F6', 'Ceiling 1,000-3,000 ft or visibility 3-5 SM'],
-              ['IFR', '#EF4444', 'Ceiling 500-1,000 ft or visibility 1-3 SM'],
-              ['LIFR', '#7C3AED', 'Ceiling below 500 ft or visibility below 1 SM']
-            ].map(([cat, color, detail]) => `
-              <div style="background:#F8FAFC;border-radius:14px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px">
-                <span style="min-width:52px;background:${color};color:white;border-radius:999px;padding:4px 10px;font-size:11px;font-weight:800;text-align:center">${cat}</span>
-                <div style="font-size:12px;color:#475569;line-height:1.5">${detail}</div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-        <div class="card" style="padding:18px">
-          <div style="font-size:11px;color:#94A3B8;font-weight:800;text-transform:uppercase;margin-bottom:8px">Study Flow</div>
-          <div style="display:grid;gap:8px;font-size:13px;color:#475569;line-height:1.6">
-            <div>1. Read wind first.</div>
-            <div>2. Check visibility and any obscurations.</div>
-            <div>3. Find the lowest broken, overcast, or vertical visibility layer.</div>
-            <div>4. Compare what you see to the category guide above.</div>
-          </div>
-        </div>
       </div>`;
   },
 
@@ -1977,6 +2057,9 @@ const Onboarding = {
     GameEngine.state.firstLaunchSeen = true;
     GameEngine.save();
     this._dismiss();
+    // The gear icon is gated on firstLaunchSeen — flip it on now that the
+    // user has completed onboarding so it appears immediately.
+    if (typeof Settings !== 'undefined' && Settings.syncGearVisibility) Settings.syncGearVisibility();
     Router.init();
     if (screen === 'lesson' && moduleId) {
       Router.navigate('lesson', { moduleId });
@@ -2078,4 +2161,166 @@ const Onboarding = {
 };
 
 window.Onboarding = Onboarding;
+
+
+// ============================================================
+// Settings — administrative content relocated from the More tab.
+// Full-screen overlay on mobile, centered modal on desktop. Visible
+// via the floating gear icon (#settings-gear in index.html), which is
+// only shown after firstLaunchSeen=true so onboarding stays clean.
+// Sections: Profile, Achievements (link), Stats, About, Reset.
+// ============================================================
+
+const Settings = {
+  show() {
+    const sheet = document.getElementById('settings-sheet');
+    if (!sheet) return;
+    this._render();
+    sheet.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  },
+
+  hide() {
+    const sheet = document.getElementById('settings-sheet');
+    if (!sheet) return;
+    sheet.style.display = 'none';
+    document.body.style.overflow = '';
+  },
+
+  // Update the gear icon's visibility based on firstLaunchSeen. Called from
+  // GameEngine.init() after state load and from Onboarding._complete() the
+  // moment the flag flips, so the gear appears immediately post-onboarding
+  // without a reload.
+  syncGearVisibility() {
+    const gear = document.getElementById('settings-gear');
+    if (!gear) return;
+    const seen = !!(typeof GameEngine !== 'undefined' && GameEngine.state && GameEngine.state.firstLaunchSeen);
+    gear.style.display = seen ? 'flex' : 'none';
+  },
+
+  _render() {
+    const s = (typeof GameEngine !== 'undefined' && GameEngine.state) ? GameEngine.state : {};
+    // Profile / Learner Level
+    const levelId = (typeof GameEngine !== 'undefined' && GameEngine.getCurrentLevel) ? GameEngine.getCurrentLevel() : 'student';
+    const levelMeta = (typeof LEVEL_META !== 'undefined') ? LEVEL_META.find(l => l.id === levelId) : null;
+    const levelLabel = levelMeta ? levelMeta.title : 'Student Pilot';
+    // Achievements
+    const seen = new Set();
+    const uniqueAch = (typeof ACHIEVEMENTS !== 'undefined') ? ACHIEVEMENTS.filter(a => { if (seen.has(a.id)) return false; seen.add(a.id); return true; }) : [];
+    const achEarned = (s.achievements || []).length;
+    const achTotal = uniqueAch.length;
+    // Stats
+    const totalXP = (s.totalXP || 0).toLocaleString();
+    const streak = s.streakDays || 0;
+    const sectionsRead = s.totalSectionsRead || 0;
+    const modulesPassedCount = (s.modulesPassed || []).length;
+    const modulesTotal = (typeof MODULES !== 'undefined') ? MODULES.length : 0;
+    const checkrideScores = s.checkrideScores || [];
+    const lastCheckride = checkrideScores.length ? checkrideScores[checkrideScores.length - 1] : null;
+    const bestCheckride = checkrideScores.length ? Math.max(...checkrideScores.map(r => r.pct || 0)) : null;
+    const bestCheckrideEntry = checkrideScores.find(r => (r.pct || 0) === bestCheckride);
+    const bestDate = bestCheckrideEntry && bestCheckrideEntry.date ? new Date(bestCheckrideEntry.date).toLocaleDateString() : null;
+    const checkrideSummary = bestCheckride !== null
+      ? `Best checkride: ${bestCheckride}%${bestDate ? ` on ${bestDate}` : ''}`
+      : 'No checkride attempts yet';
+
+    document.getElementById('settings-sheet').innerHTML = `
+      <div class="settings-card">
+        <div class="settings-header">
+          <h2 style="font-family:var(--font-display);font-size:22px;font-weight:900;color:var(--navy);margin:0">Settings</h2>
+          <button type="button" onclick="Settings.hide()" aria-label="Close settings" style="background:#F1F5F9;border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:18px;color:#64748B;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+
+        <section class="settings-section">
+          <h3 class="settings-section-h3">Profile</h3>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Learner Level</div>
+              <div class="settings-row-value">${levelLabel}</div>
+            </div>
+            <button type="button" class="settings-row-action" onclick="Settings._changeLevel()">Change level</button>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h3 class="settings-section-h3">Stats</h3>
+          <div class="settings-stats-grid">
+            <div class="settings-stat"><div class="settings-stat-value">${totalXP}</div><div class="settings-stat-label">Total XP</div></div>
+            <div class="settings-stat"><div class="settings-stat-value">${streak}</div><div class="settings-stat-label">${streak === 1 ? 'Day streak' : 'Day streak'}</div></div>
+            <div class="settings-stat"><div class="settings-stat-value">${modulesPassedCount}/${modulesTotal}</div><div class="settings-stat-label">Modules passed</div></div>
+            <div class="settings-stat"><div class="settings-stat-value">${sectionsRead}</div><div class="settings-stat-label">Sections read</div></div>
+          </div>
+          <button type="button" class="settings-row settings-row-link" onclick="Settings.hide();Router.navigate('logbook')">
+            <div>
+              <div class="settings-row-label">Checkride history</div>
+              <div class="settings-row-value">${checkrideSummary}</div>
+            </div>
+            <span class="settings-row-chevron">›</span>
+          </button>
+          <button type="button" class="settings-row settings-row-link" onclick="Settings.hide();Router.navigate('achievements')">
+            <div>
+              <div class="settings-row-label">Achievements</div>
+              <div class="settings-row-value">${achEarned} of ${achTotal} badges earned</div>
+            </div>
+            <span class="settings-row-chevron">›</span>
+          </button>
+        </section>
+
+        <section class="settings-section">
+          <h3 class="settings-section-h3">About</h3>
+          <div class="settings-about">
+            <div><strong>Aviation Weather Academy</strong></div>
+            <div>Educational study tool based on FAA-H-8083-28B (Aviation Weather Handbook, April 2026).</div>
+            <div style="margin-top:8px;color:#94A3B8;font-size:11px">Maintained by Charlotte Flight Academy. Not a substitute for FAA-approved training, a certified ground school, or instruction from a qualified CFI.</div>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h3 class="settings-section-h3" style="color:#DC2626">Reset progress</h3>
+          <p style="font-size:13px;color:#64748B;line-height:1.55;margin:0 0 10px">Erases all XP, module progress, achievements, and review queue. This cannot be undone.</p>
+          <button type="button" class="settings-reset-btn" onclick="Settings._resetProgress()">Reset all progress</button>
+        </section>
+      </div>`;
+  },
+
+  _changeLevel() {
+    // Route through the existing onboarding level picker. After they confirm,
+    // _complete persists state.learnerLevel (per the chunk 1 wiring) and the
+    // Settings sheet is re-shown so they're not dropped onto a different
+    // screen unexpectedly.
+    Settings.hide();
+    if (typeof Onboarding !== 'undefined' && Onboarding._renderScreen2) {
+      const overlay = document.getElementById('onboarding-overlay');
+      if (overlay) overlay.style.display = 'block';
+      // Override _complete just for this round so it returns to settings rather
+      // than navigating away. Restore the original after the override fires.
+      const origComplete = Onboarding._complete;
+      Onboarding._complete = function() {
+        if (this._selectedLevel && typeof LEVELS !== 'undefined' && LEVELS.includes(this._selectedLevel)) {
+          GameEngine.state.learnerLevel = this._selectedLevel;
+          GameEngine.save();
+        }
+        if (window.Analytics) Analytics.track('Settings: Level Changed', { level: this._selectedLevel });
+        Onboarding._dismiss();
+        Onboarding._complete = origComplete;
+        Settings.show();
+        // Re-render the dashboard so the new level is reflected if visible.
+        if (Router.current === 'dashboard') Screens.dashboard();
+      };
+      Onboarding._renderScreen2();
+    }
+  },
+
+  _resetProgress() {
+    if (!confirm('Reset ALL Aviation Weather Academy progress? This cannot be undone.')) return;
+    localStorage.removeItem('aviation_weather_v1');
+    localStorage.removeItem('charlotte_aviation_v1');
+    Settings.hide();
+    GameEngine.init();
+    Settings.syncGearVisibility();
+    Router.navigate('dashboard');
+  }
+};
+
+window.Settings = Settings;
 

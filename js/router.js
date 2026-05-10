@@ -20,11 +20,11 @@ const Router = {
       // Active checkride question session is transient — stays as #/checkride
       case 'checkride_results': return '#/checkride';
       case 'logbook':      return '#/logbook';
-      case 'more':         return '#/more';
-      case 'metar_live':   return '#/metar';
       case 'achievements': return '#/achievements';
       case 'case_studies': return '#/cases';
       case 'case_detail':  return params.caseId ? `#/case/${params.caseId}` : '#/cases';
+      case 'tools':        return '#/tools';
+      case 'tool_detail':  return params.toolId ? `#/tools/${params.toolId}` : '#/tools';
       default:             return '#/dashboard';
     }
   },
@@ -38,10 +38,14 @@ const Router = {
     if (seg==='modules')      return {screen:'modules',params:{}};
     if (seg==='checkride')    return {screen:'checkride',params:{}};
     if (seg==='logbook')      return {screen:'logbook',params:{}};
-    if (seg==='more')         return {screen:'more',params:{}};
-    if (seg==='metar')        return {screen:'metar_live',params:{}};
     if (seg==='achievements') return {screen:'achievements',params:{}};
     if (seg==='cases')        return {screen:'case_studies',params:{}};
+    if (seg==='tools') {
+      // /tools or /tools/<toolId>. Validate the toolId against the registry
+      // resolved at render time; an unknown id falls back to the landing.
+      if (p1) return {screen:'tool_detail',params:{toolId:p1}};
+      return {screen:'tools',params:{}};
+    }
     if (seg==='lesson') {
       if (p1 && MODULES.find(m=>m.id===p1)) return {screen:'lesson',params:{moduleId:p1}};
       return {screen:'modules',params:{}};     // unknown module id → safe fallback
@@ -69,8 +73,18 @@ const Router = {
     document.querySelectorAll('.nav-btn').forEach(b=>{
       b.classList.remove('active'); b.removeAttribute('aria-current');
     });
-    const secondary = ['achievements','case_studies','case_detail','metar_live','quiz','lesson','checkride_results'];
-    const navId = secondary.includes(screen) ? 'more' : screen;
+    // Sub-screens that should highlight a tab button rather than appear standalone.
+    //   tool_detail              → Study Tools tab
+    //   case_studies/case_detail → Logbook tab (now hosted there post-Phase 1)
+    //   achievements             → reachable via Settings sheet; highlights Logbook
+    //                              when arrived at directly (the gear isn't a tab)
+    //   quiz/lesson              → Study tab (the modules screen)
+    //   checkride_results        → Checkride tab
+    let navId = screen;
+    if (screen === 'tool_detail') navId = 'tools';
+    else if (screen === 'lesson' || screen === 'quiz') navId = 'modules';
+    else if (screen === 'checkride_results') navId = 'checkride';
+    else if (screen === 'case_studies' || screen === 'case_detail' || screen === 'achievements') navId = 'logbook';
     const btn = document.getElementById(`nav-${navId}`);
     if (btn) { btn.classList.add('active'); btn.setAttribute('aria-current','page'); }
   },

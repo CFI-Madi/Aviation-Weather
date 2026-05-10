@@ -17,7 +17,15 @@ const Storage = {
       checkrideScores: [], checkrideTopicStats: {}, quizHistory: [],
       lastStudyTarget: null, _actFilter: 'all',
       quizInProgress: null,
-      firstLaunchSeen: false
+      firstLaunchSeen: false,
+      // Reverse-chronological list of {toolId, timestamp} entries, capped at 10.
+      // Updated by GameEngine.recordToolUsage(toolId) whenever a user opens a
+      // tool detail screen. Reserved for a future "Recently used tools" row;
+      // Phase 1 just records the data so it exists when that row is built.
+      // Convention: additive defaultState changes don't bump the storage key —
+      // the load()-time spread merge initialises the field for existing users.
+      // See CONVENTIONS.md for the storage-version policy.
+      recentToolsUsed: []
     };
   },
   load() {

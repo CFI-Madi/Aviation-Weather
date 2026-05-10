@@ -40,4 +40,43 @@ no clean extraction was available at the time of the redraw. Low priority
 
 ---
 
+## Live AWC fetch — deferred to Study Tools Phase 4
+
+The "Live Weather" screen and More-tab card retired in the Study Tools
+Phase 1 redesign (commit chunk 6 of `feat/study-tools-phase1`). Live AWC
+airport-METAR fetching is planned for Phase 4 of the same redesign,
+integrated into the upcoming **METAR Quiz** and **TAF Quiz** tools at
+their higher difficulty levels (real airport data instead of synthetic
+generators). The Phase-1 stub copy ("Live weather temporarily
+unavailable") was a holding pattern; the feature returns under a quiz
+banner where it has a clearer pedagogical home.
+
+---
+
+## Tool render-function ID namespaces — single-screen-active assumption
+
+The six tool render functions in `js/diagrams.js` (Density Altitude, Flight
+Category, Icing Severity, Fog Formation, METAR Practice, TAF Practice) use
+stable element ID namespaces — `da-*`, `fc-*`, `ic-*`, `fg-*`, `metar-*`,
+`taf-*`. These IDs would collide if two instances of the same tool were ever
+rendered in visible contexts simultaneously (e.g. one inside a lesson and
+one on the Study Tools detail screen).
+
+The current routing prevents that — only one `.screen.active` element is
+visible at a time, so duplicate IDs never co-exist in the visible DOM. But
+the assumption is fragile. Things to watch for:
+
+- A future "Recently used tools" preview row on the Study Tools landing page
+  that renders mini-versions of recently-opened tools.
+- A dashboard tile that previews the user's current density altitude.
+- A side-by-side comparison view.
+
+If any of those land, the render functions need to accept an ID-prefix
+argument (e.g. `densityAltCalc({prefix:'preview-'})`) or be refactored to
+namespace via a host-element data attribute. Until then: leave the IDs
+alone, and revisit this note before adding any feature that renders the
+same tool in two simultaneous places.
+
+---
+
 (future entries land below this line)
