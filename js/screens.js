@@ -691,6 +691,7 @@ const Screens = {
     // inject, separately from the tool-key dispatch table.
     if (sec.diagram.type === 'hotspot') {
       if (k === 'wind_forces') { setTimeout(() => Diagrams._initGeostrophicWindModule(), 100); return; }
+      if (k === 'surface_wind_forces') { setTimeout(() => Diagrams._initSurfaceWindModule(), 100); return; }
     }
     // Delegate to Diagrams._initToolByKey so the tool_detail screen and the
     // lesson-embedded path share one init dispatch table.

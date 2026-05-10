@@ -539,3 +539,85 @@ button:focus-visible{outline:3px solid var(--sky-dark);outline-offset:2px;border
   .gw-module .panel-label{font-size:11px}
   .gw-module .wind-label{font-size:10px}
 }
+
+/* ============================================================
+   Surface Wind Forces Module (replaces FAA Fig 10-10 hotspot in M3 §s3_2).
+   Three-panel comparison (NO FRICTION / NET FORCE / NO NET FORCE) with a
+   layer toggle and friction-strength slider that drives the cross-isobar
+   angle in real time. Same token strategy as .gw-module.
+   ============================================================ */
+
+.sw-module{
+  max-width:760px;margin:20px auto;background:var(--navy);
+  border-radius:16px;overflow:hidden;font-family:var(--font-body);
+  color:#334155;line-height:1.5;
+  box-shadow:0 10px 40px rgba(12,27,51,.18)
+}
+.sw-module__header{padding:18px 20px 4px}
+.sw-module__title{font-family:var(--font-display);font-weight:900;
+  color:white;font-size:22px;line-height:1.15;letter-spacing:-.01em;margin:0}
+.sw-module__attr{font-family:var(--font-mono);font-size:11px;color:var(--sky);
+  padding:6px 20px 14px;letter-spacing:.02em}
+.sw-module__figure{background:white;padding:12px 10px 14px}
+.sw-module__figure svg{width:100%;height:auto;display:block;user-select:none}
+.sw-module__caption{background:var(--navy);color:#CBD5E1;padding:14px 20px 8px;
+  font-size:14px;line-height:1.5}
+.sw-caption__lead{font-family:var(--font-mono);font-size:11px;color:var(--sky);
+  letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:4px}
+.sw-caption__text{color:white;font-weight:600}
+.sw-controls{background:var(--navy);padding:12px 16px 18px;
+  border-top:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;gap:14px}
+.sw-toggle-group{display:inline-flex;background:rgba(255,255,255,.06);border-radius:10px;padding:4px;gap:4px}
+.sw-toggle-btn{font-family:var(--font-body);font-weight:800;font-size:13px;
+  height:44px;min-width:44px;padding:0 14px;border-radius:8px;border:0;cursor:pointer;
+  background:transparent;color:#CBD5E1}
+.sw-toggle-btn[aria-pressed="true"]{background:var(--sky-dark);color:white}
+.sw-friction-row{display:flex;flex-direction:column;gap:8px}
+.sw-friction-row__head{display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--font-mono);font-size:12px;color:#CBD5E1;letter-spacing:.04em}
+.sw-angle-readout{color:white;font-weight:700}
+.sw-angle-readout strong{color:var(--amber);font-size:16px}
+.sw-terrain-desc{font-family:var(--font-body);font-size:13px;color:white;font-weight:600}
+.sw-terrain-pill{display:inline-block;padding:3px 10px;border-radius:999px;
+  background:rgba(245,158,11,.15);color:var(--amber);font-family:var(--font-mono);
+  font-size:11px;letter-spacing:.04em;margin-left:6px}
+.sw-module input[type="range"]{-webkit-appearance:none;appearance:none;
+  width:100%;height:32px;background:transparent;cursor:pointer}
+.sw-module input[type="range"]::-webkit-slider-runnable-track{
+  height:6px;background:linear-gradient(90deg,var(--emerald),var(--amber),var(--rose));
+  border-radius:999px}
+.sw-module input[type="range"]::-moz-range-track{
+  height:6px;background:linear-gradient(90deg,var(--emerald),var(--amber),var(--rose));
+  border-radius:999px}
+.sw-module input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+  height:24px;width:24px;border-radius:50%;background:white;border:3px solid var(--amber);
+  margin-top:-9px;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.sw-module input[type="range"]::-moz-range-thumb{height:24px;width:24px;border-radius:50%;
+  background:white;border:3px solid var(--amber);box-shadow:0 2px 6px rgba(0,0,0,.3)}
+/* SVG element styles */
+.sw-module .iso-line{stroke:#334155;stroke-width:2;fill:none}
+.sw-module .iso-label{font-family:var(--font-mono);font-size:11px;fill:#334155;font-weight:700}
+.sw-module .pressure-label{font-family:var(--font-display);font-weight:900;font-size:12px;
+  fill:var(--navy);letter-spacing:.05em}
+.sw-module .panel-status{font-family:var(--font-display);font-size:11px;font-weight:900;
+  fill:var(--navy);letter-spacing:.06em}
+.sw-module .panel-divider{stroke:#CBD5E1;stroke-width:1;stroke-dasharray:4 4}
+.sw-module .right-panel-box{stroke:#334155;stroke-width:1.5;stroke-dasharray:6 5;fill:none}
+.sw-module .force-text{font-family:var(--font-display);font-weight:800;font-size:11px;letter-spacing:.04em}
+.sw-module .panel{transition:opacity 320ms ease}
+@media (max-width:599px){
+  .sw-module{margin:16px auto;border-radius:12px}
+  .sw-module__header{padding:14px 16px 2px}
+  .sw-module__title{font-size:18px}
+  .sw-module__attr{font-size:10px;padding:6px 16px 12px}
+  .sw-module__caption{font-size:13px;padding:12px 16px 6px}
+  .sw-controls{padding:10px 12px 14px}
+  .sw-toggle-btn{font-size:12px;padding:0 10px}
+  .sw-terrain-desc{font-size:12px}
+  /* SVG class-specific font-size overrides for legibility at 390px */
+  .sw-module svg text{font-size:13px}
+  .sw-module .iso-label{font-size:13px}
+  .sw-module .pressure-label{font-size:13px}
+  .sw-module .panel-status{font-size:11px}
+  .sw-module .force-text{font-size:11px}
+}

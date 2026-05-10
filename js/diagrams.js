@@ -120,7 +120,9 @@ const Diagrams = {
         svgContent: this.pressureSystemsSVG(),
       },
       surface_wind_forces: {
+        // Module renders its own header + FAA attribution strip.
         title: '🌬️ Surface Wind Forces — Friction at Work',
+        selfTitled: true,
         svgContent: this.surfaceWindForcesSVG(),
       }
     };
@@ -999,19 +1001,293 @@ const Diagrams = {
     });
   },
 
-  // FAA-H-8083-28B Fig 10-10 — three forces acting on a surface air parcel:
-  // PGF (toward lower pressure), Coriolis (perpendicular to motion), and
-  // friction (opposite the wind). Below the friction layer the three
-  // forces no longer balance cleanly, so the resultant wind crosses isobars
-  // at an angle toward lower pressure rather than flowing parallel to them.
+  // M3 §s3_2 — bespoke 3-panel interactive Surface Wind Forces module that
+  // replaced the FAA Fig 10-10 still image. Toggle between "Above friction
+  // layer" (single panel — geostrophic) and "Below friction layer" (all
+  // three panels). Friction-strength slider drives the cross-isobar angle
+  // 0°–45° in real time. Pressure values 1004 / 1008 / 1012 / 1016 hPa,
+  // angle descriptions match FAA-H-8083-28B Ch. 10. Init logic in
+  // _initSurfaceWindModule.
   surfaceWindForcesSVG() {
-    return this.renderFaaFigure({
-      src: 'img/awh/awh_p0127_img_002.png',
-      figureNumber: '10-10',
-      title: 'Surface Wind Forces',
-      caption: 'Below the friction layer (roughly the lowest 2,000 ft AGL over flat terrain), friction adds a third force opposite the wind direction. PGF and Coriolis no longer balance cleanly, so the resultant wind crosses isobars at an angle toward lower pressure rather than flowing parallel to them.',
-      alt: 'FAA-H-8083-28B Figure 10-10: surface wind forces showing PGF, Coriolis, and friction acting on an air parcel below the boundary layer.',
-    });
+    return this.renderSurfaceWindModule();
+  },
+
+  renderSurfaceWindModule() {
+    return `
+<div class="sw-module" id="swModule" role="region" aria-label="Surface wind forces teaching figure">
+  <div class="sw-module__header">
+    <h2 class="sw-module__title">Surface Wind Forces</h2>
+  </div>
+  <div class="sw-module__attr">FAA-H-8083-28B · Fig 10-10 — Surface Wind Forces</div>
+
+  <div class="sw-module__figure">
+    <svg id="swFigure" viewBox="0 0 720 420" preserveAspectRatio="xMidYMid meet" aria-label="Three panels: no friction, net force, and resultant balanced wind">
+      <defs>
+        <radialGradient id="swParcelGrad" cx="35%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#FFFFFF"/>
+          <stop offset="60%" stop-color="#E0F2FE"/>
+          <stop offset="100%" stop-color="#7DD3FC"/>
+        </radialGradient>
+      </defs>
+
+      <text class="pressure-label" x="360" y="20" text-anchor="middle">LOW PRESSURE</text>
+      <text class="pressure-label" x="360" y="408" text-anchor="middle">HIGH PRESSURE</text>
+
+      <g id="swIsobars">
+        <line class="iso-line" x1="50" y1="60" x2="700" y2="60"/>
+        <text class="iso-label" x="22" y="64">1004</text>
+        <line class="iso-line" x1="50" y1="160" x2="700" y2="160"/>
+        <text class="iso-label" x="22" y="164">1008</text>
+        <line class="iso-line" x1="50" y1="260" x2="700" y2="260"/>
+        <text class="iso-label" x="22" y="264">1012</text>
+        <line class="iso-line" x1="50" y1="360" x2="700" y2="360"/>
+        <text class="iso-label" x="22" y="364">1016</text>
+      </g>
+
+      <line id="swDiv1" class="panel-divider" x1="270" y1="40" x2="270" y2="380"/>
+      <line id="swDiv2" class="panel-divider" x1="490" y1="40" x2="490" y2="380"/>
+
+      <g id="swPanel1" class="panel">
+        <text class="panel-status" x="160" y="395" text-anchor="middle">NO FRICTION</text>
+        <g id="swP1Arrows"></g>
+      </g>
+      <g id="swPanel2" class="panel">
+        <text class="panel-status" x="380" y="395" text-anchor="middle">NET FORCE</text>
+        <g id="swP2Arrows"></g>
+      </g>
+      <g id="swPanel3" class="panel">
+        <rect class="right-panel-box" x="500" y="40" width="200" height="340" rx="2"/>
+        <text class="panel-status" x="600" y="395" text-anchor="middle">NO NET FORCE</text>
+        <g id="swP3Arrows"></g>
+      </g>
+    </svg>
+  </div>
+
+  <div class="sw-module__caption" aria-live="polite">
+    <span class="sw-caption__lead" id="swCapLead">Below the friction layer · ~2,000 ft AGL</span>
+    <span class="sw-caption__text" id="swCapText">Friction opposes wind direction. The resultant wind crosses isobars at an angle toward lower pressure.</span>
+  </div>
+
+  <div class="sw-controls">
+    <div class="sw-toggle-group" role="radiogroup" aria-label="Layer">
+      <button class="sw-toggle-btn" id="swLayerAbove" aria-pressed="false" role="radio">Above friction layer</button>
+      <button class="sw-toggle-btn" id="swLayerBelow" aria-pressed="true" role="radio">Below friction layer</button>
+    </div>
+    <div class="sw-friction-row" id="swFrictionRow">
+      <div class="sw-friction-row__head">
+        <span>FRICTION STRENGTH</span>
+        <span class="sw-angle-readout">Cross-isobar angle: <strong id="swAngleVal">15°</strong></span>
+      </div>
+      <input type="range" id="swFrictionSlider" min="0" max="100" step="1" value="33" aria-label="Friction strength" />
+      <div class="sw-terrain-desc">
+        <span id="swTerrainText">moderate roughness</span>
+        <span class="sw-terrain-pill" id="swTerrainPill">FRICTION 0.33</span>
+      </div>
+    </div>
+  </div>
+</div>`;
+  },
+
+  _initSurfaceWindModule() {
+    const root = document.getElementById('swModule');
+    if (!root || root.dataset.swInit === 'done') return;
+    root.dataset.swInit = 'done';
+
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    // Anchor centers per panel (parcel + base of arrows)
+    const P = {
+      p1: { x: 160, y: 210 },
+      p2: { x: 380, y: 210 },
+      p3: { x: 600, y: 210 }
+    };
+
+    function el(tag, attrs, parent) {
+      const n = document.createElementNS(SVG_NS, tag);
+      if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
+      if (parent) parent.appendChild(n);
+      return n;
+    }
+
+    function arrow(parent, opts) {
+      const w = opts.width || 13;
+      const headW = w * 1.9;
+      const headLen = Math.min(18, Math.max(10, opts.length * 0.32));
+      const shaftLen = Math.max(0.001, opts.length - headLen);
+      const pts = [
+        [0, -w/2], [shaftLen, -w/2], [shaftLen, -headW/2], [opts.length, 0],
+        [shaftLen, headW/2], [shaftLen, w/2], [0, w/2]
+      ].map(p => p.join(',')).join(' ');
+      const g = el('g', { transform: `translate(${opts.x} ${opts.y}) rotate(${opts.angle})` }, parent);
+      el('polygon', {
+        points: pts, fill: opts.color, stroke: opts.stroke || '#0C1B33',
+        'stroke-width': 1.2, 'stroke-linejoin': 'round'
+      }, g);
+      if (opts.dashed) {
+        const last = g.lastChild;
+        last.setAttribute('fill', 'rgba(56, 189, 248, 0.30)');
+        last.setAttribute('stroke', '#0284C7');
+        last.setAttribute('stroke-dasharray', '4 3');
+        last.setAttribute('stroke-width', 1.5);
+      }
+      if (opts.innerLabel && shaftLen > 18) {
+        // Counter-rotate when arrow flipped past vertical (text upright)
+        const a = ((opts.angle % 360) + 360) % 360;
+        const flip = (a > 90 && a < 270);
+        const tg = el('g', flip
+          ? { transform: `translate(${shaftLen/2} 3) rotate(180)` }
+          : { transform: `translate(${shaftLen/2} 3)` }, g);
+        const t = el('text', {
+          x: 0, y: 0, 'text-anchor': 'middle', class: 'force-text',
+          fill: opts.innerLabelColor || '#0284C7',
+          'font-size': 9, 'letter-spacing': '0.08em'
+        }, tg);
+        t.textContent = opts.innerLabel;
+      }
+      return g;
+    }
+
+    function parcel(parent, x, y) {
+      el('circle', {
+        cx: x, cy: y, r: 11, fill: 'url(#swParcelGrad)',
+        stroke: '#0284C7', 'stroke-width': 1.2
+      }, parent);
+    }
+    function forceLabel(parent, x, y, text, color) {
+      const t = el('text', { x, y, 'text-anchor': 'middle', fill: color, class: 'force-text' }, parent);
+      t.textContent = text;
+      return t;
+    }
+    function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+
+    const p1g = root.querySelector('#swP1Arrows');
+    const p2g = root.querySelector('#swP2Arrows');
+    const p3g = root.querySelector('#swP3Arrows');
+
+    // PANEL 1: PGF up, Coriolis down, wind horizontal (geostrophic)
+    function drawPanel1() {
+      clear(p1g);
+      const c = P.p1;
+      arrow(p1g, { x: c.x, y: c.y - 12, length: 70, angle: -90, color: '#475569', width: 13 });
+      forceLabel(p1g, c.x, c.y - 12 - 70 - 6, 'PGF', '#0C1B33');
+      arrow(p1g, { x: c.x, y: c.y + 12, length: 70, angle: 90, color: '#7C3AED', stroke: '#4C1D95', width: 13 });
+      forceLabel(p1g, c.x, c.y + 12 + 70 + 14, 'CORIOLIS', '#7C3AED');
+      arrow(p1g, { x: c.x + 14, y: c.y, length: 80, angle: 0, color: 'rgba(56,189,248,0.30)', dashed: true, innerLabel: 'WIND' });
+      parcel(p1g, c.x, c.y);
+    }
+    // PANEL 2: same forces + friction arrow opposing wind. Wind weakens.
+    function drawPanel2(friction) {
+      clear(p2g);
+      const c = P.p2;
+      arrow(p2g, { x: c.x, y: c.y - 12, length: 70, angle: -90, color: '#475569', width: 13 });
+      forceLabel(p2g, c.x, c.y - 12 - 70 - 6, 'PGF', '#0C1B33');
+      arrow(p2g, { x: c.x, y: c.y + 12, length: 70, angle: 90, color: '#7C3AED', stroke: '#4C1D95', width: 13 });
+      forceLabel(p2g, c.x, c.y + 12 + 70 + 14, 'CORIOLIS', '#7C3AED');
+      const fLen = 30 + friction * 60;
+      arrow(p2g, { x: c.x - 14, y: c.y, length: fLen, angle: 180, color: '#F59E0B', stroke: '#92400E', width: 13 });
+      forceLabel(p2g, c.x - 14 - fLen / 2, c.y - 12, 'FRICTION', '#92400E');
+      const windLen = 90 - friction * 50;
+      arrow(p2g, { x: c.x + 14, y: c.y, length: windLen, angle: 0, color: 'rgba(56,189,248,0.30)', dashed: true, innerLabel: 'WIND' });
+      parcel(p2g, c.x, c.y);
+    }
+    // PANEL 3: resultant — wind tilts up toward LOW; cross-isobar angle drives both wind and Coriolis tilt; PGF stays vertical
+    function drawPanel3(angleDeg) {
+      clear(p3g);
+      const c = P.p3;
+      arrow(p3g, { x: c.x, y: c.y - 12, length: 70, angle: -90, color: '#475569', width: 13 });
+      forceLabel(p3g, c.x, c.y - 12 - 70 - 6, 'PGF', '#0C1B33');
+      const corAngle = 90 + angleDeg;
+      arrow(p3g, {
+        x: c.x + Math.cos(corAngle * Math.PI/180)*12,
+        y: c.y + Math.sin(corAngle * Math.PI/180)*12,
+        length: 70, angle: corAngle, color: '#7C3AED', stroke: '#4C1D95', width: 13
+      });
+      const labelDist = 90;
+      const lx = c.x + Math.cos(corAngle * Math.PI/180) * labelDist;
+      const ly = c.y + Math.sin(corAngle * Math.PI/180) * labelDist + 12;
+      forceLabel(p3g, lx, ly, 'CORIOLIS', '#7C3AED');
+      const wAngle = -angleDeg;
+      const fAngle = 180 - angleDeg;
+      const fOriginX = c.x + Math.cos(fAngle * Math.PI/180)*14;
+      const fOriginY = c.y + Math.sin(fAngle * Math.PI/180)*14;
+      const fShaftLen = 50;
+      arrow(p3g, { x: fOriginX, y: fOriginY, length: fShaftLen, angle: fAngle,
+                   color: '#F59E0B', stroke: '#92400E', width: 12 });
+      const fMidX = fOriginX + Math.cos(fAngle * Math.PI/180) * (fShaftLen / 2);
+      const fMidY = fOriginY + Math.sin(fAngle * Math.PI/180) * (fShaftLen / 2);
+      forceLabel(p3g, fMidX, fMidY - 12, 'FRICTION', '#92400E');
+      arrow(p3g, {
+        x: c.x + Math.cos(wAngle * Math.PI/180)*14,
+        y: c.y + Math.sin(wAngle * Math.PI/180)*14,
+        length: 75, angle: wAngle, color: 'rgba(56,189,248,0.30)', dashed: true, innerLabel: 'WIND'
+      });
+      parcel(p3g, c.x, c.y);
+    }
+
+    const layerAbove = root.querySelector('#swLayerAbove');
+    const layerBelow = root.querySelector('#swLayerBelow');
+    const panel2 = root.querySelector('#swPanel2');
+    const panel3 = root.querySelector('#swPanel3');
+    const div1 = root.querySelector('#swDiv1');
+    const div2 = root.querySelector('#swDiv2');
+    const frictionRow = root.querySelector('#swFrictionRow');
+    const slider = root.querySelector('#swFrictionSlider');
+    const angleVal = root.querySelector('#swAngleVal');
+    const terrainText = root.querySelector('#swTerrainText');
+    const terrainPill = root.querySelector('#swTerrainPill');
+    const capLead = root.querySelector('#swCapLead');
+    const capText = root.querySelector('#swCapText');
+    const figure = root.querySelector('#swFigure');
+
+    function setMode(m) {
+      layerAbove.setAttribute('aria-pressed', m === 'above' ? 'true' : 'false');
+      layerBelow.setAttribute('aria-pressed', m === 'below' ? 'true' : 'false');
+      if (m === 'above') {
+        panel2.style.opacity = '0';
+        panel3.style.opacity = '0';
+        div1.style.opacity = '0';
+        div2.style.opacity = '0';
+        frictionRow.style.opacity = '0.4';
+        frictionRow.style.pointerEvents = 'none';
+        figure.setAttribute('viewBox', '40 0 360 420');
+        capLead.textContent = 'Above the friction layer';
+        capText.textContent = 'PGF and Coriolis balance exactly. The wind blows parallel to the isobars — geostrophic flow.';
+      } else {
+        panel2.style.opacity = '1';
+        panel3.style.opacity = '1';
+        div1.style.opacity = '1';
+        div2.style.opacity = '1';
+        frictionRow.style.opacity = '1';
+        frictionRow.style.pointerEvents = 'auto';
+        figure.setAttribute('viewBox', '0 0 720 420');
+        capLead.textContent = 'Below the friction layer · ~2,000 ft AGL';
+        capText.textContent = 'Friction opposes wind direction. The resultant wind crosses isobars at an angle toward lower pressure.';
+      }
+    }
+    function frictionToAngle(f) { return Math.round(f * 45); }
+    // Angle descriptions match FAA-H-8083-28B Ch. 10 surface-wind treatment.
+    function describeAngle(a) {
+      if (a < 5)  return 'parallel — geostrophic';
+      if (a < 17) return 'typical over water';
+      if (a < 35) return 'moderate terrain';
+      return        'rough terrain or mountains';
+    }
+    function setFriction(v) {
+      const f = v / 100;
+      const angle = frictionToAngle(f);
+      angleVal.textContent = angle + '°';
+      terrainText.textContent = describeAngle(angle);
+      terrainPill.textContent = 'FRICTION ' + f.toFixed(2);
+      drawPanel2(f);
+      drawPanel3(angle);
+    }
+
+    layerAbove.addEventListener('click', () => setMode('above'));
+    layerBelow.addEventListener('click', () => setMode('below'));
+    slider.addEventListener('input', (e) => setFriction(parseInt(e.target.value, 10)));
+
+    drawPanel1();
+    setFriction(parseInt(slider.value, 10));
+    setMode('below');
   },
 
   showOrgInfo(id) {
