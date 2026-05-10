@@ -44,7 +44,13 @@ const Diagrams = {
     if (type === 'weather_code_builder') return this.renderWeatherCodeBuilder();
     if (type === 'advisory_hierarchy') return this.renderAdvisoryHierarchy();
     if (type === 'decode_practice') return this.renderDecodePractice();
-    if (type === 'process') return this.renderProcess(key);
+    if (type === 'process') {
+      // density_altitude is a bespoke 3-step interactive module with its
+      // own header/stepper/footer chrome (replaces FAA Fig 8-15 + C-1 in
+      // M2 §s2_1). All other process diagrams keep the generic chrome.
+      if (key === 'density_altitude') return this.renderDaModule();
+      return this.renderProcess(key);
+    }
     return '';
   },
 
@@ -1544,6 +1550,528 @@ const Diagrams = {
     document.getElementById('dc-detail').innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><code style="background:${t.c}18;color:${t.c};padding:4px 10px;border-radius:8px;font-family:var(--font-mono);font-size:13px;font-weight:700">${t.t}</code></div><p style="font-size:14px;color:#334155;line-height:1.6;margin:0">${t.l}</p>`;
   },
 
+  // ===== DENSITY ALTITUDE MODULE =====
+  // Bespoke 3-step interactive module that replaces the FAA Fig 8-15 +
+  // Fig C-1 process diagram in M2 §s2_1. Steps:
+  //   1. Same-airplane / same-runway / different-air comparison (recreated
+  //      SVG with identical terrain in both panels — isolates the air var).
+  //   2. Bar chart of DA above field elevation (sea-level / 5,000 ft cool /
+  //      5,000 ft hot) with the +1,000 ft/10°C rule of thumb.
+  //   3. Interactive density-altitude chart with PA + OAT sliders, live
+  //      red trace, numeric DA readout, KJQF preset.
+  //
+  // Colors inside the SVGs are remapped to project tokens:
+  //   good    → emerald (#10B981 / #6EE7B7)
+  //   bad     → rose    (#F43F5E / #FDA4AF)
+  //   accent  → amber   (#F59E0B / #FCD34D)
+  //   ISA ref → sky     (#38BDF8)
+  //
+  // Init logic (step nav, chart drawing, slider handlers) lives in
+  // _initDaModule(), called from Screens._initDiagram after innerHTML
+  // injection (since innerHTML doesn't execute inline <script> tags).
+  renderDaModule() {
+    return `
+<div class="da-module" id="daModule" role="region" aria-labelledby="daTitle">
+
+  <header class="da-head">
+    <div>
+      <div class="da-eyebrow">Atmospheric Pressure · §s2_1</div>
+      <h2 class="da-title" id="daTitle">Density Altitude &amp; Aircraft Performance</h2>
+    </div>
+    <div class="da-stepper" aria-hidden="true">
+      <span class="da-stepper-text" id="daStepperText">Step 1 of 3</span>
+      <div class="da-dots" id="daDots">
+        <span class="da-dot active"></span>
+        <span class="da-dot"></span>
+        <span class="da-dot"></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============== STEP 1 ============== -->
+  <section class="da-step active" data-step="1" aria-labelledby="daStep1Title">
+    <div class="da-step-sub">01 · Performance comparison</div>
+    <h3 class="da-step-title" id="daStep1Title">Same airplane, same runway, different air</h3>
+
+    <div class="da-figure">
+      <svg viewBox="0 0 800 460" role="img" aria-label="Two-panel comparison: sea-level density altitude versus 5,000 ft density altitude takeoff and climb performance">
+        <defs>
+          <linearGradient id="skyTop" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stop-color="#1d3754"/>
+            <stop offset="1" stop-color="#0f2236"/>
+          </linearGradient>
+          <linearGradient id="skyBot" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stop-color="#3a2f3d"/>
+            <stop offset="1" stop-color="#231b25"/>
+          </linearGradient>
+          <linearGradient id="ground" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stop-color="#1c2a36"/>
+            <stop offset="1" stop-color="#0F172A"/>
+          </linearGradient>
+          <marker id="arrowGood" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#10B981"/>
+          </marker>
+          <marker id="arrowBad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#F43F5E"/>
+          </marker>
+        </defs>
+
+        <!-- Top panel: SEA LEVEL -->
+        <g transform="translate(0,0)">
+          <rect x="0" y="0" width="800" height="220" fill="url(#skyTop)"/>
+          <path d="M 0,200 L 480,200 Q 520,200 540,170 L 600,90 Q 620,70 640,90 L 720,160 Q 740,180 760,200 L 800,200 L 800,220 L 0,220 Z" fill="url(#ground)" opacity="0.85"/>
+          <line x1="0" y1="200" x2="800" y2="200" stroke="#334155" stroke-width="1"/>
+          <line x1="40" y1="200" x2="170" y2="200" stroke="#10B981" stroke-width="3" marker-end="url(#arrowGood)"/>
+          <text x="40" y="218" fill="#6EE7B7" font-size="11" letter-spacing="0.05em">ROLL</text>
+          <text x="105" y="190" fill="#10B981" font-size="13" font-weight="600" text-anchor="middle">1,300 ft</text>
+          <path d="M 170,200 Q 360,150 640,60" fill="none" stroke="#10B981" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#arrowGood)"/>
+          <g transform="translate(420,90)">
+            <rect x="-58" y="-16" width="116" height="32" rx="4" fill="#0F172A" stroke="#10B981" stroke-width="1"/>
+            <text x="0" y="-2" fill="#6EE7B7" font-size="9" text-anchor="middle" letter-spacing="0.1em">CLIMB</text>
+            <text x="0" y="11" fill="#10B981" font-size="13" text-anchor="middle" font-weight="600">1,500 fpm</text>
+          </g>
+          <g transform="translate(640,60) rotate(-22)">
+            <path d="M -10,0 L 8,-2 L 12,0 L 8,2 Z M -3,-1 L -3,-7 L -1,-7 L 1,-1 M -3,1 L -3,5 L -1,5 L 1,1" fill="#E2E8F0"/>
+          </g>
+          <g transform="translate(20,28)">
+            <rect x="-4" y="-14" width="220" height="28" rx="4" fill="rgba(12,27,51,0.7)" stroke="#10B981" stroke-width="1"/>
+            <text x="6" y="5" fill="#6EE7B7" font-size="11" letter-spacing="0.16em">DA = SEA LEVEL · STANDARD</text>
+          </g>
+        </g>
+
+        <rect x="0" y="220" width="800" height="2" fill="#1E3A5F"/>
+
+        <!-- Bottom panel: 5,000 ft DA -->
+        <g transform="translate(0,222)">
+          <rect x="0" y="0" width="800" height="218" fill="url(#skyBot)"/>
+          <path d="M 0,200 L 480,200 Q 520,200 540,170 L 600,90 Q 620,70 640,90 L 720,160 Q 740,180 760,200 L 800,200 L 800,218 L 0,218 Z" fill="url(#ground)" opacity="0.85"/>
+          <line x1="0" y1="200" x2="800" y2="200" stroke="#334155" stroke-width="1"/>
+          <line x1="40" y1="200" x2="220" y2="200" stroke="#F43F5E" stroke-width="3" marker-end="url(#arrowBad)"/>
+          <text x="40" y="218" fill="#FDA4AF" font-size="11" letter-spacing="0.05em">ROLL</text>
+          <text x="130" y="190" fill="#F43F5E" font-size="13" font-weight="600" text-anchor="middle">1,800 ft</text>
+          <path d="M 220,200 Q 420,170 760,108" fill="none" stroke="#F43F5E" stroke-width="2.5" stroke-dasharray="6 4"/>
+          <g transform="translate(595,107)">
+            <circle r="6" fill="#F43F5E" opacity="0.25"/>
+            <circle r="3" fill="#F43F5E"/>
+          </g>
+          <text x="555" y="80" fill="#F43F5E" font-size="11" text-anchor="middle" letter-spacing="0.05em">DOES NOT CLEAR</text>
+          <g transform="translate(420,150)">
+            <rect x="-58" y="-16" width="116" height="32" rx="4" fill="#0F172A" stroke="#F43F5E" stroke-width="1"/>
+            <text x="0" y="-2" fill="#FDA4AF" font-size="9" text-anchor="middle" letter-spacing="0.1em">CLIMB</text>
+            <text x="0" y="11" fill="#F43F5E" font-size="13" text-anchor="middle" font-weight="600">1,000 fpm</text>
+          </g>
+          <g transform="translate(420,170) rotate(-8)">
+            <path d="M -10,0 L 8,-2 L 12,0 L 8,2 Z M -3,-1 L -3,-7 L -1,-7 L 1,-1 M -3,1 L -3,5 L -1,5 L 1,1" fill="#E2E8F0"/>
+          </g>
+          <g transform="translate(20,28)">
+            <rect x="-4" y="-14" width="240" height="28" rx="4" fill="rgba(12,27,51,0.7)" stroke="#F43F5E" stroke-width="1"/>
+            <text x="6" y="5" fill="#FDA4AF" font-size="11" letter-spacing="0.16em">DA = 5,000 FT · HOT/HIGH AIR</text>
+          </g>
+        </g>
+
+        <g transform="translate(660,228)">
+          <rect x="0" y="0" width="120" height="56" rx="4" fill="rgba(245,158,11,0.08)" stroke="#F59E0B" stroke-width="1"/>
+          <text x="60" y="16" fill="#F59E0B" font-size="9" text-anchor="middle" letter-spacing="0.16em">vs. SEA LEVEL</text>
+          <text x="60" y="32" fill="#F59E0B" font-size="11" text-anchor="middle">+38% roll</text>
+          <text x="60" y="46" fill="#F59E0B" font-size="11" text-anchor="middle">−33% climb</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="da-caption">Identical airplane, identical runway, identical obstacle. Only the air has changed.</div>
+
+    <div class="da-body">
+      <p>Density altitude is pressure altitude corrected for non-standard temperature — it&rsquo;s how high the airplane <em>feels</em> it is, regardless of what the runway sign says. When density altitude rises, every part of the takeoff suffers <strong>at the same time</strong>: the engine breathes thinner air and makes <strong>less power</strong>, the propeller bites less air and produces <strong>less thrust</strong>, and the wing meets fewer molecules per second so it generates <strong>less lift</strong>.</p>
+      <p>Going from a sea-level day to a <span class="num">5,000 ft</span> density altitude lengthens the takeoff roll from <span class="num">1,300&nbsp;ft</span> to <span class="num">1,800&nbsp;ft</span> (≈<span class="num">+38%</span>) and degrades the rate of climb from <span class="num">1,500&nbsp;fpm</span> to <span class="num">1,000&nbsp;fpm</span> (≈<span class="num">−33%</span>). Same pilot, same airplane, same runway — different air. The shallower climb path matters most when there&rsquo;s rising terrain off the departure end.</p>
+    </div>
+  </section>
+
+  <!-- ============== STEP 2 ============== -->
+  <section class="da-step" data-step="2" aria-labelledby="daStep2Title">
+    <div class="da-step-sub">02 · Heat &amp; elevation compound</div>
+    <h3 class="da-step-title" id="daStep2Title">Heat and elevation stack on top of each other</h3>
+
+    <div class="da-figure">
+      <svg viewBox="0 0 800 380" role="img" aria-label="Three-bar comparison of density altitude under three conditions, color graded from emerald to rose">
+        <defs>
+          <linearGradient id="bar1" x1="0" x2="0" y1="1" y2="0">
+            <stop offset="0" stop-color="#047857"/>
+            <stop offset="1" stop-color="#10B981"/>
+          </linearGradient>
+          <linearGradient id="bar2" x1="0" x2="0" y1="1" y2="0">
+            <stop offset="0" stop-color="#B45309"/>
+            <stop offset="1" stop-color="#F59E0B"/>
+          </linearGradient>
+          <linearGradient id="bar3" x1="0" x2="0" y1="1" y2="0">
+            <stop offset="0" stop-color="#9F1239"/>
+            <stop offset="1" stop-color="#F43F5E"/>
+          </linearGradient>
+        </defs>
+
+        <g stroke="#1E3A5F" stroke-width="1" font-family="inherit">
+          <line x1="120" y1="40"  x2="760" y2="40"/>
+          <line x1="120" y1="96"  x2="760" y2="96"/>
+          <line x1="120" y1="152" x2="760" y2="152"/>
+          <line x1="120" y1="208" x2="760" y2="208"/>
+          <line x1="120" y1="264" x2="760" y2="264"/>
+          <line x1="120" y1="320" x2="760" y2="320"/>
+        </g>
+        <g fill="#94A3B8" font-size="11" text-anchor="end">
+          <text x="110" y="44">10,000 ft</text>
+          <text x="110" y="100">8,000 ft</text>
+          <text x="110" y="156">6,000 ft</text>
+          <text x="110" y="212">4,000 ft</text>
+          <text x="110" y="268">2,000 ft</text>
+          <text x="110" y="324">0 ft</text>
+        </g>
+        <text x="60" y="180" fill="#94A3B8" font-size="10" text-anchor="middle" letter-spacing="0.16em" transform="rotate(-90 60 180)">DENSITY ALTITUDE</text>
+
+        <line x1="120" y1="320" x2="760" y2="320" stroke="#475569" stroke-width="1.5"/>
+
+        <!-- Bar A: Sea level standard → 0 ft DA -->
+        <g transform="translate(220,0)">
+          <rect x="-40" y="316" width="80" height="4" fill="url(#bar1)"/>
+          <text x="0" y="345" fill="#6EE7B7" font-size="11" text-anchor="middle">Sea level</text>
+          <text x="0" y="360" fill="#94A3B8" font-size="10" text-anchor="middle">15°C / standard</text>
+          <text x="0" y="305" fill="#10B981" font-size="13" text-anchor="middle" font-weight="600">0 ft</text>
+        </g>
+
+        <!-- Bar B: 5,000 ft field standard → 5,000 ft DA -->
+        <g transform="translate(420,0)">
+          <rect x="-40" y="180" width="80" height="140" fill="url(#bar2)" rx="2"/>
+          <text x="0" y="345" fill="#FCD34D" font-size="11" text-anchor="middle">5,000 ft field</text>
+          <text x="0" y="360" fill="#94A3B8" font-size="10" text-anchor="middle">5°C / standard</text>
+          <text x="0" y="172" fill="#F59E0B" font-size="13" text-anchor="middle" font-weight="600">5,000 ft</text>
+        </g>
+
+        <!-- Bar C: 5,000 ft field at 35°C → 9,200 ft DA -->
+        <g transform="translate(620,0)">
+          <rect x="-40" y="62" width="80" height="258" fill="url(#bar3)" rx="2"/>
+          <text x="0" y="345" fill="#FDA4AF" font-size="11" text-anchor="middle">5,000 ft field</text>
+          <text x="0" y="360" fill="#94A3B8" font-size="10" text-anchor="middle">35°C / 95°F</text>
+          <text x="0" y="54" fill="#F43F5E" font-size="13" text-anchor="middle" font-weight="600">9,200 ft</text>
+          <g transform="translate(60,150)">
+            <line x1="-20" y1="0" x2="0" y2="0" stroke="#F43F5E" stroke-width="1"/>
+            <text x="4" y="-3" fill="#F43F5E" font-size="10">+4,200 ft</text>
+            <text x="4" y="10" fill="#94A3B8" font-size="9">from heat alone</text>
+          </g>
+        </g>
+
+        <g>
+          <line x1="370" y1="180" x2="680" y2="180" stroke="#38BDF8" stroke-width="1" stroke-dasharray="3 3" opacity="0.7"/>
+          <text x="685" y="183" fill="#38BDF8" font-size="10" letter-spacing="0.05em">field elev.</text>
+        </g>
+
+        <g transform="translate(120,12)">
+          <rect x="0" y="-2" width="320" height="24" rx="4" fill="rgba(245,158,11,0.08)" stroke="rgba(245,158,11,0.3)"/>
+          <text x="12" y="14" fill="#F59E0B" font-size="11" letter-spacing="0.04em">RULE OF THUMB · +1,000 ft DA per +10°C above standard</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="da-caption">The runway sign doesn&rsquo;t move. The air pretends it did.</div>
+
+    <div class="da-body">
+      <p>What matters for performance is the <strong>density altitude above the field</strong>, not the runway-sign elevation. A standard day at a 5,000 ft field already costs you 5,000 ft of DA. Add a hot afternoon — every <span class="num">+10°C</span> above standard adds roughly <span class="num">+1,000&nbsp;ft</span> — and the same field is performing like a 9,000-plus-foot mountain strip.</p>
+      <p>This is true at low fields too. <strong>KJQF</strong> (Concord-Padgett, NC) sits at <span class="num">705&nbsp;ft</span> MSL, but a humid summer afternoon there can easily push DA above <span class="num">3,000&nbsp;ft</span>. The Blue Ridge ridgeline to the west doesn&rsquo;t grow, but on a hot day your climb gradient does shrink — so the obstacles get effectively taller. <strong>Always compute DA from POH charts before flight.</strong></p>
+    </div>
+  </section>
+
+  <!-- ============== STEP 3 ============== -->
+  <section class="da-step" data-step="3" aria-labelledby="daStep3Title">
+    <div class="da-step-sub">03 · Read it off the chart</div>
+    <h3 class="da-step-title" id="daStep3Title">Read density altitude off the chart</h3>
+
+    <div class="da-figure">
+      <svg id="daChart" viewBox="0 0 800 480" role="img" aria-label="Density altitude chart with live trace driven by sliders">
+        <defs>
+          <pattern id="chartGrid" width="50" height="28" patternUnits="userSpaceOnUse">
+            <path d="M 50 0 L 0 0 0 28" fill="none" stroke="#1E3A5F" stroke-width="0.5"/>
+          </pattern>
+          <clipPath id="chartClip">
+            <rect x="80" y="20" width="640" height="400"/>
+          </clipPath>
+        </defs>
+
+        <rect x="80" y="20" width="640" height="400" fill="#0F172A" stroke="#475569" stroke-width="1"/>
+        <rect x="80" y="20" width="640" height="400" fill="url(#chartGrid)"/>
+
+        <g clip-path="url(#chartClip)" stroke="#C8D6E6" stroke-width="0.9" fill="none" opacity="0.55">
+          <g id="daIsoLines"></g>
+        </g>
+        <g id="daIsoLabels" clip-path="url(#chartClip)" font-size="9" fill="#7A93AD"></g>
+
+        <g id="isaLine" clip-path="url(#chartClip)">
+          <line stroke="#38BDF8" stroke-width="1.4" stroke-dasharray="5 4" x1="0" y1="0" x2="0" y2="0" id="isaLineSeg"/>
+          <text id="isaLabel" fill="#38BDF8" font-size="10" letter-spacing="0.1em" transform="rotate(-78)">ISA</text>
+        </g>
+
+        <g font-size="10" fill="#94A3B8" text-anchor="middle">
+          <g id="xTicks"></g>
+        </g>
+        <g font-size="10" fill="#94A3B8" text-anchor="end">
+          <g id="yTicks"></g>
+        </g>
+        <text x="400" y="455" fill="#C8D6E6" font-size="11" text-anchor="middle" letter-spacing="0.16em">OUTSIDE AIR TEMPERATURE  (°C)</text>
+        <text x="22" y="220" fill="#C8D6E6" font-size="11" text-anchor="middle" letter-spacing="0.16em" transform="rotate(-90 22 220)">PRESSURE ALTITUDE  (ft)</text>
+
+        <g id="daTrace">
+          <line id="traceV" x1="0" y1="0" x2="0" y2="0" stroke="#F43F5E" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <line id="traceH" x1="0" y1="0" x2="0" y2="0" stroke="#F43F5E" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <circle id="tracePt" cx="0" cy="0" r="6" fill="#F43F5E" fill-opacity="0.25" stroke="#F43F5E" stroke-width="2"/>
+          <g id="traceLabel" transform="translate(0,0)">
+            <rect x="0" y="-32" width="120" height="28" rx="4" fill="#0F172A" stroke="#F43F5E" stroke-width="1"/>
+            <text id="traceLabelText" x="60" y="-13" fill="#FDA4AF" font-size="11" text-anchor="middle">DA = 0 ft</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <div class="da-controls">
+      <div class="da-control">
+        <div class="da-control-row">
+          <span class="da-control-label">Pressure Altitude</span>
+          <span class="da-control-value" id="paValueLabel">705 ft</span>
+        </div>
+        <input type="range" class="da-slider" id="paSlider" min="0" max="15000" step="50" value="705" aria-label="Pressure altitude in feet"/>
+      </div>
+      <div class="da-control">
+        <div class="da-control-row">
+          <span class="da-control-label">OAT</span>
+          <span class="da-control-value" id="oatValueLabel">35°C</span>
+        </div>
+        <input type="range" class="da-slider" id="oatSlider" min="-20" max="40" step="1" value="35" aria-label="Outside air temperature in degrees Celsius"/>
+      </div>
+    </div>
+
+    <div class="da-readout" role="status" aria-live="polite">
+      <div>
+        <div class="da-readout-label">Density Altitude</div>
+        <div class="da-readout-value"><span id="daValue">3,000</span><span class="unit">ft</span></div>
+      </div>
+      <div class="da-readout-delta">
+        <div>vs. pressure altitude</div>
+        <div><b id="daDelta">+2,295 ft</b></div>
+        <button type="button" class="da-preset" id="daPresetBtn" aria-label="Reset to KJQF summer-afternoon example">↺ KJQF · 35°C</button>
+      </div>
+    </div>
+
+    <div class="da-caption">Set altimeter to 29.92" to read pressure altitude, then cross-reference OAT to find DA.</div>
+
+    <div class="da-body">
+      <p>To use this chart in the airplane: set your altimeter to <span class="num">29.92"</span> Hg to read pressure altitude on the altimeter face, note OAT from the panel, then trace from the OAT axis up to the pressure-altitude curve and read density altitude off the diagonals.</p>
+      <p>The KJQF example pre-loaded above shows the pattern: a <span class="num">705&nbsp;ft</span> field on a <span class="num">35°C</span> afternoon yields a DA near <span class="num">3,000&nbsp;ft</span> — already eating into your climb performance. <strong>On a hot day at a high airport, density altitude can exceed pressure altitude by several thousand feet.</strong></p>
+    </div>
+  </section>
+
+  <footer class="da-foot">
+    <button type="button" class="da-btn" id="daBackBtn" disabled>← Back</button>
+    <div class="da-progress-mini" id="daProgress">Step 1 of 3</div>
+    <button type="button" class="da-btn da-btn-primary" id="daNextBtn">Next →</button>
+  </footer>
+</div>`;
+  },
+
+  // Interactive init — called by Screens._initDiagram after the module's
+  // HTML is injected. Idempotent: if already initialised on this DOM tree,
+  // returns early. Wiring:
+  //   - Back / Next / Done navigation through 3 steps (with stepper dots)
+  //   - Step 3 chart: axis ticks + iso-DA diagonals + ISA reference line
+  //   - Two sliders driving a live red trace + numeric DA readout
+  //   - "↺ KJQF · 35°C" preset button
+  //   - densityAltitudeComplete custom event on the final Done click
+  //     (Chunk 4 wires this into the engine progress hook)
+  _initDaModule() {
+    const root = document.getElementById('daModule');
+    if (!root || root.dataset.daInit === 'done') return;
+    root.dataset.daInit = 'done';
+
+    /* Step navigation */
+    let stepIdx = 0;
+    const steps = root.querySelectorAll('.da-step');
+    const dots  = root.querySelectorAll('.da-dot');
+    const backBtn = root.querySelector('#daBackBtn');
+    const nextBtn = root.querySelector('#daNextBtn');
+    const stepperText = root.querySelector('#daStepperText');
+    const progress = root.querySelector('#daProgress');
+
+    const renderStep = () => {
+      steps.forEach((s, i) => s.classList.toggle('active', i === stepIdx));
+      dots.forEach((d, i) => {
+        d.classList.toggle('active', i === stepIdx);
+        d.classList.toggle('done', i < stepIdx);
+      });
+      stepperText.textContent = `Step ${stepIdx+1} of 3`;
+      progress.textContent    = `Step ${stepIdx+1} of 3`;
+      backBtn.disabled = stepIdx === 0;
+      if (stepIdx === steps.length - 1) {
+        nextBtn.textContent = 'Done ✓';
+        nextBtn.classList.remove('da-btn-primary');
+        nextBtn.classList.add('da-btn-done');
+      } else {
+        nextBtn.textContent = 'Next →';
+        nextBtn.classList.add('da-btn-primary');
+        nextBtn.classList.remove('da-btn-done');
+      }
+    };
+
+    backBtn.addEventListener('click', () => {
+      if (stepIdx > 0) { stepIdx--; renderStep(); }
+    });
+    nextBtn.addEventListener('click', () => {
+      if (stepIdx < steps.length - 1) {
+        stepIdx++;
+        renderStep();
+      } else {
+        // Completion. Chunk 4 hooks the markStudied/progress side effect.
+        root.dispatchEvent(new CustomEvent('densityAltitudeComplete', {
+          bubbles: true,
+          detail: { module: 'density-altitude', completedAt: Date.now() }
+        }));
+        nextBtn.disabled = true;
+        nextBtn.textContent = 'Completed';
+      }
+    });
+
+    /* Step 3 chart — coordinate mapping */
+    const CHART = { x0: 80, x1: 720, y0: 20, y1: 420,
+                    tMin: -20, tMax: 40, paMin: 0, paMax: 15000 };
+    const tToX  = t  => CHART.x0 + (t - CHART.tMin) / (CHART.tMax - CHART.tMin) * (CHART.x1 - CHART.x0);
+    const paToY = pa => CHART.y1 - (pa - CHART.paMin) / (CHART.paMax - CHART.paMin) * (CHART.y1 - CHART.y0);
+    // ISA temperature at a given pressure altitude (°C): standard lapse 1.98°C / 1000 ft
+    const isaTemp = pa => 15 - 0.00198 * pa;
+    // Density altitude approximation: DA ≈ PA + 120·(OAT − ISA(PA))
+    // Accurate within ~150 ft over the chart range — teaching-grade only.
+    const densityAlt = (pa, oat) => Math.round(pa + 120 * (oat - isaTemp(pa)));
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+
+    /* X-axis ticks every 10°C */
+    const xTicks = root.querySelector('#xTicks');
+    for (let t = CHART.tMin; t <= CHART.tMax; t += 10) {
+      const x = tToX(t);
+      const tick = document.createElementNS(SVG_NS, 'line');
+      tick.setAttribute('x1', x); tick.setAttribute('x2', x);
+      tick.setAttribute('y1', CHART.y1); tick.setAttribute('y2', CHART.y1 + 5);
+      tick.setAttribute('stroke', '#475569');
+      xTicks.appendChild(tick);
+      const lbl = document.createElementNS(SVG_NS, 'text');
+      lbl.setAttribute('x', x); lbl.setAttribute('y', CHART.y1 + 18);
+      lbl.textContent = t + '°';
+      xTicks.appendChild(lbl);
+    }
+
+    /* Y-axis ticks every 1000 ft, labels every 2000 ft */
+    const yTicks = root.querySelector('#yTicks');
+    for (let pa = 0; pa <= 15000; pa += 1000) {
+      const y = paToY(pa);
+      const tick = document.createElementNS(SVG_NS, 'line');
+      tick.setAttribute('x1', CHART.x0 - 5); tick.setAttribute('x2', CHART.x0);
+      tick.setAttribute('y1', y); tick.setAttribute('y2', y);
+      tick.setAttribute('stroke', '#475569');
+      yTicks.appendChild(tick);
+      if (pa % 2000 === 0) {
+        const lbl = document.createElementNS(SVG_NS, 'text');
+        lbl.setAttribute('x', CHART.x0 - 8); lbl.setAttribute('y', y + 3);
+        lbl.textContent = pa === 0 ? 'SL' : pa.toLocaleString();
+        yTicks.appendChild(lbl);
+      }
+    }
+
+    /* Iso-DA diagonal lines (every 1000 ft from -2k to +15k).
+       For DA = PA + 120·(t − ISA(PA)), with ISA(PA) = 15 − 0.00198·PA:
+         PA·(1 − 0.2376) = DA + 120·t − 1800
+         PA = (DA + 120·t − 1800) / 0.7624 */
+    const isoLines  = root.querySelector('#daIsoLines');
+    const isoLabels = root.querySelector('#daIsoLabels');
+    for (let da = -2000; da <= 15000; da += 1000) {
+      const paAtTmin = (da + 120 * CHART.tMin - 1800) / 0.7624;
+      const paAtTmax = (da + 120 * CHART.tMax - 1800) / 0.7624;
+      const line = document.createElementNS(SVG_NS, 'line');
+      line.setAttribute('x1', tToX(CHART.tMin));
+      line.setAttribute('y1', paToY(paAtTmin));
+      line.setAttribute('x2', tToX(CHART.tMax));
+      line.setAttribute('y2', paToY(paAtTmax));
+      if (da % 5000 === 0 && da !== 0) {
+        line.setAttribute('stroke', '#9FB6CF');
+        line.setAttribute('stroke-width', '1.2');
+      } else if (da === 0) {
+        line.setAttribute('stroke', '#DBE6F0');
+        line.setAttribute('stroke-width', '1.2');
+      }
+      isoLines.appendChild(line);
+      // Label near the right edge
+      if (da >= 0 && da <= 15000 && da % 1000 === 0) {
+        const paAt = (da + 120 * 35 - 1800) / 0.7624;
+        if (paAt > 0 && paAt < 15000) {
+          const lbl = document.createElementNS(SVG_NS, 'text');
+          lbl.setAttribute('x', tToX(35) + 4);
+          lbl.setAttribute('y', paToY(paAt) - 2);
+          lbl.textContent = da === 0 ? 'SL' : (da/1000) + 'k';
+          isoLabels.appendChild(lbl);
+        }
+      }
+    }
+
+    /* ISA reference line — (15°C, 0 ft) → (-14.7°C, 15000 ft) */
+    const isaLineSeg = root.querySelector('#isaLineSeg');
+    const isaLabel   = root.querySelector('#isaLabel');
+    isaLineSeg.setAttribute('x1', tToX(15));
+    isaLineSeg.setAttribute('y1', paToY(0));
+    isaLineSeg.setAttribute('x2', tToX(-14.7));
+    isaLineSeg.setAttribute('y2', paToY(15000));
+    isaLabel.setAttribute('transform',
+      `translate(${tToX(0) - 14},${paToY(7500)}) rotate(-78)`);
+
+    /* Live trace driven by sliders */
+    const paSlider = root.querySelector('#paSlider');
+    const oatSlider = root.querySelector('#oatSlider');
+    const paLabel = root.querySelector('#paValueLabel');
+    const oatLabel = root.querySelector('#oatValueLabel');
+    const daValue = root.querySelector('#daValue');
+    const daDelta = root.querySelector('#daDelta');
+    const traceV = root.querySelector('#traceV');
+    const traceH = root.querySelector('#traceH');
+    const tracePt = root.querySelector('#tracePt');
+    const traceLabelG = root.querySelector('#traceLabel');
+    const traceLabelText = root.querySelector('#traceLabelText');
+
+    const updateTrace = () => {
+      const pa = +paSlider.value;
+      const oat = +oatSlider.value;
+      const da = densityAlt(pa, oat);
+      paLabel.textContent  = pa.toLocaleString() + ' ft';
+      oatLabel.textContent = oat + '°C';
+      daValue.textContent  = Math.max(0, da).toLocaleString();
+      const delta = da - pa;
+      daDelta.textContent = (delta >= 0 ? '+' : '') + delta.toLocaleString() + ' ft';
+      const x = tToX(oat), y = paToY(pa);
+      traceV.setAttribute('x1', x); traceV.setAttribute('x2', x);
+      traceV.setAttribute('y1', CHART.y1); traceV.setAttribute('y2', y);
+      traceH.setAttribute('x1', CHART.x0); traceH.setAttribute('x2', x);
+      traceH.setAttribute('y1', y); traceH.setAttribute('y2', y);
+      tracePt.setAttribute('cx', x); tracePt.setAttribute('cy', y);
+      // Nudge label to stay inside the chart
+      let lx = x + 8, ly = y;
+      if (lx + 120 > CHART.x1) lx = x - 128;
+      if (ly - 32 < CHART.y0) ly = y + 38;
+      traceLabelG.setAttribute('transform', `translate(${lx},${ly})`);
+      traceLabelText.textContent = `DA = ${Math.max(0, da).toLocaleString()} ft`;
+    };
+    paSlider.addEventListener('input', updateTrace);
+    oatSlider.addEventListener('input', updateTrace);
+
+    /* KJQF preset */
+    root.querySelector('#daPresetBtn').addEventListener('click', () => {
+      paSlider.value = 705;
+      oatSlider.value = 35;
+      updateTrace();
+    });
+
+    /* Initial render */
+    updateTrace();
+    renderStep();
+  },
+
   // ===== PROCESS DIAGRAMS =====
   renderProcess(key) {
     const diag = this.PROCESS_DIAGRAMS[key];
@@ -1648,26 +2176,13 @@ const Diagrams = {
       ]
     },
 
-    density_altitude: {
-      title: 'Density Altitude & Aircraft Performance',
-      steps: [
-        {
-          label: 'Step 1 — High Density Altitude Degrades Aircraft Performance',
-          description: 'Both panels show the same aircraft on the same runway — only density altitude differs. TOP: Sea-level density altitude — takeoff roll 1,300 ft, rate of climb 1,500 ft/min. BOTTOM: 5,000 ft density altitude — takeoff roll grows to 1,800 ft (+38%) and climb rate drops to 1,000 ft/min (–33%). Less dense air means less engine power, less propeller thrust, and less aerodynamic lift.',
-          svg: `<div style="background:#111827"><img src="img/awh/density_altitude_01.png" alt="Figure 8-15. High Density Altitude Effects on Flight" style="width:100%;display:block;max-height:310px;object-fit:contain"><div style="padding:5px 14px 6px;font-size:11px;font-weight:700;color:#38BDF8;font-family:var(--font-display);border-top:1px solid #1e3a5f">&#9658; TOP: sea-level density altitude (1,300 ft roll, 1,500 fpm climb). BOTTOM: 5,000 ft density altitude (1,800 ft roll, 1,000 fpm climb)</div></div>`
-        },
-        {
-          label: 'Step 2 — Hot + High = Longest Roll and Shallowest Climb',
-          description: 'High temperature and high elevation compound each other. Every 10°C above standard temperature adds roughly 1,000 ft to density altitude. A 95°F afternoon at a 5,000 ft airport can produce a density altitude exceeding 9,000 ft. Always compute density altitude from POH charts before flight — obstacles that are safe at sea level can become traps at high density altitude.',
-          svg: `<div style="background:#111827"><img src="img/awh/density_altitude_01.png" alt="Figure 8-15. High Density Altitude Effects on Flight" style="width:100%;display:block;max-height:310px;object-fit:contain"><div style="padding:5px 14px 6px;font-size:11px;font-weight:700;color:#38BDF8;font-family:var(--font-display);border-top:1px solid #1e3a5f">&#9658; Note the shallower climb path in the bottom panel — terrain and obstacles that cleared easily at sea level may not be cleared</div></div>`
-        },
-        {
-          label: 'Step 3 — Computing Density Altitude from OAT and Pressure Altitude',
-          description: 'Set your altimeter to 29.92 to get pressure altitude, then use outside air temperature (OAT) to find density altitude on this chart. Locate your pressure altitude on the Y-axis, trace horizontally to your OAT on the X-axis, then read density altitude from the diagonal lines. On a hot day at a high airport, density altitude can exceed pressure altitude by several thousand feet.',
-          svg: `<div style="background:#111827"><img src="img/awh/density_altitude_02.png" alt="Figure C-1. Density Altitude Computation Chart" style="width:100%;display:block;max-height:310px;object-fit:contain"><div style="padding:5px 14px 6px;font-size:11px;font-weight:700;color:#38BDF8;font-family:var(--font-display);border-top:1px solid #1e3a5f">&#9658; Y-axis = pressure altitude. X-axis = OAT. Trace horizontally to OAT, read density altitude from diagonal lines</div></div>`
-        }
-      ]
-    },
+    // density_altitude was removed in the M2 §s2_1 redesign — that key now
+    // routes to Diagrams.renderDaModule() / _initDaModule() via the
+    // dispatch in Diagrams.render(). The two FAA images
+    // (img/awh/density_altitude_01.png, _02.png) remain in sw.js APP_SHELL
+    // because they may still be referenced elsewhere (concept maps, FAA
+    // validation cross-refs, future features); per the user's "no
+    // APP_SHELL changes" rule they stay cached.
 
     orographic_effect: {
       title: 'Orographic Lift & Mountain Wave',

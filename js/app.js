@@ -18,4 +18,19 @@ window.addEventListener('DOMContentLoaded', function() {
   } else {
     Router.init();
   }
+
+  // Density Altitude module completion → engine progress hook.
+  // Diagrams._initDaModule dispatches a bubbling densityAltitudeComplete
+  // CustomEvent when the user clicks Done on the final step. The
+  // section-read XP is already awarded by Screens._renderLessonSection
+  // (auto-marks as read on entry); here we just refresh the daily streak
+  // and re-evaluate achievements so completing the interactive module
+  // counts as an engagement signal even if the user revisits an
+  // already-read section.
+  document.addEventListener('densityAltitudeComplete', () => {
+    if (window.GameEngine && typeof GameEngine.markStudied === 'function') {
+      GameEngine.markStudied();
+      GameEngine.checkAchievements();
+    }
+  });
 });

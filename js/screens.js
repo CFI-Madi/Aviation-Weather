@@ -675,7 +675,16 @@ const Screens = {
 
   _initDiagram(sec) {
     if (!sec.diagram) return;
-    if (sec.diagram.type === 'process') return;
+    if (sec.diagram.type === 'process') {
+      // Most process diagrams are HTML-only (their Back/Next/Done logic
+      // lives in inline onclick handlers). The density_altitude module is
+      // a special case — it's a bespoke 3-step interactive component with
+      // sliders and a live chart that needs JS init after innerHTML inject.
+      if (sec.diagram.key === 'density_altitude') {
+        setTimeout(() => Diagrams._initDaModule(), 100);
+      }
+      return;
+    }
     const k = sec.diagram.svgKey || sec.diagram.key || sec.diagram.type || '';
     // Delegate to Diagrams._initToolByKey so the tool_detail screen and the
     // lesson-embedded path share one init dispatch table.
