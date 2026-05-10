@@ -686,6 +686,14 @@ const Screens = {
       return;
     }
     const k = sec.diagram.svgKey || sec.diagram.key || sec.diagram.type || '';
+    // M3 redesign: three hotspot keys are now bespoke interactive modules
+    // (parallel to density_altitude). They need JS init after innerHTML
+    // inject, separately from the tool-key dispatch table.
+    if (sec.diagram.type === 'hotspot') {
+      if (k === 'wind_forces') { setTimeout(() => Diagrams._initGeostrophicWindModule(), 100); return; }
+      if (k === 'surface_wind_forces') { setTimeout(() => Diagrams._initSurfaceWindModule(), 100); return; }
+      if (k === 'jet_stream') { setTimeout(() => Diagrams._initJetStreamsModule(), 100); return; }
+    }
     // Delegate to Diagrams._initToolByKey so the tool_detail screen and the
     // lesson-embedded path share one init dispatch table.
     setTimeout(() => Diagrams._initToolByKey(k), 100);

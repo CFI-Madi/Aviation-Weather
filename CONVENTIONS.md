@@ -82,6 +82,25 @@ init calls (e.g. `calcDA()`, `calcFlightCategory()`). Both
 `Screens._initDiagram` (lesson-embedded path) and `Screens.tool_detail`
 (standalone path) call it. Don't duplicate the switch.
 
+## Hotspot diagrams with their own title heading
+
+Hotspot diagrams (the `Diagrams.renderHotspot(key)` family) get a
+default wrapper title bar built from the config's `title` field.
+Modules that render their own header — e.g. the M3 redesign modules
+(`wind_forces`, `surface_wind_forces`, `jet_stream`) and any future
+self-contained interactive component — should set `selfTitled: true`
+on their hotspot config (the conceptual `data-self-titled` flag). The
+wrapper detects the flag, suppresses its own title bar, and stamps
+`data-self-titled="true"` on the outer `.diagram-container` so the
+state is inspectable from the DOM. Modules without internal titles
+continue to get the wrapper title bar — don't remove that for the
+older hotspots (`atmosphere_layers`, `fronts_diagram`, `cloud_gallery`,
+`pressure_systems`).
+
+Setting `selfTitled` also drops the wrapper's light-gray padding band
+(`background:#F8FAFC`) so the module's own header chrome reaches the
+container edge cleanly.
+
 ## Drag-and-drop UI
 
 Drag-and-drop UI uses the in-house shim in `js/screens.js` (the

@@ -98,7 +98,9 @@ const Diagrams = {
         svgContent: this.atmosphereSVG(),
       },
       wind_forces: {
+        // Module renders its own header + FAA attribution strip.
         title: '🌬️ Geostrophic Wind — PGF + Coriolis Balance',
+        selfTitled: true,
         svgContent: this.windForcesSVG(),
       },
       fronts_diagram: {
@@ -110,7 +112,9 @@ const Diagrams = {
         svgContent: this.cloudGallerySVG(),
       },
       jet_stream: {
+        // Module renders its own header + FAA attribution strip.
         title: '✈️ Polar and Subtropical Jet Streams',
+        selfTitled: true,
         svgContent: this.jetStreamSVG(),
       },
       pressure_systems: {
@@ -118,12 +122,24 @@ const Diagrams = {
         svgContent: this.pressureSystemsSVG(),
       },
       surface_wind_forces: {
+        // Module renders its own header + FAA attribution strip.
         title: '🌬️ Surface Wind Forces — Friction at Work',
+        selfTitled: true,
         svgContent: this.surfaceWindForcesSVG(),
       }
     };
     const cfg = configs[key];
     if (!cfg) return '';
+    // Hotspot diagrams that render their own title heading set
+    // selfTitled:true (the conceptual data-self-titled flag — see
+    // CONVENTIONS.md). The wrapper suppresses its own title bar in that
+    // case so we don't double-title the figure. M3 redesign keys
+    // (wind_forces, surface_wind_forces, jet_stream) all set this; older
+    // hotspots (atmosphere_layers, fronts_diagram, cloud_gallery,
+    // pressure_systems) continue to get the default wrapper title.
+    if (cfg.selfTitled === true) {
+      return `<div class="diagram-container" data-self-titled="true" style="background:transparent;box-shadow:none">${cfg.svgContent}</div>`;
+    }
     return `<div class="diagram-container">
       <div class="diagram-header">
         <span style="font-size:14px;color:white;font-family:var(--font-display);font-weight:700">${cfg.title}</span>
@@ -172,18 +188,296 @@ const Diagrams = {
     </div>`;
   },
 
-  // FAA-H-8083-28B Fig 10-8 — geostrophic-wind balance diagram. Two panels:
-  // an air parcel accelerating down the pressure gradient (NET FORCE) on the
-  // left, and the steady-state where Coriolis balances PGF (NO NET FORCE)
-  // and the wind flows parallel to height contours on the right.
+  // M3 §s3_1 — bespoke 4-stage interactive Geostrophic Wind module that
+  // replaced the FAA Fig 10-8 still image. Animated: PGF acts alone (rest)
+  // → parcel accelerates and Coriolis grows → forces nearly balanced → at
+  // steady state PGF and Coriolis balance and the parcel flows parallel
+  // to the contours (geostrophic wind). Pressure-height contour values
+  // (5520 / 5580 / 5640 / 5700 ft) match FAA-H-8083-28B Fig 10-8.
+  // Init logic in _initGeostrophicWindModule (called from
+  // Screens._initDiagram after innerHTML inject).
   windForcesSVG() {
-    return this.renderFaaFigure({
-      src: 'img/awh/awh_p0126_img_001.png',
-      figureNumber: '10-8',
-      title: 'Geostrophic Wind',
-      caption: 'Left panel: an air parcel accelerated by the pressure-gradient force (PGF). Right panel: at steady state above the friction layer, Coriolis force balances PGF and the resultant wind flows parallel to the height contours — geostrophic wind.',
-      alt: 'FAA-H-8083-28B Figure 10-8: geostrophic wind balance — PGF accelerating an air parcel until Coriolis balances it and produces wind parallel to height contours.',
+    return this.renderGeostrophicWindModule();
+  },
+
+  renderGeostrophicWindModule() {
+    return `
+<div class="gw-module" id="gwModule" role="region" aria-label="Geostrophic wind teaching figure">
+  <div class="gw-module__header">
+    <h2 class="gw-module__title">Geostrophic Wind</h2>
+  </div>
+  <div class="gw-module__attr">FAA-H-8083-28B · Fig 10-8 — Geostrophic Wind</div>
+
+  <div class="gw-module__figure">
+    <svg id="gwFigure" viewBox="0 0 600 380" preserveAspectRatio="xMidYMid meet" aria-label="Air parcel accelerating to geostrophic balance">
+      <defs>
+        <radialGradient id="gwParcelGrad" cx="35%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#FFFFFF" />
+          <stop offset="60%" stop-color="#E0F2FE" />
+          <stop offset="100%" stop-color="#7DD3FC" />
+        </radialGradient>
+      </defs>
+
+      <text class="height-label" x="14" y="22">LOWER</text>
+      <text class="height-label" x="14" y="36">HEIGHTS</text>
+      <text class="height-label" x="14" y="332">HIGHER</text>
+      <text class="height-label" x="14" y="346">HEIGHTS</text>
+
+      <line class="contour-line" x1="70" y1="60" x2="590" y2="60" />
+      <text class="contour-label" x="70" y="54">5520</text>
+      <line class="contour-line" x1="70" y1="150" x2="590" y2="150" />
+      <text class="contour-label" x="70" y="144">5580</text>
+      <line class="contour-line" x1="70" y1="240" x2="590" y2="240" />
+      <text class="contour-label" x="70" y="234">5640</text>
+      <line class="contour-line" x1="70" y1="320" x2="590" y2="320" />
+      <text class="contour-label" x="70" y="314">5700</text>
+
+      <rect id="gwSteadyBox" class="steady-box" x="470" y="40" width="120" height="300" rx="2" opacity="0.25" />
+      <text id="gwSteadyLabel" class="panel-label" x="530" y="356" text-anchor="middle" opacity="0.4">NO NET FORCE</text>
+      <text id="gwNetforceLabel" class="panel-label" x="270" y="356" text-anchor="middle" opacity="0.7">NET FORCE ACTING ON PARCEL</text>
+
+      <path id="gwTrajectory" class="trajectory" d="" />
+      <g id="gwStages"></g>
+    </svg>
+
+    <div class="gw-legend" aria-hidden="true">
+      <div class="gw-legend__item"><span class="gw-legend__chip gw-legend__chip--parcel"></span><span><strong>Air parcel</strong></span></div>
+      <div class="gw-legend__item"><span class="gw-legend__chip gw-legend__chip--pgf"></span><span><strong>PGF</strong> · pressure gradient</span></div>
+      <div class="gw-legend__item"><span class="gw-legend__chip gw-legend__chip--wind"></span><span><strong>Resultant wind</strong></span></div>
+      <div class="gw-legend__item"><span class="gw-legend__chip gw-legend__chip--cor"></span><span><strong>Coriolis force</strong></span></div>
+    </div>
+  </div>
+
+  <div class="gw-module__caption" aria-live="polite">
+    <span class="gw-caption__stage" id="gwCapStage">Stage 1 of 4 · 5700 ft</span>
+    <span class="gw-caption__text" id="gwCapText">PGF acts alone — the parcel begins to accelerate from rest toward lower heights.</span>
+  </div>
+
+  <div class="gw-controls">
+    <div class="gw-controls__row">
+      <button class="gw-btn" id="gwPlayBtn" aria-pressed="false" aria-label="Play animation">
+        <svg id="gwPlayIcon" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 2 L12 7 L3 12 Z" fill="currentColor"/></svg>
+        <span id="gwPlayLabel">Play</span>
+      </button>
+      <button class="gw-btn gw-btn--ghost" id="gwResetBtn" aria-label="Reset to stage 1">Reset</button>
+      <span class="gw-stage-readout" id="gwStageReadout">STAGE 1 / 4</span>
+    </div>
+    <div class="gw-slider-wrap">
+      <input type="range" id="gwStageSlider" min="0" max="3" step="1" value="0" aria-label="Step through stages" />
+      <div class="gw-stage-ticks" aria-hidden="true">
+        <span>At rest</span><span>Accel.</span><span>Faster</span><span>Steady</span>
+      </div>
+    </div>
+  </div>
+</div>`;
+  },
+
+  // Interactive init for the Geostrophic Wind module. Idempotent via
+  // dataset.gwInit. Called by Screens._initDiagram for hotspot key
+  // 'wind_forces' after innerHTML injection.
+  _initGeostrophicWindModule() {
+    const root = document.getElementById('gwModule');
+    if (!root || root.dataset.gwInit === 'done') return;
+    root.dataset.gwInit = 'done';
+
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+
+    const stages = [
+      { label: 'Stage 1 of 4 · 5700 ft', text: 'At rest. PGF acts alone — the parcel begins to accelerate toward lower heights.',
+        parcel: { x: 110, y: 320 }, pgf: 36, coriolis: 0, wind: 0, windAngle: 0 },
+      { label: 'Stage 2 of 4 · 5640 ft', text: 'Accelerating. PGF is strong; Coriolis appears and grows as the wind builds.',
+        parcel: { x: 220, y: 240 }, pgf: 56, coriolis: 26, wind: 36, windAngle: -22 },
+      { label: 'Stage 3 of 4 · 5580 ft', text: 'Faster. PGF and Coriolis are nearly balanced; the wind nears its maximum.',
+        parcel: { x: 360, y: 170 }, pgf: 70, coriolis: 52, wind: 56, windAngle: -10 },
+      { label: 'Stage 4 of 4 · 5580 ft', text: 'Steady state. PGF and Coriolis balance exactly — no net force, the parcel flows parallel to the contours (geostrophic wind).',
+        parcel: { x: 530, y: 150 }, pgf: 78, coriolis: 78, wind: 70, windAngle: 0 }
+    ];
+
+    const stagesEl = root.querySelector('#gwStages');
+    const trajectoryEl = root.querySelector('#gwTrajectory');
+    const capStage = root.querySelector('#gwCapStage');
+    const capText = root.querySelector('#gwCapText');
+    const slider = root.querySelector('#gwStageSlider');
+    const playBtn = root.querySelector('#gwPlayBtn');
+    const playLabel = root.querySelector('#gwPlayLabel');
+    const playIcon = root.querySelector('#gwPlayIcon');
+    const resetBtn = root.querySelector('#gwResetBtn');
+    const stageReadout = root.querySelector('#gwStageReadout');
+    const steadyBox = root.querySelector('#gwSteadyBox');
+    const steadyLabel = root.querySelector('#gwSteadyLabel');
+    const netforceLabel = root.querySelector('#gwNetforceLabel');
+
+    // Block-style outlined arrow (FAA figure aesthetic).
+    function buildArrow(opts) {
+      const w = opts.width || 12;
+      const headW = w * 1.9;
+      const headLen = Math.min(18, Math.max(10, opts.length * 0.32));
+      const shaftLen = Math.max(0, opts.length - headLen);
+      const pts = [
+        [0, -w/2], [shaftLen, -w/2], [shaftLen, -headW/2], [opts.length, 0],
+        [shaftLen, headW/2], [shaftLen, w/2], [0, w/2]
+      ].map(p => p.join(',')).join(' ');
+      const g = document.createElementNS(SVG_NS, 'g');
+      g.setAttribute('transform', `translate(${opts.x} ${opts.y}) rotate(${opts.angle})`);
+      const poly = document.createElementNS(SVG_NS, 'polygon');
+      poly.setAttribute('points', pts);
+      poly.setAttribute('fill', opts.color);
+      poly.setAttribute('stroke', opts.stroke || '#0C1B33');
+      poly.setAttribute('stroke-width', '1.2');
+      poly.setAttribute('stroke-linejoin', 'round');
+      g.appendChild(poly);
+      return g;
+    }
+
+    function buildWindArrow(opts) {
+      const w = 11;
+      const headW = w * 1.9;
+      const headLen = Math.min(14, Math.max(8, opts.length * 0.32));
+      const shaftLen = Math.max(0, opts.length - headLen);
+      const pts = [
+        [0, -w/2], [shaftLen, -w/2], [shaftLen, -headW/2], [opts.length, 0],
+        [shaftLen, headW/2], [shaftLen, w/2], [0, w/2]
+      ].map(p => p.join(',')).join(' ');
+      const g = document.createElementNS(SVG_NS, 'g');
+      g.setAttribute('transform', `translate(${opts.x} ${opts.y}) rotate(${opts.angle})`);
+      const poly = document.createElementNS(SVG_NS, 'polygon');
+      poly.setAttribute('points', pts);
+      poly.setAttribute('fill', 'rgba(56, 189, 248, 0.30)');
+      poly.setAttribute('stroke', '#0284C7');
+      poly.setAttribute('stroke-dasharray', '4 3');
+      poly.setAttribute('stroke-width', '1.5');
+      g.appendChild(poly);
+      if (shaftLen > 18) {
+        const t = document.createElementNS(SVG_NS, 'text');
+        t.setAttribute('class', 'wind-label');
+        t.setAttribute('x', shaftLen / 2);
+        t.setAttribute('y', 3);
+        t.setAttribute('text-anchor', 'middle');
+        t.textContent = 'WIND';
+        g.appendChild(t);
+      }
+      return g;
+    }
+
+    // Build all 4 stage groups; toggle visibility per active stage.
+    const stageGroups = stages.map((s, i) => {
+      const g = document.createElementNS(SVG_NS, 'g');
+      g.setAttribute('data-stage', i);
+      g.style.opacity = i === 0 ? '1' : '0.18';
+
+      const parcel = document.createElementNS(SVG_NS, 'circle');
+      parcel.setAttribute('class', 'parcel');
+      parcel.setAttribute('cx', s.parcel.x);
+      parcel.setAttribute('cy', s.parcel.y);
+      parcel.setAttribute('r', 11);
+      parcel.setAttribute('fill', 'url(#gwParcelGrad)');
+      g.appendChild(parcel);
+
+      // PGF arrow — points UP toward lower heights
+      if (s.pgf > 0) {
+        g.appendChild(buildArrow({
+          x: s.parcel.x, y: s.parcel.y - 13,
+          length: s.pgf, angle: -90, color: '#475569', width: 13
+        }));
+        const pgfText = document.createElementNS(SVG_NS, 'text');
+        pgfText.setAttribute('class', 'force-label');
+        pgfText.setAttribute('fill', '#0C1B33');
+        pgfText.setAttribute('x', s.parcel.x);
+        pgfText.setAttribute('y', s.parcel.y - 13 - s.pgf - 6);
+        pgfText.setAttribute('text-anchor', 'middle');
+        pgfText.textContent = 'PGF';
+        g.appendChild(pgfText);
+      }
+      // Coriolis arrow — points DOWN (opposite PGF at steady state)
+      if (s.coriolis > 0) {
+        g.appendChild(buildArrow({
+          x: s.parcel.x, y: s.parcel.y + 13,
+          length: s.coriolis, angle: 90, color: '#7C3AED', stroke: '#4C1D95', width: 13
+        }));
+        const cText = document.createElementNS(SVG_NS, 'text');
+        cText.setAttribute('class', 'force-label');
+        cText.setAttribute('fill', '#7C3AED');
+        cText.setAttribute('x', s.parcel.x);
+        cText.setAttribute('y', s.parcel.y + 13 + s.coriolis + 14);
+        cText.setAttribute('text-anchor', 'middle');
+        cText.textContent = 'CORIOLIS';
+        g.appendChild(cText);
+      }
+      // Wind arrow — horizontal, slight up-tilt during accel
+      if (s.wind > 0) {
+        g.appendChild(buildWindArrow({
+          x: s.parcel.x + 14, y: s.parcel.y,
+          length: s.wind, angle: s.windAngle
+        }));
+      }
+
+      stagesEl.appendChild(g);
+      return g;
     });
+
+    function trajectoryPath(uptoIndex) {
+      if (uptoIndex < 1) return '';
+      const pts = stages.slice(0, uptoIndex + 1).map(s => `${s.parcel.x} ${s.parcel.y}`);
+      return 'M' + pts.join(' L ');
+    }
+
+    let current = 0;
+    let playing = false;
+    let playTimer = null;
+
+    function setStage(i) {
+      current = Math.max(0, Math.min(stages.length - 1, i));
+      stageGroups.forEach((g, idx) => {
+        if (idx < current) g.style.opacity = '0.32';
+        else if (idx === current) g.style.opacity = '1';
+        else g.style.opacity = '0';
+      });
+      trajectoryEl.setAttribute('d', trajectoryPath(current));
+      capStage.textContent = stages[current].label;
+      capText.textContent = stages[current].text;
+      stageReadout.textContent = `STAGE ${current + 1} / ${stages.length}`;
+      if (slider.value != current) slider.value = current;
+      if (current === stages.length - 1) {
+        steadyBox.setAttribute('opacity', '0.85');
+        steadyLabel.setAttribute('opacity', '1');
+        netforceLabel.setAttribute('opacity', '0.35');
+      } else {
+        steadyBox.setAttribute('opacity', '0.2');
+        steadyLabel.setAttribute('opacity', '0.4');
+        netforceLabel.setAttribute('opacity', '0.85');
+      }
+    }
+
+    function setPlaying(on) {
+      playing = on;
+      playBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      playLabel.textContent = on ? 'Pause' : 'Play';
+      playIcon.innerHTML = on
+        ? '<rect x="3" y="2" width="3" height="10" fill="currentColor"/><rect x="8" y="2" width="3" height="10" fill="currentColor"/>'
+        : '<path d="M3 2 L12 7 L3 12 Z" fill="currentColor"/>';
+    }
+    function startPlay() {
+      if (playing) return;
+      setPlaying(true);
+      if (current >= stages.length - 1) setStage(0);
+      const tick = () => {
+        if (!playing) return;
+        if (current >= stages.length - 1) { setPlaying(false); return; }
+        setStage(current + 1);
+        playTimer = setTimeout(tick, 1400);
+      };
+      playTimer = setTimeout(tick, 800);
+    }
+    function stopPlay() {
+      setPlaying(false);
+      if (playTimer) { clearTimeout(playTimer); playTimer = null; }
+    }
+
+    playBtn.addEventListener('click', () => playing ? stopPlay() : startPlay());
+    resetBtn.addEventListener('click', () => { stopPlay(); setStage(0); });
+    slider.addEventListener('input', (e) => { stopPlay(); setStage(parseInt(e.target.value, 10)); });
+
+    setStage(0);
   },
 
   // FAA-H-8083-28B Fig 11-4 — the four-row table of frontal chart symbols and
@@ -680,17 +974,390 @@ const Diagrams = {
     statusEl.textContent = status; statusEl.style.background = bg; statusEl.style.color = color;
   },
 
-  // FAA-H-8083-28B Fig 9-5 — global view of polar and subtropical jet streams.
-  // The lesson body in m3/s3_3 covers altitudes, wind speeds, CAT placement,
-  // and jet-streak entrance/exit quadrants in text — not overlaid here.
+  // M3 §s3_3 — bespoke interactive Jet Streams module that replaced the
+  // FAA Fig 9-5 still image. Globe view with two ribbon-jets, season
+  // toggle (winter/summer), tap-to-reveal info cards on each jet, CAT
+  // zone overlay. Subtropical speed envelope: winter 80-150 kt /
+  // summer 50-100 kt — anchored within the FAA-H-8083-28B 50-150 kt
+  // range. Init logic in _initJetStreamsModule.
   jetStreamSVG() {
-    return this.renderFaaFigure({
-      src: 'img/awh/awh_p0119_img_002.png',
-      figureNumber: '9-5',
-      title: 'Polar and Subtropical Jet Streams',
-      caption: 'The polar jet (blue, ~30,000–40,000 ft) and subtropical jet (red, ~35,000–40,000 ft) wind around the globe at temperate and subtropical latitudes. CAT zones, jet-streak entrance/exit quadrants, and seasonal migration are covered in the lesson body above.',
-      alt: 'FAA-H-8083-28B Figure 9-5: Illustration of polar and subtropical jet streams and their relative locations around the globe.',
+    return this.renderJetStreamsModule();
+  },
+
+  renderJetStreamsModule() {
+    return `
+<div class="jet-module" id="jetModule" role="region" aria-label="Polar and subtropical jet streams teaching figure">
+  <div class="jet-module__header">
+    <h2 class="jet-module__title">Polar &amp; Subtropical Jet Streams</h2>
+  </div>
+  <div class="jet-module__attr">FAA-H-8083-28B · Fig 9-5 — Polar &amp; Subtropical Jet Streams</div>
+
+  <div class="jet-module__figure">
+    <div class="jet-legend-keys" aria-hidden="true">
+      <div class="jet-legend-keys__item">
+        <span class="jet-legend-keys__swatch jet-legend-keys__swatch--polar"></span>
+        <span class="jet-legend-keys__label--polar">Polar Jet</span>
+      </div>
+      <div class="jet-legend-keys__item">
+        <span class="jet-legend-keys__swatch jet-legend-keys__swatch--sub"></span>
+        <span class="jet-legend-keys__label--sub">Subtropical Jet</span>
+      </div>
+    </div>
+
+    <svg id="jetGlobeSvg" viewBox="0 0 600 460" preserveAspectRatio="xMidYMid meet" aria-label="Globe with two jet streams encircling Earth">
+      <defs>
+        <radialGradient id="jetGlobeShade" cx="35%" cy="32%" r="75%">
+          <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.55" />
+          <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0" />
+          <stop offset="100%" stop-color="#0C1B33" stop-opacity="0.18" />
+        </radialGradient>
+        <linearGradient id="jetPolarGrad" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0%" stop-color="#1E40AF" />
+          <stop offset="100%" stop-color="#38BDF8" />
+        </linearGradient>
+        <linearGradient id="jetSubGrad" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0%" stop-color="#B91C1C" />
+          <stop offset="100%" stop-color="#F59E0B" />
+        </linearGradient>
+        <clipPath id="jetGlobeClip">
+          <circle cx="300" cy="230" r="180" />
+        </clipPath>
+      </defs>
+
+      <g clip-path="url(#jetGlobeClip)">
+        <circle cx="300" cy="230" r="180" class="ocean" />
+        <g class="land">
+          <path d="M 188 120 L 210 100 L 240 92 L 282 92 L 318 102 L 344 118 L 352 145 L 350 175 L 340 200 L 322 218 L 322 234 L 308 232 L 295 226 L 280 230 L 268 240 L 258 254 L 248 244 L 232 232 L 212 218 L 195 200 L 184 178 L 180 152 Z" />
+          <path d="M 358 90 C 376 86 390 100 386 120 C 380 138 364 138 354 128 C 348 118 350 100 358 90 Z" />
+          <path d="M 268 264 L 286 268 L 304 280 L 316 300 L 320 322 L 314 348 L 302 372 L 288 384 L 278 380 L 268 364 L 260 342 L 254 318 L 252 294 L 256 274 Z" />
+        </g>
+        <g class="latitude">
+          <ellipse cx="300" cy="230" rx="178" ry="22" />
+          <ellipse cx="300" cy="230" rx="178" ry="55" />
+          <ellipse cx="300" cy="230" rx="178" ry="92" />
+          <ellipse cx="300" cy="230" rx="178" ry="130" />
+          <ellipse cx="300" cy="230" rx="178" ry="165" />
+        </g>
+        <line class="equator" x1="122" y1="230" x2="478" y2="230" />
+        <circle cx="300" cy="230" r="180" fill="url(#jetGlobeShade)" />
+      </g>
+      <circle cx="300" cy="230" r="180" class="globe-edge" />
+
+      <g id="jetCatGroup" clip-path="url(#jetGlobeClip)">
+        <path id="jetCatPolarN" class="cat-zone" />
+        <path id="jetCatPolarS" class="cat-zone" />
+        <path id="jetCatSubN" class="cat-zone" />
+        <path id="jetCatSubS" class="cat-zone" />
+      </g>
+
+      <g clip-path="url(#jetGlobeClip)">
+        <path id="jetPolarGlow" class="jet-glow" stroke="url(#jetPolarGrad)" stroke-width="22" />
+        <path id="jetSubGlow" class="jet-glow" stroke="url(#jetSubGrad)" stroke-width="20" />
+        <path id="jetPolarBack" class="jet-ribbon" stroke="url(#jetPolarGrad)" stroke-width="9" opacity="0.28" stroke-dasharray="3 6" />
+        <path id="jetSubBack" class="jet-ribbon" stroke="url(#jetSubGrad)" stroke-width="8" opacity="0.28" stroke-dasharray="3 6" />
+        <path id="jetPolarFront" class="jet-ribbon" stroke="url(#jetPolarGrad)" stroke-width="13" data-jet="polar" />
+        <path id="jetSubFront" class="jet-ribbon" stroke="url(#jetSubGrad)" stroke-width="11" data-jet="sub" />
+        <g id="jetPolarArrows"></g>
+        <g id="jetSubArrows"></g>
+      </g>
+
+      <path id="jetPolarHit" class="jet-hit" data-jet="polar" />
+      <path id="jetSubHit" class="jet-hit" data-jet="sub" />
+
+      <g id="jetSeasonBadge" transform="translate(488 30)">
+        <rect x="-58" y="-18" width="116" height="28" rx="14" fill="#0C1B33" opacity="0.86" />
+        <text x="0" y="1" text-anchor="middle" font-weight="900" font-size="11" letter-spacing="0.06em" fill="#F8FAFC">
+          <tspan id="jetSeasonBadgeText">WINTER · N. HEM.</tspan>
+        </text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="jet-module__caption" aria-live="polite">
+    <span class="jet-caption__lead" id="jetCapLead">Tap a jet to learn more</span>
+    <span class="jet-caption__text" id="jetCapText">Two ribbon-like wind currents wrap Earth in the upper troposphere. Their position shifts with the seasons.</span>
+  </div>
+
+  <div class="jet-controls">
+    <div class="jet-controls__row">
+      <div class="jet-toggle-group" role="radiogroup" aria-label="Season">
+        <button class="jet-toggle-btn" id="jetSeasonWinter" aria-pressed="true" role="radio">
+          <svg class="jet-toggle-icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M8 1 V15 M1 8 H15 M3 3 L13 13 M13 3 L3 13" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+          </svg>Winter
+        </button>
+        <button class="jet-toggle-btn" id="jetSeasonSummer" aria-pressed="false" role="radio">
+          <svg class="jet-toggle-icon" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="3" fill="currentColor"/>
+            <g stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+              <path d="M8 1 V3 M8 13 V15 M1 8 H3 M13 8 H15 M3 3 L4.5 4.5 M11.5 11.5 L13 13 M3 13 L4.5 11.5 M11.5 4.5 L13 3"/>
+            </g>
+          </svg>Summer
+        </button>
+      </div>
+      <button class="jet-toggle-btn jet-toggle-btn--cat" id="jetCatToggle" aria-pressed="false">
+        <svg class="jet-toggle-icon" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M8 1 L15 14 L1 14 Z" fill="currentColor" opacity="0.85"/>
+          <path d="M8 6 V10 M8 12 V12.5" stroke="#0C1B33" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>CAT zones
+      </button>
+    </div>
+    <div class="jet-info-card" id="jetInfoCard" data-open="false" aria-live="polite">
+      <div class="jet-info-card__head">
+        <span class="jet-info-card__chip" id="jetInfoChip"></span>
+        <h2 class="jet-info-card__title" id="jetInfoTitle">Polar Jet</h2>
+        <button class="jet-info-card__close" id="jetInfoClose" aria-label="Close">
+          <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+            <path d="M2 2 L12 12 M12 2 L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="jet-info-card__body" id="jetInfoBody">…</div>
+      <div class="jet-info-card__stats" id="jetInfoStats"></div>
+    </div>
+    <div class="jet-hint" id="jetHint">Tap either jet on the globe to reveal its stats.</div>
+  </div>
+</div>`;
+  },
+
+  _initJetStreamsModule() {
+    const root = document.getElementById('jetModule');
+    if (!root || root.dataset.jetInit === 'done') return;
+    root.dataset.jetInit = 'done';
+
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    const CX = 300, CY = 230, R = 180;
+
+    function buildJet(latOffset, amplitude, segments, phase) {
+      const meanY = CY + latOffset;
+      const xMin = CX - R - 20;
+      const xMax = CX + R + 20;
+      const wave = (x) => meanY + Math.sin((x - xMin) / (xMax - xMin) * Math.PI * segments + phase) * amplitude;
+      const N = 40;
+      const pts = [];
+      for (let i = 0; i <= N; i++) {
+        const t = i / N;
+        const x = xMin + (xMax - xMin) * t;
+        pts.push([x, wave(x)]);
+      }
+      let d = `M ${pts[0][0]} ${pts[0][1]}`;
+      for (let i = 1; i < pts.length; i++) d += ` L ${pts[i][0]} ${pts[i][1]}`;
+      return d;
+    }
+    function buildCatBand(latOffset, amplitude, segments, phase, bandWidth) {
+      const meanY = CY + latOffset;
+      const xMin = CX - R - 20;
+      const xMax = CX + R + 20;
+      const wave = (x, off) => meanY + off + Math.sin((x - xMin) / (xMax - xMin) * Math.PI * segments + phase) * amplitude;
+      const N = 50;
+      const top = [], bot = [];
+      for (let i = 0; i <= N; i++) {
+        const t = i / N;
+        const x = xMin + (xMax - xMin) * t;
+        top.push([x, wave(x, -bandWidth)]);
+        bot.push([x, wave(x, bandWidth)]);
+      }
+      let d = `M ${top[0][0]} ${top[0][1]}`;
+      for (let i = 1; i < top.length; i++) d += ` L ${top[i][0]} ${top[i][1]}`;
+      for (let i = bot.length - 1; i >= 0; i--) d += ` L ${bot[i][0]} ${bot[i][1]}`;
+      d += ' Z';
+      return d;
+    }
+    function pointOn(latOffset, amplitude, segments, phase, frac) {
+      const meanY = CY + latOffset;
+      const xMin = CX - R - 20;
+      const xMax = CX + R + 20;
+      const x = xMin + (xMax - xMin) * frac;
+      const k = Math.PI * segments / (xMax - xMin);
+      const y = meanY + Math.sin((x - xMin) * k + phase) * amplitude;
+      const dy = Math.cos((x - xMin) * k + phase) * amplitude * k;
+      const ang = Math.atan2(dy, 1) * 180 / Math.PI;
+      return { x, y, angle: ang };
+    }
+
+    // Speed envelopes per the user's adjustment: subtropical anchored
+    // within FAA-H-8083-28B 50–150 kt range — winter 80-150, summer 50-100.
+    // Polar unchanged from the design (60-200 winter, 60-120 summer).
+    const seasons = {
+      winter: {
+        polar:  { latOffset: -42, amplitude: 22, segments: 4, phase: 0.3, width: 14 },
+        sub:    { latOffset: 12,  amplitude: 14, segments: 5, phase: 1.1, width: 10 },
+        polarSpeed: '60–200 kt (peaks 250+)',
+        subSpeed:   '80–150 kt'
+      },
+      summer: {
+        polar:  { latOffset: -78, amplitude: 16, segments: 4, phase: 0.3, width: 12 },
+        sub:    { latOffset: -18, amplitude: 10, segments: 5, phase: 1.1, width: 7 },
+        polarSpeed: '60–120 kt',
+        subSpeed:   '50–100 kt'
+      }
+    };
+
+    let currentSeason = 'winter';
+    let activeJet = null;
+    let catOn = false;
+
+    const polarFront = root.querySelector('#jetPolarFront');
+    const polarBack  = root.querySelector('#jetPolarBack');
+    const polarGlow  = root.querySelector('#jetPolarGlow');
+    const polarHit   = root.querySelector('#jetPolarHit');
+    const polarArrows = root.querySelector('#jetPolarArrows');
+    const subFront = root.querySelector('#jetSubFront');
+    const subBack  = root.querySelector('#jetSubBack');
+    const subGlow  = root.querySelector('#jetSubGlow');
+    const subHit   = root.querySelector('#jetSubHit');
+    const subArrows = root.querySelector('#jetSubArrows');
+    const catPolarN = root.querySelector('#jetCatPolarN');
+    const catPolarS = root.querySelector('#jetCatPolarS');
+    const catSubN = root.querySelector('#jetCatSubN');
+    const catSubS = root.querySelector('#jetCatSubS');
+    const seasonBadgeText = root.querySelector('#jetSeasonBadgeText');
+    const seasonWinter = root.querySelector('#jetSeasonWinter');
+    const seasonSummer = root.querySelector('#jetSeasonSummer');
+    const catToggle = root.querySelector('#jetCatToggle');
+    const infoCard = root.querySelector('#jetInfoCard');
+    const infoChip = root.querySelector('#jetInfoChip');
+    const infoTitle = root.querySelector('#jetInfoTitle');
+    const infoBody = root.querySelector('#jetInfoBody');
+    const infoStats = root.querySelector('#jetInfoStats');
+    const infoClose = root.querySelector('#jetInfoClose');
+    const hint = root.querySelector('#jetHint');
+    const capLead = root.querySelector('#jetCapLead');
+    const capText = root.querySelector('#jetCapText');
+
+    function renderSeason(s) {
+      const cfg = seasons[s];
+      const polarPath = buildJet(cfg.polar.latOffset, cfg.polar.amplitude, cfg.polar.segments, cfg.polar.phase);
+      const subPath   = buildJet(cfg.sub.latOffset,   cfg.sub.amplitude,   cfg.sub.segments,   cfg.sub.phase);
+      polarFront.setAttribute('d', polarPath);
+      polarBack.setAttribute('d', polarPath);
+      polarGlow.setAttribute('d', polarPath);
+      polarHit.setAttribute('d', polarPath);
+      polarFront.setAttribute('stroke-width', cfg.polar.width);
+      subFront.setAttribute('d', subPath);
+      subBack.setAttribute('d', subPath);
+      subGlow.setAttribute('d', subPath);
+      subHit.setAttribute('d', subPath);
+      subFront.setAttribute('stroke-width', cfg.sub.width);
+      catPolarN.setAttribute('d', buildCatBand(cfg.polar.latOffset - 14, cfg.polar.amplitude, cfg.polar.segments, cfg.polar.phase, 8));
+      catPolarS.setAttribute('d', buildCatBand(cfg.polar.latOffset + 14, cfg.polar.amplitude, cfg.polar.segments, cfg.polar.phase, 8));
+      catSubN.setAttribute('d', buildCatBand(cfg.sub.latOffset - 12, cfg.sub.amplitude, cfg.sub.segments, cfg.sub.phase, 7));
+      catSubS.setAttribute('d', buildCatBand(cfg.sub.latOffset + 12, cfg.sub.amplitude, cfg.sub.segments, cfg.sub.phase, 7));
+      // Three arrows along each visible jet
+      [0.28, 0.55, 0.82].forEach((frac, idx) => {
+        const polarPt = pointOn(cfg.polar.latOffset, cfg.polar.amplitude, cfg.polar.segments, cfg.polar.phase, frac);
+        const subPt   = pointOn(cfg.sub.latOffset,   cfg.sub.amplitude,   cfg.sub.segments,   cfg.sub.phase,   frac);
+        let pa = polarArrows.children[idx];
+        if (!pa) {
+          pa = document.createElementNS(SVG_NS, 'g');
+          const tri = document.createElementNS(SVG_NS, 'polygon');
+          tri.setAttribute('points', '-6,-5 7,0 -6,5');
+          tri.setAttribute('fill', '#FFFFFF');
+          tri.setAttribute('stroke', '#0C1B33');
+          tri.setAttribute('stroke-width', '0.7');
+          pa.appendChild(tri);
+          polarArrows.appendChild(pa);
+        }
+        pa.setAttribute('transform', `translate(${polarPt.x} ${polarPt.y}) rotate(${polarPt.angle})`);
+        let sa = subArrows.children[idx];
+        if (!sa) {
+          sa = document.createElementNS(SVG_NS, 'g');
+          const tri = document.createElementNS(SVG_NS, 'polygon');
+          tri.setAttribute('points', '-6,-5 7,0 -6,5');
+          tri.setAttribute('fill', '#FFFFFF');
+          tri.setAttribute('stroke', '#0C1B33');
+          tri.setAttribute('stroke-width', '0.7');
+          sa.appendChild(tri);
+          subArrows.appendChild(sa);
+        }
+        sa.setAttribute('transform', `translate(${subPt.x} ${subPt.y}) rotate(${subPt.angle})`);
+      });
+      seasonBadgeText.textContent = (s === 'winter' ? 'WINTER · N. HEM.' : 'SUMMER · N. HEM.');
+    }
+
+    function showInfo(jet) {
+      activeJet = jet;
+      polarFront.setAttribute('data-active', jet === 'polar' ? 'true' : 'false');
+      subFront.setAttribute('data-active', jet === 'sub' ? 'true' : 'false');
+      if (jet === 'polar') {
+        infoChip.className = 'jet-info-card__chip jet-info-card__chip--polar';
+        infoTitle.textContent = 'Polar Jet';
+        infoBody.textContent = 'Forms along the polar front where cold polar air meets warmer mid-latitude air. Strongest in winter when the temperature contrast is greatest. Often associated with major weather systems and turbulence.';
+        infoStats.innerHTML = `
+          <div class="jet-stat"><div class="jet-stat__label">Latitude</div><div class="jet-stat__val">30–60°N</div></div>
+          <div class="jet-stat"><div class="jet-stat__label">Altitude</div><div class="jet-stat__val">35–40k ft</div></div>
+          <div class="jet-stat"><div class="jet-stat__label">Speed</div><div class="jet-stat__val">${seasons[currentSeason].polarSpeed}</div></div>`;
+        capLead.textContent = 'Polar jet';
+        capText.textContent = 'Cold polar air meets warmer mid-latitude air — driving the strongest jet, especially in winter.';
+      } else if (jet === 'sub') {
+        infoChip.className = 'jet-info-card__chip jet-info-card__chip--sub';
+        infoTitle.textContent = 'Subtropical Jet';
+        infoBody.textContent = 'Forms at the poleward edge of the Hadley cell, where rising tropical air diverges aloft. Most consistent in winter; weakens or fragments in summer. Generally more steady than the polar jet.';
+        infoStats.innerHTML = `
+          <div class="jet-stat"><div class="jet-stat__label">Latitude</div><div class="jet-stat__val">20–30°N</div></div>
+          <div class="jet-stat"><div class="jet-stat__label">Altitude</div><div class="jet-stat__val">~40k ft</div></div>
+          <div class="jet-stat"><div class="jet-stat__label">Speed</div><div class="jet-stat__val">${seasons[currentSeason].subSpeed}</div></div>`;
+        capLead.textContent = 'Subtropical jet';
+        capText.textContent = 'Sits at the poleward edge of the Hadley cell — usually steadier and weaker than the polar jet.';
+      } else if (jet === 'cat') {
+        infoChip.className = 'jet-info-card__chip jet-info-card__chip--cat';
+        infoTitle.textContent = 'Clear Air Turbulence Zones';
+        infoBody.textContent = 'CAT is most likely on the north and south flanks of each jet, where wind shear is strongest. It is invisible — no clouds, no precip cues — and can range from light to severe. Plan altitudes that avoid jet edges when possible.';
+        infoStats.innerHTML = `
+          <div class="jet-stat"><div class="jet-stat__label">Where</div><div class="jet-stat__val">Jet flanks</div></div>
+          <div class="jet-stat"><div class="jet-stat__label">Cause</div><div class="jet-stat__val">Wind shear</div></div>
+          <div class="jet-stat"><div class="jet-stat__label">Cue</div><div class="jet-stat__val">None visible</div></div>`;
+        capLead.textContent = 'Clear Air Turbulence';
+        capText.textContent = 'Shaded bands flank each jet — the wind-shear regions where CAT is most likely.';
+      }
+      infoCard.setAttribute('data-open', 'true');
+      hint.style.opacity = '0';
+    }
+
+    function hideInfo() {
+      activeJet = null;
+      infoCard.setAttribute('data-open', 'false');
+      polarFront.removeAttribute('data-active');
+      subFront.removeAttribute('data-active');
+      hint.style.opacity = '1';
+      capLead.textContent = 'Tap a jet to learn more';
+      capText.textContent = 'Two ribbon-like wind currents wrap Earth in the upper troposphere. Their position shifts with the seasons.';
+    }
+
+    function setSeason(s) {
+      currentSeason = s;
+      seasonWinter.setAttribute('aria-pressed', s === 'winter' ? 'true' : 'false');
+      seasonSummer.setAttribute('aria-pressed', s === 'summer' ? 'true' : 'false');
+      renderSeason(s);
+      if (activeJet === 'polar' || activeJet === 'sub') showInfo(activeJet);
+    }
+    function setCat(on) {
+      catOn = on;
+      catToggle.setAttribute('aria-pressed', on ? 'true' : 'false');
+      [catPolarN, catPolarS, catSubN, catSubS].forEach(n => n.setAttribute('data-on', on ? 'true' : 'false'));
+      if (on) showInfo('cat');
+      else if (activeJet === 'cat') hideInfo();
+    }
+
+    seasonWinter.addEventListener('click', () => setSeason('winter'));
+    seasonSummer.addEventListener('click', () => setSeason('summer'));
+    catToggle.addEventListener('click', () => setCat(!catOn));
+
+    function bindJetTap(node, jet) {
+      const handler = () => showInfo(jet);
+      node.addEventListener('click', handler);
+      node.addEventListener('touchend', (e) => { e.preventDefault(); handler(); });
+    }
+    bindJetTap(polarHit, 'polar');
+    bindJetTap(polarFront, 'polar');
+    bindJetTap(subHit, 'sub');
+    bindJetTap(subFront, 'sub');
+    infoClose.addEventListener('click', () => {
+      if (activeJet === 'cat') setCat(false);
+      else hideInfo();
     });
+
+    renderSeason('winter');
   },
 
   // FAA-H-8083-28B Fig 25-5 — synoptic surface chart showing H/L pressure
@@ -709,19 +1376,293 @@ const Diagrams = {
     });
   },
 
-  // FAA-H-8083-28B Fig 10-10 — three forces acting on a surface air parcel:
-  // PGF (toward lower pressure), Coriolis (perpendicular to motion), and
-  // friction (opposite the wind). Below the friction layer the three
-  // forces no longer balance cleanly, so the resultant wind crosses isobars
-  // at an angle toward lower pressure rather than flowing parallel to them.
+  // M3 §s3_2 — bespoke 3-panel interactive Surface Wind Forces module that
+  // replaced the FAA Fig 10-10 still image. Toggle between "Above friction
+  // layer" (single panel — geostrophic) and "Below friction layer" (all
+  // three panels). Friction-strength slider drives the cross-isobar angle
+  // 0°–45° in real time. Pressure values 1004 / 1008 / 1012 / 1016 hPa,
+  // angle descriptions match FAA-H-8083-28B Ch. 10. Init logic in
+  // _initSurfaceWindModule.
   surfaceWindForcesSVG() {
-    return this.renderFaaFigure({
-      src: 'img/awh/awh_p0127_img_002.png',
-      figureNumber: '10-10',
-      title: 'Surface Wind Forces',
-      caption: 'Below the friction layer (roughly the lowest 2,000 ft AGL over flat terrain), friction adds a third force opposite the wind direction. PGF and Coriolis no longer balance cleanly, so the resultant wind crosses isobars at an angle toward lower pressure rather than flowing parallel to them.',
-      alt: 'FAA-H-8083-28B Figure 10-10: surface wind forces showing PGF, Coriolis, and friction acting on an air parcel below the boundary layer.',
-    });
+    return this.renderSurfaceWindModule();
+  },
+
+  renderSurfaceWindModule() {
+    return `
+<div class="sw-module" id="swModule" role="region" aria-label="Surface wind forces teaching figure">
+  <div class="sw-module__header">
+    <h2 class="sw-module__title">Surface Wind Forces</h2>
+  </div>
+  <div class="sw-module__attr">FAA-H-8083-28B · Fig 10-10 — Surface Wind Forces</div>
+
+  <div class="sw-module__figure">
+    <svg id="swFigure" viewBox="0 0 720 420" preserveAspectRatio="xMidYMid meet" aria-label="Three panels: no friction, net force, and resultant balanced wind">
+      <defs>
+        <radialGradient id="swParcelGrad" cx="35%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#FFFFFF"/>
+          <stop offset="60%" stop-color="#E0F2FE"/>
+          <stop offset="100%" stop-color="#7DD3FC"/>
+        </radialGradient>
+      </defs>
+
+      <text class="pressure-label" x="360" y="20" text-anchor="middle">LOW PRESSURE</text>
+      <text class="pressure-label" x="360" y="408" text-anchor="middle">HIGH PRESSURE</text>
+
+      <g id="swIsobars">
+        <line class="iso-line" x1="50" y1="60" x2="700" y2="60"/>
+        <text class="iso-label" x="22" y="64">1004</text>
+        <line class="iso-line" x1="50" y1="160" x2="700" y2="160"/>
+        <text class="iso-label" x="22" y="164">1008</text>
+        <line class="iso-line" x1="50" y1="260" x2="700" y2="260"/>
+        <text class="iso-label" x="22" y="264">1012</text>
+        <line class="iso-line" x1="50" y1="360" x2="700" y2="360"/>
+        <text class="iso-label" x="22" y="364">1016</text>
+      </g>
+
+      <line id="swDiv1" class="panel-divider" x1="270" y1="40" x2="270" y2="380"/>
+      <line id="swDiv2" class="panel-divider" x1="490" y1="40" x2="490" y2="380"/>
+
+      <g id="swPanel1" class="panel">
+        <text class="panel-status" x="160" y="395" text-anchor="middle">NO FRICTION</text>
+        <g id="swP1Arrows"></g>
+      </g>
+      <g id="swPanel2" class="panel">
+        <text class="panel-status" x="380" y="395" text-anchor="middle">NET FORCE</text>
+        <g id="swP2Arrows"></g>
+      </g>
+      <g id="swPanel3" class="panel">
+        <rect class="right-panel-box" x="500" y="40" width="200" height="340" rx="2"/>
+        <text class="panel-status" x="600" y="395" text-anchor="middle">NO NET FORCE</text>
+        <g id="swP3Arrows"></g>
+      </g>
+    </svg>
+  </div>
+
+  <div class="sw-module__caption" aria-live="polite">
+    <span class="sw-caption__lead" id="swCapLead">Below the friction layer · ~2,000 ft AGL</span>
+    <span class="sw-caption__text" id="swCapText">Friction opposes wind direction. The resultant wind crosses isobars at an angle toward lower pressure.</span>
+  </div>
+
+  <div class="sw-controls">
+    <div class="sw-toggle-group" role="radiogroup" aria-label="Layer">
+      <button class="sw-toggle-btn" id="swLayerAbove" aria-pressed="false" role="radio">Above friction layer</button>
+      <button class="sw-toggle-btn" id="swLayerBelow" aria-pressed="true" role="radio">Below friction layer</button>
+    </div>
+    <div class="sw-friction-row" id="swFrictionRow">
+      <div class="sw-friction-row__head">
+        <span>FRICTION STRENGTH</span>
+        <span class="sw-angle-readout">Cross-isobar angle: <strong id="swAngleVal">15°</strong></span>
+      </div>
+      <input type="range" id="swFrictionSlider" min="0" max="100" step="1" value="33" aria-label="Friction strength" />
+      <div class="sw-terrain-desc">
+        <span id="swTerrainText">moderate roughness</span>
+        <span class="sw-terrain-pill" id="swTerrainPill">FRICTION 0.33</span>
+      </div>
+    </div>
+  </div>
+</div>`;
+  },
+
+  _initSurfaceWindModule() {
+    const root = document.getElementById('swModule');
+    if (!root || root.dataset.swInit === 'done') return;
+    root.dataset.swInit = 'done';
+
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    // Anchor centers per panel (parcel + base of arrows)
+    const P = {
+      p1: { x: 160, y: 210 },
+      p2: { x: 380, y: 210 },
+      p3: { x: 600, y: 210 }
+    };
+
+    function el(tag, attrs, parent) {
+      const n = document.createElementNS(SVG_NS, tag);
+      if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
+      if (parent) parent.appendChild(n);
+      return n;
+    }
+
+    function arrow(parent, opts) {
+      const w = opts.width || 13;
+      const headW = w * 1.9;
+      const headLen = Math.min(18, Math.max(10, opts.length * 0.32));
+      const shaftLen = Math.max(0.001, opts.length - headLen);
+      const pts = [
+        [0, -w/2], [shaftLen, -w/2], [shaftLen, -headW/2], [opts.length, 0],
+        [shaftLen, headW/2], [shaftLen, w/2], [0, w/2]
+      ].map(p => p.join(',')).join(' ');
+      const g = el('g', { transform: `translate(${opts.x} ${opts.y}) rotate(${opts.angle})` }, parent);
+      el('polygon', {
+        points: pts, fill: opts.color, stroke: opts.stroke || '#0C1B33',
+        'stroke-width': 1.2, 'stroke-linejoin': 'round'
+      }, g);
+      if (opts.dashed) {
+        const last = g.lastChild;
+        last.setAttribute('fill', 'rgba(56, 189, 248, 0.30)');
+        last.setAttribute('stroke', '#0284C7');
+        last.setAttribute('stroke-dasharray', '4 3');
+        last.setAttribute('stroke-width', 1.5);
+      }
+      if (opts.innerLabel && shaftLen > 18) {
+        // Counter-rotate when arrow flipped past vertical (text upright)
+        const a = ((opts.angle % 360) + 360) % 360;
+        const flip = (a > 90 && a < 270);
+        const tg = el('g', flip
+          ? { transform: `translate(${shaftLen/2} 3) rotate(180)` }
+          : { transform: `translate(${shaftLen/2} 3)` }, g);
+        const t = el('text', {
+          x: 0, y: 0, 'text-anchor': 'middle', class: 'force-text',
+          fill: opts.innerLabelColor || '#0284C7',
+          'font-size': 9, 'letter-spacing': '0.08em'
+        }, tg);
+        t.textContent = opts.innerLabel;
+      }
+      return g;
+    }
+
+    function parcel(parent, x, y) {
+      el('circle', {
+        cx: x, cy: y, r: 11, fill: 'url(#swParcelGrad)',
+        stroke: '#0284C7', 'stroke-width': 1.2
+      }, parent);
+    }
+    function forceLabel(parent, x, y, text, color) {
+      const t = el('text', { x, y, 'text-anchor': 'middle', fill: color, class: 'force-text' }, parent);
+      t.textContent = text;
+      return t;
+    }
+    function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+
+    const p1g = root.querySelector('#swP1Arrows');
+    const p2g = root.querySelector('#swP2Arrows');
+    const p3g = root.querySelector('#swP3Arrows');
+
+    // PANEL 1: PGF up, Coriolis down, wind horizontal (geostrophic)
+    function drawPanel1() {
+      clear(p1g);
+      const c = P.p1;
+      arrow(p1g, { x: c.x, y: c.y - 12, length: 70, angle: -90, color: '#475569', width: 13 });
+      forceLabel(p1g, c.x, c.y - 12 - 70 - 6, 'PGF', '#0C1B33');
+      arrow(p1g, { x: c.x, y: c.y + 12, length: 70, angle: 90, color: '#7C3AED', stroke: '#4C1D95', width: 13 });
+      forceLabel(p1g, c.x, c.y + 12 + 70 + 14, 'CORIOLIS', '#7C3AED');
+      arrow(p1g, { x: c.x + 14, y: c.y, length: 80, angle: 0, color: 'rgba(56,189,248,0.30)', dashed: true, innerLabel: 'WIND' });
+      parcel(p1g, c.x, c.y);
+    }
+    // PANEL 2: same forces + friction arrow opposing wind. Wind weakens.
+    function drawPanel2(friction) {
+      clear(p2g);
+      const c = P.p2;
+      arrow(p2g, { x: c.x, y: c.y - 12, length: 70, angle: -90, color: '#475569', width: 13 });
+      forceLabel(p2g, c.x, c.y - 12 - 70 - 6, 'PGF', '#0C1B33');
+      arrow(p2g, { x: c.x, y: c.y + 12, length: 70, angle: 90, color: '#7C3AED', stroke: '#4C1D95', width: 13 });
+      forceLabel(p2g, c.x, c.y + 12 + 70 + 14, 'CORIOLIS', '#7C3AED');
+      const fLen = 30 + friction * 60;
+      arrow(p2g, { x: c.x - 14, y: c.y, length: fLen, angle: 180, color: '#F59E0B', stroke: '#92400E', width: 13 });
+      forceLabel(p2g, c.x - 14 - fLen / 2, c.y - 12, 'FRICTION', '#92400E');
+      const windLen = 90 - friction * 50;
+      arrow(p2g, { x: c.x + 14, y: c.y, length: windLen, angle: 0, color: 'rgba(56,189,248,0.30)', dashed: true, innerLabel: 'WIND' });
+      parcel(p2g, c.x, c.y);
+    }
+    // PANEL 3: resultant — wind tilts up toward LOW; cross-isobar angle drives both wind and Coriolis tilt; PGF stays vertical
+    function drawPanel3(angleDeg) {
+      clear(p3g);
+      const c = P.p3;
+      arrow(p3g, { x: c.x, y: c.y - 12, length: 70, angle: -90, color: '#475569', width: 13 });
+      forceLabel(p3g, c.x, c.y - 12 - 70 - 6, 'PGF', '#0C1B33');
+      const corAngle = 90 + angleDeg;
+      arrow(p3g, {
+        x: c.x + Math.cos(corAngle * Math.PI/180)*12,
+        y: c.y + Math.sin(corAngle * Math.PI/180)*12,
+        length: 70, angle: corAngle, color: '#7C3AED', stroke: '#4C1D95', width: 13
+      });
+      const labelDist = 90;
+      const lx = c.x + Math.cos(corAngle * Math.PI/180) * labelDist;
+      const ly = c.y + Math.sin(corAngle * Math.PI/180) * labelDist + 12;
+      forceLabel(p3g, lx, ly, 'CORIOLIS', '#7C3AED');
+      const wAngle = -angleDeg;
+      const fAngle = 180 - angleDeg;
+      const fOriginX = c.x + Math.cos(fAngle * Math.PI/180)*14;
+      const fOriginY = c.y + Math.sin(fAngle * Math.PI/180)*14;
+      const fShaftLen = 50;
+      arrow(p3g, { x: fOriginX, y: fOriginY, length: fShaftLen, angle: fAngle,
+                   color: '#F59E0B', stroke: '#92400E', width: 12 });
+      const fMidX = fOriginX + Math.cos(fAngle * Math.PI/180) * (fShaftLen / 2);
+      const fMidY = fOriginY + Math.sin(fAngle * Math.PI/180) * (fShaftLen / 2);
+      forceLabel(p3g, fMidX, fMidY - 12, 'FRICTION', '#92400E');
+      arrow(p3g, {
+        x: c.x + Math.cos(wAngle * Math.PI/180)*14,
+        y: c.y + Math.sin(wAngle * Math.PI/180)*14,
+        length: 75, angle: wAngle, color: 'rgba(56,189,248,0.30)', dashed: true, innerLabel: 'WIND'
+      });
+      parcel(p3g, c.x, c.y);
+    }
+
+    const layerAbove = root.querySelector('#swLayerAbove');
+    const layerBelow = root.querySelector('#swLayerBelow');
+    const panel2 = root.querySelector('#swPanel2');
+    const panel3 = root.querySelector('#swPanel3');
+    const div1 = root.querySelector('#swDiv1');
+    const div2 = root.querySelector('#swDiv2');
+    const frictionRow = root.querySelector('#swFrictionRow');
+    const slider = root.querySelector('#swFrictionSlider');
+    const angleVal = root.querySelector('#swAngleVal');
+    const terrainText = root.querySelector('#swTerrainText');
+    const terrainPill = root.querySelector('#swTerrainPill');
+    const capLead = root.querySelector('#swCapLead');
+    const capText = root.querySelector('#swCapText');
+    const figure = root.querySelector('#swFigure');
+
+    function setMode(m) {
+      layerAbove.setAttribute('aria-pressed', m === 'above' ? 'true' : 'false');
+      layerBelow.setAttribute('aria-pressed', m === 'below' ? 'true' : 'false');
+      if (m === 'above') {
+        panel2.style.opacity = '0';
+        panel3.style.opacity = '0';
+        div1.style.opacity = '0';
+        div2.style.opacity = '0';
+        frictionRow.style.opacity = '0.4';
+        frictionRow.style.pointerEvents = 'none';
+        figure.setAttribute('viewBox', '40 0 360 420');
+        capLead.textContent = 'Above the friction layer';
+        capText.textContent = 'PGF and Coriolis balance exactly. The wind blows parallel to the isobars — geostrophic flow.';
+      } else {
+        panel2.style.opacity = '1';
+        panel3.style.opacity = '1';
+        div1.style.opacity = '1';
+        div2.style.opacity = '1';
+        frictionRow.style.opacity = '1';
+        frictionRow.style.pointerEvents = 'auto';
+        figure.setAttribute('viewBox', '0 0 720 420');
+        capLead.textContent = 'Below the friction layer · ~2,000 ft AGL';
+        capText.textContent = 'Friction opposes wind direction. The resultant wind crosses isobars at an angle toward lower pressure.';
+      }
+    }
+    function frictionToAngle(f) { return Math.round(f * 45); }
+    // Angle descriptions match FAA-H-8083-28B Ch. 10 surface-wind treatment.
+    function describeAngle(a) {
+      if (a < 5)  return 'parallel — geostrophic';
+      if (a < 17) return 'typical over water';
+      if (a < 35) return 'moderate terrain';
+      return        'rough terrain or mountains';
+    }
+    function setFriction(v) {
+      const f = v / 100;
+      const angle = frictionToAngle(f);
+      angleVal.textContent = angle + '°';
+      terrainText.textContent = describeAngle(angle);
+      terrainPill.textContent = 'FRICTION ' + f.toFixed(2);
+      drawPanel2(f);
+      drawPanel3(angle);
+    }
+
+    layerAbove.addEventListener('click', () => setMode('above'));
+    layerBelow.addEventListener('click', () => setMode('below'));
+    slider.addEventListener('input', (e) => setFriction(parseInt(e.target.value, 10)));
+
+    drawPanel1();
+    setFriction(parseInt(slider.value, 10));
+    setMode('below');
   },
 
   showOrgInfo(id) {
