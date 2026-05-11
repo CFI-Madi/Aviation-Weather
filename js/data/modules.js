@@ -1274,14 +1274,14 @@ const MODULES = [
           </div>
           <div class="danger-callout">☠️ <strong>All thunderstorms are hazardous.</strong> The FAA handbook states: "Weather recognizable as a thunderstorm should be considered hazardous, as penetration of any thunderstorm can lead to an aircraft accident and fatalities." There is no such thing as a "safe" thunderstorm to penetrate.</div>
         `,
-        diagram:{type:'interactive',key:'cb_ingredients'}
+        diagram:{type:'hotspot',key:'thunderstorm_ingredients'}
       },
       {
         id:'s6_2',title:'Thunderstorm Cell Life Cycle',
         content:`
-          <p>A single thunderstorm cell has a predictable three-stage lifecycle lasting approximately <span class="data-tag">30 minutes</span> total. Understanding each stage is critical for situational awareness when a storm develops near your route.</p>
+          <p>A single thunderstorm cell passes through three stages — Towering Cumulus, Mature, and Dissipating. The FAA handbook describes each stage as <span class="data-tag">approximately 30 minutes</span>, with the full lifecycle lasting <span class="data-tag">about an hour</span> from first cumulus tower to fully collapsed anvil. Understanding each stage is critical for situational awareness when a storm develops near your route.</p>
         `,
-        diagram:{type:'process',key:'thunderstorm_lifecycle'}
+        diagram:{type:'hotspot',key:'thunderstorm_lifecycle'}
       },
       {
         id:'s6_3',title:'Thunderstorm Types',
@@ -1371,7 +1371,7 @@ const MODULES = [
         question:'During which stage of the thunderstorm lifecycle does weather hazard intensity peak?',
         options:['Towering Cumulus stage — updraft is building','Early Mature stage — rain just reached surface','Late Mature stage — updrafts and downdrafts both active','Dissipating stage — storm weakening'],
         correct:2,xp:10,
-        explanation:'The mature stage (marked by precipitation reaching the surface) has both powerful updrafts AND downdrafts simultaneously active — the most hazardous combination. Hazard intensity peaks toward the END of the mature stage. Total single-cell lifecycle: ~30 minutes.',
+        explanation:'The mature stage (marked by precipitation reaching the surface) has both powerful updrafts AND downdrafts simultaneously active — the most hazardous combination. Hazard intensity peaks toward the END of the mature stage. Per FAA-H-8083-28B Ch. 22, each stage runs approximately 30 minutes; total single-cell lifecycle is about an hour from first cumulus tower to fully collapsed anvil.',
         faaRef:'Ch. 22',concept:'thunderstorm_formation'
       },
       {

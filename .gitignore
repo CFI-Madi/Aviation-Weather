@@ -15,6 +15,7 @@ npm-debug.log*
 
 # Local Claude Code state
 .claude/settings.local.json
+.claude/launch.json
 
 # Local scratch / build (none currently, reserved)
 dist/

@@ -721,3 +721,233 @@ button:focus-visible{outline:3px solid var(--sky-dark);outline-offset:2px;border
      SVG text that drops below readable at 390px */
   .jet-module svg text{font-size:13px}
 }
+
+/* ============================================================
+   Thunderstorm Lifecycle Module (replaces FAA Fig 22-2 process
+   carousel in M6 §s6_2). Single cross-section that animates one
+   cell through Towering Cumulus → Mature → Dissipating across
+   90 minutes (30 min/stage). Cloud SVGs are hand-authored
+   cauliflower silhouettes — see Diagrams.tsTowCumulusPath etc.
+   ============================================================ */
+
+.tslc-module{
+  max-width:880px;margin:20px auto;background:#FFFFFF;
+  border-radius:16px;overflow:hidden;font-family:var(--font-body);
+  color:#334155;line-height:1.5;
+  box-shadow:0 10px 40px rgba(12,27,51,.18)
+}
+.tslc-module__header{padding:18px 22px 4px;background:var(--navy)}
+.tslc-module__title{font-family:var(--font-display);font-weight:900;
+  color:white;font-size:22px;line-height:1.15;letter-spacing:-.01em;margin:0}
+.tslc-module__attr{font-family:var(--font-mono);font-size:11px;color:var(--sky);
+  background:var(--navy);padding:6px 22px 14px;letter-spacing:.02em}
+.tslc-figure-wrap{background:var(--cloud);padding:16px 16px 8px}
+.tslc-scene{position:relative;width:100%;background:linear-gradient(180deg,#0C1B33 0%,#1e3a5f 38%,#4a7fb8 70%,#87bce8 92%,#87bce8 100%);
+  border-radius:12px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.tslc-scene svg{display:block;width:100%;height:auto}
+.tslc-hud{position:absolute;top:10px;right:10px;background:rgba(12,27,51,.78);color:white;
+  padding:8px 12px;border-radius:10px;font-family:var(--font-mono);font-size:12px;line-height:1.35;
+  pointer-events:none;backdrop-filter:blur(4px);text-align:right;min-width:92px;z-index:3}
+.tslc-hud__time{font-weight:700;font-size:14px;color:var(--sky)}
+.tslc-hud__stage{font-family:var(--font-display);font-weight:800;font-size:13px;color:white;margin-top:2px}
+.tslc-banner{position:absolute;left:50%;top:16px;transform:translateX(-50%) translateY(-16px);
+  background:white;color:var(--navy);border-left:4px solid var(--amber);border-radius:8px;
+  padding:9px 14px;font-family:var(--font-body);font-weight:700;font-size:13px;
+  box-shadow:0 6px 18px rgba(12,27,51,.25);max-width:calc(100% - 40px);text-align:center;
+  opacity:0;transition:opacity .25s ease,transform .25s ease;pointer-events:none;z-index:4}
+.tslc-banner.--show{opacity:1;transform:translateX(-50%) translateY(0)}
+.tslc-banner__cite{display:block;font-family:var(--font-mono);font-weight:400;font-size:10px;
+  color:var(--sky-dark);margin-top:3px;letter-spacing:.02em}
+.tslc-controls{padding:14px 18px 16px;background:white;display:flex;flex-direction:column;gap:12px}
+.tslc-controls__row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tslc-btn{appearance:none;border:none;background:var(--sky-dark);color:white;
+  font-family:var(--font-display);font-weight:800;font-size:14px;border-radius:999px;
+  padding:0 18px;height:44px;min-width:44px;cursor:pointer;display:inline-flex;align-items:center;
+  justify-content:center;gap:6px;transition:background .15s ease,transform .08s ease}
+.tslc-btn:hover{background:#036aa0}
+.tslc-btn:active{transform:scale(.97)}
+.tslc-btn:focus-visible{outline:2px solid var(--sky-dark);outline-offset:2px}
+.tslc-btn--play{flex:1;max-width:180px;font-size:15px}
+.tslc-btn--ghost{background:white;color:var(--navy);border:1.5px solid var(--slate-300, #CBD5E1)}
+.tslc-btn--ghost:hover{background:var(--cloud);border-color:var(--sky-dark)}
+.tslc-scrub-row{display:flex;flex-direction:column;gap:6px}
+.tslc-scrub-labels{display:grid;grid-template-columns:1fr 1fr 1fr;font-family:var(--font-mono);
+  font-size:10px;color:#334155;letter-spacing:.02em}
+.tslc-scrub-labels span:nth-child(2){text-align:center}
+.tslc-scrub-labels span:nth-child(3){text-align:right}
+.tslc-slider{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:999px;
+  background:linear-gradient(90deg,#FCE7F3 0% 33.3%,#FFEDD5 33.3% 66.6%,#EDE9FE 66.6% 100%);
+  outline:none;margin:0}
+.tslc-slider:focus-visible{box-shadow:0 0 0 2px var(--sky-dark)}
+.tslc-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;
+  border-radius:50%;background:white;border:3px solid var(--sky-dark);cursor:pointer;
+  box-shadow:0 2px 6px rgba(12,27,51,.25)}
+.tslc-slider::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:white;
+  border:3px solid var(--sky-dark);cursor:pointer;box-shadow:0 2px 6px rgba(12,27,51,.25)}
+.tslc-trigger{display:flex;align-items:center;gap:8px;padding-top:4px;
+  border-top:1px solid var(--cloud);flex-wrap:wrap}
+.tslc-trigger__label{font-family:var(--font-display);font-weight:700;font-size:13px;color:#334155}
+.tslc-trigger__group{display:inline-flex;background:var(--cloud);border-radius:999px;padding:4px;gap:2px}
+.tslc-trigger__btn{appearance:none;border:none;background:transparent;width:44px;height:36px;
+  border-radius:999px;cursor:pointer;font-size:18px;display:inline-flex;align-items:center;
+  justify-content:center;color:#334155;font-family:var(--font-body);
+  transition:background .15s ease,color .15s ease}
+.tslc-trigger__btn[aria-pressed="true"]{background:white;color:var(--sky-dark);
+  box-shadow:0 1px 4px rgba(12,27,51,.16)}
+.tslc-trigger__btn:disabled{opacity:.55;cursor:not-allowed}
+.tslc-trigger__btn:focus-visible{outline:2px solid var(--sky-dark);outline-offset:2px}
+.tslc-trigger__hint{font-family:var(--font-mono);font-size:10px;color:#334155;opacity:.65;margin-left:auto}
+.tslc-caption{background:var(--navy);color:white;padding:16px 22px 18px;
+  font-family:var(--font-body);font-size:14px;line-height:1.5;margin:0}
+.tslc-caption__cite{display:block;font-family:var(--font-mono);font-size:11px;color:var(--sky);
+  margin-top:6px;letter-spacing:.02em}
+/* SVG element styles inside the scene */
+.tslc-module .tslc-grid-line{stroke:rgba(255,255,255,.22);stroke-width:1}
+.tslc-module .tslc-grid-label{font-family:var(--font-mono);font-size:11px;fill:rgba(255,255,255,.78)}
+.tslc-module .tslc-freeze-line{stroke:#EC4899;stroke-width:2;stroke-dasharray:7 5;fill:none;opacity:.85}
+.tslc-module .tslc-freeze-label{font-family:var(--font-mono);font-size:12px;font-weight:700;fill:#EC4899}
+.tslc-module .tslc-extent-arrow{stroke:white;stroke-width:2;fill:none}
+.tslc-module .tslc-extent-label{font-family:var(--font-display);font-weight:700;font-size:13px;fill:white}
+.tslc-module .tslc-extent-sub{font-family:var(--font-mono);font-size:10px;fill:rgba(255,255,255,.75)}
+.tslc-module .tslc-arrow-line{stroke-width:4;stroke-linecap:round;fill:none}
+.tslc-module .tslc-arrow-up{stroke:var(--amber);fill:var(--amber)}
+.tslc-module .tslc-arrow-down{stroke:var(--amber);fill:var(--amber)}
+.tslc-module .tslc-arrow-anvil{stroke:white;fill:white;opacity:.85}
+.tslc-module .tslc-stage-group{transition:opacity .6s ease}
+.tslc-module .tslc-lightning{fill:var(--storm);stroke:white;stroke-width:1.2;stroke-linejoin:miter}
+@media (max-width:599px){
+  .tslc-module{margin:16px auto;border-radius:14px}
+  .tslc-module__header{padding:16px 16px 4px}
+  .tslc-module__title{font-size:18px}
+  .tslc-module__attr{padding:6px 16px 12px;font-size:10px}
+  .tslc-figure-wrap{padding:12px 10px 8px}
+  .tslc-controls{padding:12px 14px 16px;gap:10px}
+  .tslc-hud{font-size:11px;padding:6px 10px;min-width:84px}
+  .tslc-hud__time{font-size:12px}
+  .tslc-hud__stage{font-size:12px}
+  .tslc-caption{padding:14px 16px 16px;font-size:13px}
+  .tslc-btn--play{max-width:none}
+  .tslc-controls__row{gap:8px}
+  .tslc-trigger__hint{display:none}
+  .tslc-module .tslc-grid-label{font-size:13px}
+  .tslc-module .tslc-freeze-label{font-size:13px}
+  .tslc-module .tslc-extent-label{font-size:14px}
+  .tslc-module .tslc-extent-sub{font-size:11px}
+  .tslc-slider{height:10px}
+}
+
+/* ============================================================
+   Thunderstorm Ingredients Module (replaces cbIngredients triangle
+   in M6 §s6_1). Three toggle cards (Water Vapor / Unstable Air /
+   Lift) each with a 44px tap target and a per-card visual; result
+   panel shows the outcome scene that updates immediately as
+   ingredients are toggled. Success-state cloud reuses
+   Diagrams.tsTowCumulusPath verbatim from the lifecycle module.
+   ============================================================ */
+
+.tsing-module{
+  max-width:880px;margin:20px auto;background:#FFFFFF;
+  border-radius:16px;overflow:hidden;font-family:var(--font-body);
+  color:#334155;line-height:1.5;
+  box-shadow:0 10px 40px rgba(12,27,51,.18)
+}
+.tsing-module__header{padding:18px 22px 4px;background:var(--navy)}
+.tsing-module__title{font-family:var(--font-display);font-weight:900;
+  color:white;font-size:22px;line-height:1.15;letter-spacing:-.01em;margin:0}
+.tsing-module__attr{font-family:var(--font-mono);font-size:11px;color:var(--sky);
+  background:var(--navy);padding:6px 22px 14px;letter-spacing:.02em}
+
+/* Ingredient cards grid */
+.tsing-cards{background:var(--cloud);padding:16px 16px 8px;display:grid;
+  grid-template-columns:repeat(3,1fr);gap:12px}
+.tsing-card{background:#FFFFFF;border-radius:12px;overflow:hidden;
+  box-shadow:0 2px 6px rgba(12,27,51,.08);display:flex;flex-direction:column;
+  border:2px solid transparent;cursor:pointer;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  transition:border-color .2s ease,box-shadow .2s ease,transform .12s ease}
+.tsing-card:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(12,27,51,.14)}
+.tsing-card[data-on="true"]{border-color:var(--emerald)}
+.tsing-card__title{font-family:var(--font-display);font-weight:800;font-size:15px;
+  color:var(--navy);padding:10px 12px 8px;display:flex;align-items:center;
+  justify-content:space-between;gap:6px;white-space:nowrap}
+.tsing-status-pill{font-family:var(--font-mono);font-size:9px;font-weight:700;
+  padding:2px 7px;border-radius:999px;letter-spacing:.06em;text-transform:uppercase;
+  background:rgba(244,63,94,.12);color:var(--rose);
+  transition:background .2s ease,color .2s ease;flex-shrink:0}
+.tsing-card[data-on="true"] .tsing-status-pill{background:rgba(16,185,129,.14);color:var(--emerald)}
+.tsing-card__visual{aspect-ratio:4/3;width:100%;
+  background:linear-gradient(180deg,#87bce8 0%,#b9d6ee 100%);
+  transition:filter .3s ease,opacity .3s ease;overflow:hidden;position:relative}
+.tsing-card__visual svg{display:block;width:100%;height:100%}
+.tsing-card[data-on="false"] .tsing-card__visual{filter:grayscale(.95) brightness(.92);opacity:.7}
+
+/* Toggle row (44px tap target) */
+.tsing-card__toggle-row{padding:10px 14px 12px;display:flex;align-items:center;
+  justify-content:space-between;gap:10px;background:#FFFFFF;
+  border-top:1px solid var(--cloud);min-height:44px}
+.tsing-card__toggle-label{font-family:var(--font-body);font-weight:700;font-size:13px;color:#334155}
+.tsing-toggle{position:relative;display:inline-block;width:60px;height:32px;flex-shrink:0}
+.tsing-toggle-tap{display:inline-flex;align-items:center;justify-content:center;
+  min-width:44px;min-height:44px;cursor:pointer}
+.tsing-toggle input{opacity:0;width:0;height:0;position:absolute}
+.tsing-toggle__track{position:absolute;inset:0;background:#CBD5E1;border-radius:999px;
+  transition:background .2s ease}
+.tsing-toggle__thumb{position:absolute;top:3px;left:3px;width:26px;height:26px;
+  background:#FFFFFF;border-radius:50%;box-shadow:0 2px 6px rgba(12,27,51,.25);
+  transition:transform .2s cubic-bezier(.4,0,.2,1)}
+.tsing-toggle input:checked ~ .tsing-toggle__track{background:var(--emerald)}
+.tsing-toggle input:checked ~ .tsing-toggle__thumb{transform:translateX(28px)}
+.tsing-toggle input:focus-visible ~ .tsing-toggle__track{outline:2px solid var(--sky-dark);outline-offset:3px}
+
+/* Result panel */
+.tsing-result{padding:16px;background:var(--cloud)}
+.tsing-result__inner{background:#FFFFFF;border-radius:12px;overflow:hidden;
+  box-shadow:0 2px 8px rgba(12,27,51,.08)}
+.tsing-result__scene{width:100%;aspect-ratio:16/9;
+  background:linear-gradient(180deg,#87bce8 0%,#b9d6ee 100%);
+  position:relative;overflow:hidden}
+.tsing-result__scene svg{display:block;width:100%;height:100%;position:absolute;inset:0}
+.tsing-result__verdict{padding:14px 18px 8px 18px;display:flex;align-items:center;
+  justify-content:space-between;gap:12px;flex-wrap:wrap}
+.tsing-result__chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;
+  border-radius:999px;font-family:var(--font-display);font-weight:800;font-size:12px;
+  letter-spacing:.04em;text-transform:uppercase}
+.tsing-result__chip[data-tone="success"]{background:rgba(16,185,129,.14);color:var(--emerald)}
+.tsing-result__chip[data-tone="warn"]{background:rgba(245,158,11,.14);color:var(--amber)}
+.tsing-result__chip[data-tone="muted"]{background:rgba(51,65,85,.10);color:#334155}
+.tsing-chip-dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+.tsing-result__count{font-family:var(--font-mono);font-size:11px;color:#334155;opacity:.75}
+.tsing-result__caption{padding:4px 18px 18px;font-family:var(--font-body);font-size:14px;
+  color:#334155;line-height:1.55}
+.tsing-result__cite{display:block;font-family:var(--font-mono);font-size:11px;
+  color:var(--sky-dark);margin-top:6px;letter-spacing:.02em}
+
+.tsing-footer{background:var(--navy);color:white;padding:14px 22px 18px;
+  font-family:var(--font-body);font-size:14px;line-height:1.5;margin:0}
+.tsing-footer strong{color:var(--sky);font-weight:800}
+.tsing-footer__cite{display:block;font-family:var(--font-mono);font-size:11px;
+  color:var(--sky);margin-top:6px;letter-spacing:.02em}
+
+/* Animation pieces */
+@keyframes tsing-vapor-rise{0%{transform:translateY(0);opacity:.85}100%{transform:translateY(-30px);opacity:0}}
+@keyframes tsing-pulse-arrow{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.tsing-vapor-stream{animation:tsing-vapor-rise 2.6s ease-in infinite;transform-origin:center}
+.tsing-lift-arrow{animation:tsing-pulse-arrow 1.8s ease-in-out infinite;transform-origin:center}
+.tsing-parcel-arrow{animation:tsing-pulse-arrow 2.2s ease-in-out infinite}
+.tsing-scene-elem{transition:opacity .35s ease}
+
+/* Mobile */
+@media (max-width:599px){
+  .tsing-module{margin:16px auto;border-radius:14px}
+  .tsing-module__header{padding:16px 16px 4px}
+  .tsing-module__title{font-size:18px}
+  .tsing-module__attr{padding:6px 16px 12px;font-size:10px}
+  .tsing-cards{grid-template-columns:1fr;padding:12px 12px 4px;gap:10px}
+  .tsing-card__title{font-size:14px;padding:10px 12px 6px}
+  .tsing-card__visual{aspect-ratio:16/7}
+  .tsing-card__toggle-row{padding:8px 12px 10px;min-height:44px}
+  .tsing-result{padding:12px}
+  .tsing-result__caption{font-size:13px;padding:4px 14px 16px}
+  .tsing-result__verdict{padding:12px 14px 6px}
+  .tsing-footer{font-size:13px;padding:12px 16px 16px}
+}
